@@ -1,0 +1,82 @@
+mainmodule matrix_test {
+  extern module matrix;
+
+  mainchare MatrixTester {
+    entry MatrixTester(CkArgMsg*);
+
+    entry [reductiontarget] void operationCompleted();
+
+    entry void test() {
+      serial {
+        config2D.mat_rows = 1024; config2D.mat_cols = 1024;
+        config2D.tile_rows = 64; config2D.tile_cols = 64;
+        config1D = convertTo1D(config2D, 16);
+
+        CkPrintf("Config 2D: %ix%i, %ix%i, %ix%i\n",
+            config2D.mat_rows, config2D.mat_cols,
+            config2D.tile_rows, config2D.tile_cols,
+            config2D.chareRows(), config2D.chareCols());
+        CkPrintf("Config 1D: %ix%i, %ix%i, %ix%i\n",
+            config1D.mat_rows, config1D.mat_cols,
+            config1D.tile_rows, config1D.tile_cols,
+            config1D.chareRows(), config1D.chareCols());
+
+        mat1 = CProxy_TestMatrix::ckNew(config2D, LOCAL, config2D.chareRows(), config2D.chareCols());
+        mat2 = CProxy_TestMatrix::ckNew(config1D, ZERO, config1D.chareRows(), config1D.chareCols());
+        mat3 = CProxy_TestMatrix::ckNew(config1D, ZERO, config1D.chareRows(), config1D.chareCols());
+        callback = CkCallback(CkReductionTarget(MatrixTester, operationCompleted), thisProxy);
+
+        matrixCopy(mat1, mat2, callback);
+      }
+
+      when operationCompleted() serial {
+        CkPrintf("Matrix copied, checking result\n");
+        matrixCompare(mat1, mat2, callback);
+        matrixCompare(mat2, mat1, callback);
+      }
+
+      when operationCompleted() serial {
+        CkPrintf("Matrices match in both directions, copying other matrix\n");
+        matrixCopy(mat2, mat1, callback);
+      }
+
+      when operationCompleted() serial {
+        CkPrintf("Matrix copied, checking result\n");
+        matrixCompare(mat1, mat2, callback);
+        matrixCompare(mat2, mat1, callback);
+      }
+
+      when operationCompleted(), operationCompleted() serial {
+        CkPrintf("Matrices match, writing matrix to file\n");
+        matrixWrite(mat2, "output/matout_row", callback);
+      }
+
+      when operationCompleted() serial {
+        CkPrintf("Matrix written to file, reading from file!\n");
+        matrixRead(mat3, "output/matout_row", callback);
+      }
+
+      when operationCompleted() serial {
+        CkPrintf("Matrix read from file, checking result\n");
+        matrixCompare(mat1, mat3, callback);
+        matrixCompare(mat2, mat3, callback);
+      }
+
+      when operationCompleted(), operationCompleted() serial {
+        CkPrintf("Matrices match, verifying all against file\n");
+        matrixVerify(mat2, "output/matout_row", callback);
+        matrixVerify(mat3, "output/matout_row", callback);
+      }
+
+      when operationCompleted(), operationCompleted() serial {
+        CkPrintf("Matrices verified, test complete!\n");
+        CkExit();
+      }
+    }
+  };
+
+  array [2D] TestMatrix : Matrix {
+    entry TestMatrix(MatrixConfig, int);
+    entry TestMatrix(int, int, int, int, int);
+  };
+};

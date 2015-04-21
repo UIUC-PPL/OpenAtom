@@ -1,0 +1,654 @@
+#include "controller.h"
+
+#include "standard_include.h"
+#include "allclass_gwbse.h"
+#include "messages.h"
+#include "eps_matrix.h"
+#include "pmatrix.h"
+#include "mat_mul.h"
+#include "main.h"
+#include "states.h"
+#include "fft_controller.h"
+#include "fft_routines.h"
+#include "CkLoopAPI.h"
+#include "limits.h"
+
+#define eps_rows 20
+#define eps_cols 20
+#define NSIZE 4
+
+void init_plan_lock();
+
+Controller::Controller() {
+  GWBSE *gwbse = GWBSE::get();
+
+  // Set our class variables
+  K = gwbse->gw_parallel.K;
+  L = gwbse->gw_parallel.L;
+  M = gwbse->gw_parallel.M;
+  pipeline_stages = gwbse->gw_parallel.pipeline_stages;
+
+  next_K = next_state = total_sent = total_complete = next_report_threshold = 0;
+
+  dimension = gwbse->gw_parallel.n_elems;
+  rows = gwbse->gw_parallel.rows_per_chare;
+
+  epsCut = 5;
+  alat = 10.261200; 
+  shift[0] = 0;
+  shift[1] = 0;
+  shift[2] = 0.001;
+  // TODO: Make these config options
+  do_output = true;
+  max_sends = M*K;  // For debugging this can be changed to a smaller number
+  maxiter = 1;
+  msg_received = 0;
+  global_inew = 0;
+  max_local_inew = global_inew;
+  global_jnew = 0;
+}
+
+
+void Controller::computeEpsDimensions() {
+  GWBSE *gwbse = GWBSE::get();
+
+  double *this_q, *b1, *b2, *b3;
+  b1 = gwbse->gwbseopts.b1;
+  b2 = gwbse->gwbseopts.b2;
+  b3 = gwbse->gwbseopts.b3;
+
+  int qindex = Q_IDX;
+
+  this_q = gwbse->gwbseopts.qvec[qindex];
+
+  int* nfft;
+  nfft = gwbse->gw_parallel.fft_nelems;
+
+  int ndata = nfft[0]*nfft[1]*nfft[2];
+  FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
+
+  fft_controller->get_geps(epsCut, this_q, b1, b2, b3, alat, nfft);
+}
+
+void Controller::calc_Geps() {
+  
+  GWBSE *gwbse = GWBSE::get();
+
+  double *this_q, *b1, *b2, *b3;
+  b1 = gwbse->gwbseopts.b1;
+  b2 = gwbse->gwbseopts.b2;
+  b3 = gwbse->gwbseopts.b3;
+
+  double *a1, *a2, *a3;
+  a1 = gwbse->gwbseopts.a1;
+  a2 = gwbse->gwbseopts.a2;
+  a3 = gwbse->gwbseopts.a3;
+  int qindex = Q_IDX;
+
+  this_q = gwbse->gwbseopts.qvec[qindex];
+
+  int* nfft;
+  nfft = gwbse->gw_parallel.fft_nelems;
+
+  int ndata = nfft[0]*nfft[1]*nfft[2];
+  FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
+
+  //output - vcoulb
+  fft_controller->calc_vcoulb(this_q, a1, a2, a3, b1, b2, b3, shift, alat, gwbse->gwbseopts.nkpt, qindex);
+}
+
+void Controller::got_vcoulb(std::vector<double> vcoulb_in){
+  vcoulb = vcoulb_in;
+  psi_cache_proxy.setVCoulb(vcoulb_in);
+}
+
+void Controller::matrix_created() {
+  msg_received++;
+  if (msg_received==6) {
+    msg_received = 0;
+    matricesReady();
+  }
+}
+
+PsiCache::PsiCache() {
+  GWBSE *gwbse = GWBSE::get();
+  K = gwbse->gw_parallel.K;
+  L = gwbse->gw_parallel.L;
+  GW_SIGMA *gw_sigma = &(gwbse->gw_sigma);
+  n_np = gw_sigma->num_sig_matels;
+  n_list = gw_sigma->n_list_sig_matels;
+  np_list = gw_sigma->np_list_sig_matels;
+  qindex = Q_IDX;
+  psi_size = gwbse->gw_parallel.n_elems;
+  pipeline_stages = gwbse->gw_parallel.pipeline_stages;
+  received_psis = 0;
+  received_chunks = 0;
+  psis = new complex**[K];
+  for (int k = 0; k < K; k++) {
+    psis[k] = new complex*[L];
+    for (int l = 0; l < L; l++) {
+      psis[k][l] = new complex[psi_size];
+    }
+  }
+  // shifted k grid psis. Need this for qindex=0
+  psis_shifted = new complex**[K];
+  for (int k = 0; k < K; k++) {
+    psis_shifted[k] = new complex*[L];
+    for (int l = 0; l < L; l++) {
+      psis_shifted[k][l] = new complex[psi_size];
+    }
+  }
+
+  fs = new complex[L*psi_size*pipeline_stages];
+  fsave = new complex[L*psi_size];
+
+  umklapp_factor = new complex[psi_size];
+
+  // Variables for chare region registration
+  min_row = INT_MAX;
+  min_col = INT_MAX;
+  max_row = INT_MIN;
+  max_col = INT_MIN;
+  tile_lock = CmiCreateLock();
+
+  total_time = 0.0;
+  contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
+}
+
+void PsiCache::reportFTime() {
+  CkReduction::statisticsElement stats(total_time);
+  int tuple_size = 2;
+  CkReduction::tupleElement tuple_reduction[] = {
+    CkReduction::tupleElement(sizeof(double), &total_time, CkReduction::max_double),
+    CkReduction::tupleElement(sizeof(CkReduction::statisticsElement), &stats, CkReduction::statistics) };
+
+  CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
+  msg->setCallback(CkCallback(CkIndex_Controller::reportFTime(NULL), controller_proxy));
+  contribute(msg);
+}
+
+void PsiCache::receivePsi(PsiMessage* msg) {
+  if (msg->spin_index != 0) {
+    CkAbort("Error: We don't support multiple spins yet!\n");
+  }
+  CkAssert(msg->k_index < K);
+  CkAssert(msg->state_index < L);
+  CkAssert(msg->size == psi_size);
+  if(msg->shifted==false){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis_shifted[msg->k_index][msg->state_index]);}
+  delete msg;
+
+  // Once the cache has received all of it's data start the sliding pipeline
+  // sending of psis to P to start the accumulation of fxf'.
+  int expected_psis = K*L;
+  if(qindex == 0)
+    expected_psis += K*L;
+  if (++received_psis == expected_psis) {
+    //CkPrintf("[%d]: Cache filled\n", CkMyPe());
+    contribute(CkCallback(CkReductionTarget(Controller,cachesFilled), controller_proxy));
+  }
+}
+
+void PsiCache::setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols) {
+  CmiLock(tile_lock);
+
+  min_row = std::min(min_row, start_row);
+  max_row = std::max(max_row, start_row + tile_nrows);
+  min_col = std::min(min_col, start_col);
+  max_col = std::max(max_col, start_col + tile_ncols);
+
+  CmiUnlock(tile_lock);
+}
+
+// Called by CkLoop to spread the computation of f vectors across the node
+void computeF(int first, int last, void* result, int count, void* params) {
+  FComputePacket* f_packet = (FComputePacket*)params;
+  unsigned psi_size = f_packet->size;
+  complex* psi_unocc = f_packet->unocc_psi;
+  complex* umklapp_factor = f_packet->umklapp_factor;
+  double* e_occ = f_packet->e_occ;
+  double e_unocc = f_packet->e_unocc;
+  complex* fs = f_packet->fs;
+  complex* fsave = f_packet->fsave;
+
+  for (int l = first; l <= last; l++) {
+    complex* f = &(fs[l*psi_size]);
+    complex* fsave_subset = &(fsave[l*psi_size]);
+    complex* psi_occ = f_packet->occ_psis[l];
+    double scaling_factor = 2/sqrt(e_unocc - e_occ[l]);
+
+    for (int i = 0; i < psi_size; i++) {
+      f[i] = psi_occ[i] * psi_unocc[i].conj();
+      if (umklapp_factor) {
+        f[i] *= umklapp_factor[i];
+      }
+#ifdef USE_LAPACK
+      // BLAS calls compute the complex conjugate of P, which is hermitian. This
+      // change to f corrects that so we get the correct P.
+      f[i] = f[i].conj();
+#endif
+      fsave_subset[i] = f[i]*(1.0/psi_size);
+      f[i] *= scaling_factor;
+    }
+  }
+}
+
+// Receive an unoccupied psi, and split off the computation of all associated f
+// vectors across the node using CkLoop.
+
+bool PsiCache::in_np_list(int n_index){
+  for(int i=0;i<n_np;i++)
+    if(n_index+1==np_list[i]) return true;
+  return false;
+}
+
+void PsiCache::computeFs(PsiMessage* msg) {
+  double start = CmiWallTimer();
+
+  if (msg->spin_index != 0) {
+    CkAbort("Error: We don't support multiple spins yet!\n");
+  }
+  CkAssert(msg->size == psi_size);
+
+  // Compute ikq index and the associated umklapp factor
+  // TODO: This should just be a table lookup
+  unsigned ikq;
+  int umklapp[3];
+  kqIndex(msg->k_index, ikq, umklapp);
+
+  bool uproc = false;
+  if (umklapp[0] != 0 || umklapp[1] != 0 || umklapp[2] != 0) {
+    uproc = true;
+    computeUmklappFactor(umklapp);
+  }
+
+  GWBSE* gwbse = GWBSE::get();
+  double*** e_occ = gwbse->gw_epsilon.Eocc;
+  double*** e_occ_shifted = gwbse->gw_epsilon.Eocc_shifted;
+  double*** e_unocc = gwbse->gw_epsilon.Eunocc;
+
+  // Create the FComputePacket for this set of f vectors and start CkLoop
+  f_packet.size = psi_size;
+  f_packet.unocc_psi = msg->psi;
+
+  if ( qindex == 0 ) { 
+    f_packet.occ_psis = psis_shifted[ikq]; 
+    f_packet.e_occ = e_occ_shifted[msg->spin_index][ikq];
+  }
+  else { 
+    f_packet.occ_psis = psis[ikq];
+    f_packet.e_occ = e_occ[msg->spin_index][ikq]; 
+  }
+  f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
+  f_packet.fs = fs + (L*psi_size*(received_chunks%pipeline_stages));
+  f_packet.fsave = fsave;
+
+  if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+  else { f_packet.umklapp_factor = NULL; }
+
+#ifdef USE_CKLOOP
+  CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
+#else
+  for (int l = 0; l < L; l++) {
+    computeF(l,l,NULL,1,&f_packet);
+  }
+#endif
+  received_chunks++;
+#ifdef TESTING
+if(in_np_list(msg->state_index) && n_np <= NSIZE)
+{
+  FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
+  fvec_cache->computeFTilde(fsave);
+//compute ftilde first - similar to ckloop above for all L's
+  fvec_cache->applyCutoff(fsave);
+  fvec_cache->putFVec(msg->k_index, msg->state_index-L, fsave);
+}
+#endif
+
+  // Let the matrix chares know that the f vectors are ready
+  CkCallback cb(CkReductionTarget(PMatrix, applyFs), pmatrix2D_proxy);
+  contribute(cb);
+
+  // Cleanup
+  delete msg;
+  total_time += CmiWallTimer() - start;
+}
+
+complex* PsiCache::getPsi(unsigned ispin, unsigned ikpt, unsigned istate) const {
+  if (ispin != 0) {
+    CkAbort("Error: We don't support multiple spins yet!\n");
+  }
+  CkAssert(ikpt >= 0 && ikpt < K);
+  CkAssert(istate >= 0 && istate < L);
+  return psis[ikpt][istate];
+}
+
+complex* PsiCache::getF(unsigned idx, unsigned req_no) const {
+  CkAssert(idx >= 0 && idx < L);
+  CkAssert(req_no < received_chunks && req_no >= received_chunks - pipeline_stages);
+  return &(fs[idx*psi_size+(L*psi_size*(req_no%pipeline_stages))]);
+}
+
+void PsiCache::setVCoulb(std::vector<double> vcoulb_in){
+  vcoulb = vcoulb_in;
+  contribute(CkCallback(CkReductionTarget(Controller,prepare_epsilon), controller_proxy));
+}
+
+std::vector<double> PsiCache::getVCoulb() {
+  return vcoulb;
+}
+
+// TODO: improve this to only be called when REGISTER_REGIONS is active
+// at the moment "#ifdef REGISTER REGIONS" doesn't work in controller.ci
+void PsiCache::reportInfo() {
+  if(min_row != -1 && max_row != -1 && min_col != -1 && max_col != -1) {
+    CkPrintf("PsiCache: MyNode = %d\nminRow: %d, maxRow: %d, minCol: %d, maxCol: %d\n", CkMyNode(), min_row, max_row, min_col, max_col);
+  }
+}
+
+void PsiCache::kqIndex(unsigned ikpt, unsigned& ikq, int* uklapp){
+  GWBSE* gwbse = GWBSE::get();
+
+  // temporary space to save k/q/k+q vectors
+  double *this_k, *this_q;
+  double k_plus_q[3], k_plus_q_orig[3];
+  this_k = gwbse->gwbseopts.kvec[ikpt];
+  if(qindex >= K) CkAbort("Q Index is greater than K, please provide larger K or smaller Q Index");
+  this_q = gwbse->gwbseopts.qvec[qindex];
+
+  for (int i=0; i<3; i++) {
+    // calculate k+q vector 
+    k_plus_q[i] = this_k[i] + this_q[i]; // k+q vector
+    k_plus_q_orig[i] = k_plus_q[i]; // save it for Umklapp process
+    // if not 0 =< k+q [i] <1, adjust k+q so that k+q[i] is in the Brillouine zone 
+    if ( k_plus_q[i] >= 1 ) {
+      k_plus_q[i] -= 1;
+    }
+    else if( k_plus_q[i] < 0 ){
+      k_plus_q[i] += 1;
+    }
+  }
+    
+  // find k+q vector index
+  for (int kk=0; kk < gwbse->gwbseopts.nkpt; kk++) {
+    bool match = true;
+    this_k = gwbse->gwbseopts.kvec[kk];
+    //this_k is now a difference between k and k+q
+    for (int i=0; i<3; i++) {
+      if (this_k[i] != k_plus_q[i]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      ikq = kk;
+      break;
+    }
+  }
+  // save umklapp scattering information
+  for (int i=0; i<3; i++) {
+    uklapp[i] = int( k_plus_q_orig[i] - k_plus_q[i] );
+  }
+
+}
+
+
+void PsiCache::computeUmklappFactor(int uklpp[3]){
+
+  if (uklpp[0]==0 && uklpp[1]==0 && uklpp[2]==0){
+    // do nothing
+  }
+  else{
+    GWBSE *gwbse = GWBSE::get();
+    int* nfft;
+    nfft = gwbse->gw_parallel.fft_nelems;
+    double *a1, *a2, *a3, *b1, *b2, *b3;
+    a1 = gwbse->gwbseopts.a1;
+    a2 = gwbse->gwbseopts.a2;
+    a3 = gwbse->gwbseopts.a3;
+    b1 = gwbse->gwbseopts.b1;
+    b2 = gwbse->gwbseopts.b2;
+    b3 = gwbse->gwbseopts.b3;
+    double lattconst = gwbse->gwbseopts.latt;
+
+    double rijk, G0, phase;
+    unsigned counter = 0;
+    for(int i=0; i<nfft[0]; i++){
+      for(int j=0; j<nfft[1]; j++){
+        for(int k=0; k<nfft[2]; k++){
+          phase = 0;
+          for (int l=0; l<3; l++){
+            rijk = a1[l]*i/nfft[0] + a2[l]*j/nfft[1] + a3[l]*k/nfft[2];
+            G0 = b1[l]*uklpp[0] + b2[l]*uklpp[1] + b3[l]*uklpp[2];
+            G0 *= -2*M_PI/lattconst;
+            phase += rijk*G0;
+          }
+          umklapp_factor[counter].re = cos(phase);
+          umklapp_factor[counter].im = sin(phase);
+          counter += 1;
+        }// end k loop
+      }// end j loop
+    }// end i loop
+  }//end if-else statement
+
+}//end function
+
+void FVectorCache::findIndices(){
+
+  int count = 0;
+  for(int i=0;i<eps_chares_x;i++){
+    for(int j=0;j<eps_chares_y;j++){
+      count++;
+      if(count == my_chare_start+1){
+        eps_start_chare_x = i;
+        eps_start_chare_y = j;
+      }
+      if(count == my_chare_start+my_chare_count){
+        eps_end_chare_x = i;
+        eps_end_chare_y = j;
+        return;
+      }
+    }
+  }
+
+  return;
+}
+
+void FVectorCache::setDim(int dim, std::vector<int> accept) {
+  eps_chares_x = eps_chares_y = dim;
+  accept_vector = accept;
+  epsilon_size = 0;
+  for(int i=0;i<accept_vector.size();i++)
+    if(accept_vector[i])
+      epsilon_size++;
+  PAD(epsilon_size);
+
+  if(CkMyNode() >= eps_chares_x*eps_chares_y){
+    storing = false;
+    contribute(CkCallback(CkReductionTarget(Controller,fCacheReady), controller_proxy));
+    return;
+  }
+  totalSize = 0;
+  GWBSE *gwbse = GWBSE::get();
+  L = gwbse->gw_parallel.L;
+  K = gwbse->gw_parallel.K;
+  n_list_size = gwbse->gw_sigma.num_sig_matels;
+  int total_eps_chares = eps_chares_x*eps_chares_y;
+  int node_count = CkNumNodes();
+  if(CkNumNodes() > eps_chares_x*eps_chares_y) node_count = eps_chares_x*eps_chares_y;
+  my_chare_count = total_eps_chares/node_count;
+
+  my_chare_start = CkMyNode()*my_chare_count;
+  int remaining = total_eps_chares%node_count;
+
+  if(CkMyNode()>0)
+    my_chare_start += remaining;
+
+  if(CkMyNode()==0)
+    my_chare_count += remaining;
+
+  my_eps_chare_indices_x = new int[my_chare_count];
+  my_eps_chare_indices_y = new int[my_chare_count];
+
+  findIndices();
+  int count = 0;
+  for(int i=eps_start_chare_x;i<=eps_end_chare_x;i++){
+    int j = 0;
+    if(i==eps_start_chare_x)
+      j = eps_start_chare_y;
+    int j_end = eps_chares_y-1;
+    if(i==eps_end_chare_x)
+      j_end = eps_end_chare_y;
+    while(j<=j_end){
+      my_eps_chare_indices_x[count] = i;
+      my_eps_chare_indices_y[count++] = j;
+      j++;
+    }
+  }
+
+  ndata = padded_epsilon_size;
+  psi_size = gwbse->gw_parallel.n_elems;
+  data_size_x = ndata/eps_chares_x;
+  if(ndata%eps_chares_x > 0)
+    data_size_x += 2;
+  data_size_y = ndata/eps_chares_y;
+    if(ndata%eps_chares_y > 0)
+      data_size_y += 2;
+  data_offset_x = new int[my_chare_count];
+  data_offset_y = new int[my_chare_count];
+
+  for(int i=0;i<my_chare_count;i++){
+    data_offset_x[i] = my_eps_chare_indices_x[i]*data_size_x;
+    data_offset_y[i] = my_eps_chare_indices_y[i]*data_size_y;
+  }
+
+  int size_x = data_size_x;
+  int size_y = data_size_y;
+  local_offset =  new int[my_chare_count*2];
+  global_offset = new int[my_chare_count*2];
+  for(int i=0;i<my_chare_count;i++){
+    global_offset[2*i] = data_offset_x[i];
+    local_offset[2*i] = totalSize;
+    totalSize += size_x;
+
+    global_offset[2*i+1] = data_offset_y[i];
+    local_offset[2*i+1] = totalSize;
+    totalSize += size_y;
+  }
+
+  fs = new complex[K*NSIZE*L*totalSize];
+
+  contribute(CkCallback(CkReductionTarget(Controller,fCacheReady), controller_proxy));
+}
+
+void FVectorCache::putFVec(int kpt, int n, complex* fs_input){ //fs_input has all L's corresponding to n
+ if(!storing) return;
+ for(int i=0;i<my_chare_count;i++){
+    for(int l=0;l<L;l++){
+      int global_x = global_offset[2*i];
+      global_x += l*ndata;
+      int local_x = local_offset[2*i];
+      local_x += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+
+      complex *store_x = &fs[local_x];
+      complex *load_x = &fs_input[global_x];
+      memcpy(store_x, load_x, data_size_x*sizeof(complex));
+
+      int global_y = global_offset[2*i+1];
+      global_y += l*ndata;
+      int local_y = local_offset[2*i+1];
+      local_y += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+
+      complex *store_y = &fs[local_y];
+      complex *load_y = &fs_input[global_y];
+      memcpy(store_y, load_y, data_size_y*sizeof(complex));
+
+#ifdef DEBUG_ph4
+      CkPrintf("\n[Node-%d], (L=%d) Storing global(%d,%d) at local(%d,%d)\n", CkMyNode(), l, global_x, global_y, local_x, local_y);
+#endif
+    }
+  }
+}
+
+complex* FVectorCache::getFVec(int kpt, int n, int l, int chare_start_index, int size){
+  if(!storing) return NULL;
+  for(int i=0;i<my_chare_count;i++){
+    if(chare_start_index == my_eps_chare_indices_x[i]){
+      int local_x = local_offset[2*i];
+      local_x += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      complex *f = &fs[local_x];
+      return f;
+    }
+    if(chare_start_index == my_eps_chare_indices_y[i]){
+      int local_y = local_offset[2*i+1];
+      local_y += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      complex *f = &fs[local_y];
+      return f;
+    }
+  }
+  return NULL;
+}
+
+
+// Called by CkLoop to spread the computation of f vectors across the node
+void fTildeWorkUnit(int first, int last, void* result, int count, void* params) {
+
+  FComputePacket* f_packet = (FComputePacket*)params;
+  complex* fs = f_packet->fs;
+  int psi_size = f_packet->size;
+  GWBSE *gwbse = GWBSE::get();
+  int* nfft;
+  nfft = gwbse->gw_parallel.fft_nelems;
+  int vector_count = 1;
+  int direction = -1;
+  int L = gwbse->gw_parallel.L;
+  FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
+
+
+  for (int i=0; i < L; i++){ //for all the L*n_list_size, L are computed in this node
+    // First set up the data structures in the FFTController
+    fft_controller->setup_fftw_3d(nfft, direction);
+    fftw_complex* in_pointer = fft_controller->get_in_pointer();
+    fftw_complex* out_pointer = fft_controller->get_out_pointer();
+
+    // Pack our data, do the fft, then get the output
+    put_into_fftbox(nfft, &fs[i*psi_size], in_pointer);
+    fft_controller->do_fftw();
+    fftbox_to_array(psi_size, out_pointer, &fs[i*psi_size], direction); //Now cached on the same partitions
+    // replace f_vector to f_tilde_vector
+  }
+}
+
+//Each node calculates its own ftilde
+void FVectorCache::computeFTilde(complex *fs_in){
+
+  // Create the FComputePacket for this set of f vectors and start CkLoop
+  f_packet.size = ndata;
+  f_packet.fs = fs_in;
+  
+  
+#ifdef USE_CKLOOP
+  CkLoop_Parallelize(fTildeWorkUnit, 1, &f_packet, n_list_size, 0, n_list_size - 1);
+#else
+    fTildeWorkUnit(0,0,NULL,1,&f_packet);
+#endif
+}
+
+void FVectorCache::applyCutoff(complex* fs){
+  int count = 0;
+
+  for(int l=0;l<L;l++){
+    complex* fk = &(fs[l*psi_size]);
+
+    for(int i=0;i<psi_size;i++)
+      if(accept_vector[i]) fs[count++] = fk[i];
+
+    for(int i=epsilon_size;i<padded_epsilon_size;i++)
+      fs[count++] = complex(0.0,0.0);
+  }
+}
+
+#include "psi_cache.def.h"
+#include "fvector_cache.def.h"
+#include "fft_controller.def.h"
+#include "controller.def.h"

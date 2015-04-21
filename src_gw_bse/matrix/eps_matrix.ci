@@ -1,0 +1,30 @@
+module eps_matrix {
+  include "ckcomplex.h";
+  include "CLA_Matrix.h";
+  
+  extern module matrix;
+  extern module messages;
+
+  array [2D] EpsMatrix : Matrix {
+    entry EpsMatrix();
+    entry EpsMatrix(MatrixConfig config);
+    entry void createTranspose(CProxy_EpsMatrix other, bool todo);
+    entry void createConjugate(CProxy_EpsMatrix other);
+    entry void receiveTranspose(std::vector<complex> incoming);
+    entry void receiveConjugate(std::vector<complex> incoming);
+    entry void multiply(double alpha, double beta);
+    entry void round_done();
+    entry void scalar_multiply(double alpha);
+    entry void add_compl_two();
+    entry void convergence_check(CProxy_EpsMatrix cmp_proxy);
+    entry void receiveConvCheck(std::vector<complex> incoming);
+    entry void setI(CLA_Matrix_interface mat, bool clean);
+    entry void receiveFs(Phase3Message*);
+    entry void bareExchange();
+    entry void screenedExchange();
+    entry void findAlpha();
+    entry void multiply_coulb();
+    entry void createCopy(CProxy_EpsMatrix other, bool todo);
+    entry void recvCopy(std::vector<complex> new_data);
+  };
+};
