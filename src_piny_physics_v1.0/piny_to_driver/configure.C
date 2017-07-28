@@ -3117,9 +3117,9 @@ void Config::Finale(int nkf1,int nkf2,int nkf3,int nplane_x,int nplane_x_rho, in
   if(PCCollectTiles && cp_min_opt!=1)
   {
     PRINTF("   @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-    PRINTF("   Must NOT PCCollectTiles in dynamics\n");
+    PRINTF("   Should NOT PCCollectTiles in dynamics\n");
     PRINTF("   @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-    EXIT(1);
+    //    EXIT(1);
   }
 
   if((PCCollectTiles && PCstreamBWout)||(!PCCollectTiles && ! PCstreamBWout)) {

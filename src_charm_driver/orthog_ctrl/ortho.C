@@ -215,19 +215,20 @@ void Ortho::start_calc(CkReductionMsg *msg){
 
 #ifdef _CP_ORTHO_DEBUG_COMPARE_SMAT_
   if(savedsmat==NULL)
-  { // load it
+  { // alloc it
     savedsmat= new double[m*n];
-    loadMatrix("smat",(double *)savedsmat, m, n,numGlobalIter, thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
   }
+  loadMatrix("smat",(double *)savedsmat, m, n,numGlobalIter, thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
+
   for(int i=0;i<m*n;i++)
   {
-    if(fabs(S[i]-savedsmat[i])>0.0001)
+    if(fabs(S[i]-savedsmat[i])>0.00000001)
     {
       fprintf(stderr, "O [%d,%d] %d element ortho %.10g not %.10g\n",thisIndex.x, thisIndex.y,i, S[i], savedsmat[i]);
     }
 
-    CkAssert(fabs(S[i]-savedsmat[i])<0.0001);
-    CkAssert(fabs(S[i]-savedsmat[i])<0.0001);
+    CkAssert(fabs(S[i]-savedsmat[i])<0.00000001);
+    CkAssert(fabs(S[i]-savedsmat[i])<0.00000001);
   }
 #endif
   if(config.UberMmax ==1) // if we ignore spin we divide by 2
@@ -370,19 +371,20 @@ void Ortho::resume(){
 
 #ifdef _CP_ORTHO_DEBUG_COMPARE_TMAT_
   if(savedtmat==NULL)
-  { // load it
+  { // alloc it
     savedtmat= new double[m*n];
-    loadMatrix("tmat",(double *)savedtmat, m, n, numGlobalIter, thisIndex.x * cfg.grainSize, thisIndex.y*cfg.grainSize,0,false);
   }
+  loadMatrix("tmat",(double *)savedtmat, m, n, numGlobalIter, thisIndex.x * cfg.grainSize, thisIndex.y*cfg.grainSize,0,false);
+
   for(int i=0;i<m*n;i++)
   {
-    if(fabs(A[i]-savedtmat[i])>0.0001)
+    if(fabs(A[i]-savedtmat[i])>0.00000001)
     {
       fprintf(stderr, "O [%d,%d] %d element ortho %.10g not %.10g\n",thisIndex.x, thisIndex.y,i, A[i], savedtmat[i]);
     }
 
-    CkAssert(fabs(A[i]-savedtmat[i])<0.0001);
-    CkAssert(fabs(A[i]-savedtmat[i])<0.0001);
+    CkAssert(fabs(A[i]-savedtmat[i])<0.00000001);
+    CkAssert(fabs(A[i]-savedtmat[i])<0.00000001);
   }
 #endif
 
@@ -394,21 +396,24 @@ void Ortho::resume(){
    */
   if(pc.x == pc.y)   //we have the answer scalc wants
     symmSectionMgr.sendResults(m*n, A, 0, thisIndex.x, thisIndex.y, actionType, 0);
-  else if(thisIndex.y < thisIndex.x)   //we have the answer scalc wants
-    symmSectionMgr.sendResults(m*n, A, 0, thisIndex.y, thisIndex.x, actionType, 0);
-  else if(thisIndex.y > thisIndex.x && config.phantomSym)
+  else if(pc.y < pc.x)   //we have the answer scalc wants
+    {
+      //      transpose(A,m,n);
+      symmSectionMgr.sendResults(m*n, A, 0, thisIndex.y, thisIndex.x, actionType, 0);
+    }
+  else if(pc.y > pc.x && config.phantomSym)
   {
-    transpose(A,m,n);
+    transpose(A,m,n); // maybe we need this transposed for psiv?
     /*	double *dest= (double*) A;
         double tmp;
         for(int i = 0; i < m; i++)
         for(int j = i + 1; j < n; j++){
         tmp = dest[i * n + j];
-        dest[i * n + j] = dest[j * m + i];
+        dest[i * n + j] = dest[j * m + i];	pcSection.multiplyResult(omsg);
         dest[j * m + i] = tmp;
         }
      */
-    // we have a transposed copy of what scalc wants
+    // we have a transposed copy of what scalc wants, no one cares
     symmSectionMgr.sendResults(m*n, A, 0, thisIndex.x, thisIndex.y, actionType, 0);
 #ifdef _CP_ORTHO_DUMP_TMAT_
     dumpMatrix("tmatT",(double *)A, m, n,numGlobalIter,thisIndex.x * cfg.grainSize, thisIndex.y * cfg.grainSize, 0, false);
@@ -512,19 +517,20 @@ void Ortho::acceptSectionLambda(CkReductionMsg *msg) {
 #endif
 #ifdef _CP_ORTHO_DEBUG_COMPARE_LMAT_
   if(savedlmat==NULL)
-  { // load it
+  { // alloc it
     savedlmat= new double[m*n];
-    loadMatrix("lmat",(double *)savedlmat, m, n,numGlobalIter, thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
   }
+  loadMatrix("lmat",(double *)savedlmat, m, n,numGlobalIter, thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
+
   for(int i=0;i<m*n;i++)
   {
-    if(fabs(lambda[i]-savedlmat[i])>0.0001)
+    if(fabs(lambda[i]-savedlmat[i])>0.00000001)
     {
       fprintf(stderr, "O [%d,%d] %d element ortho %.10g not %.10g\n",thisIndex.x, thisIndex.y,i, lambda[i], savedlmat[i]);
     }
 
-    CkAssert(fabs(lambda[i]-savedlmat[i])<0.0001);
-    CkAssert(fabs(lambda[i]-savedlmat[i])<0.0001);
+    CkAssert(fabs(lambda[i]-savedlmat[i])<0.00000001);
+    CkAssert(fabs(lambda[i]-savedlmat[i])<0.00000001);
   }
 #endif
 
@@ -619,8 +625,8 @@ void Ortho::acceptDiagonalizedLambda(int nn, internalType* rmat){
 #ifdef CP_DIAGONALIZER_DEBUG
   for (int i = 0 ; i < nn ; i++) {
 #ifdef CP_PAIRCALC_USES_COMPLEX_MATH
-    CkAssert(fabs(rmat[i].re - templambda[i].re)<0.00001);
-    CkAssert(fabs(rmat[i].im - templambda[i].im)<0.00001);
+    CkAssert(fabs(rmat[i].re - templambda[i].re)<0.00000001);
+    CkAssert(fabs(rmat[i].im - templambda[i].im)<0.00000001);
 #else
     CkAssert(fabs(rmat[i] - templambda[i])<0.00001);
 #endif
@@ -729,19 +735,20 @@ void Ortho::gamma_done(){
 
 #ifdef _CP_ORTHO_DEBUG_COMPARE_GMAT_
   if(savedgmat==NULL)
-  { // load it
+  { // alloc it
     savedgmat= new double[m*n];
-    loadMatrix("gmat",(double *)savedgmat, m, n,numGlobalIter,thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
   }
+  loadMatrix("gmat",(double *)savedgmat, m, n,numGlobalIter,thisIndex.x*cfg.grainSize,thisIndex.y*cfg.grainSize,0,false);
+
   for(int i=0;i<m*n;i++)
   {
-    if(fabs(S[i]-savedgmat[i])>0.0001)
+    if(fabs(S[i]-savedgmat[i])>0.00000001)
     {
       fprintf(stderr, "O [%d,%d] %d element ortho %.10g not %.10g\n",thisIndex.x, thisIndex.y,i, S[i], savedgmat[i]);
     }
 
-    CkAssert(fabs(S[i]-savedgmat[i])<0.0001);
-    CkAssert(fabs(S[i]-savedgmat[i])<0.0001);
+    CkAssert(fabs(S[i]-savedgmat[i])<0.00000001);
+    CkAssert(fabs(S[i]-savedgmat[i])<0.00000001);
   }
 #endif
   if(config.PCCollectTiles)

@@ -2,7 +2,7 @@
 #include "paircalc/pcConfig.h"
 
 #include <algorithm>
-
+//#define VERBOSE_SECTIONMANAGER 1
 /** @addtogroup Ortho
   @{
  */
@@ -21,6 +21,7 @@ namespace cp {
       p | pcArrayID;
       p | isSymmetric;
       p | pcSection;
+      p | pcSectionX;
 
       p | orthoIndex;
       p | orthomCastGrpID;
@@ -89,6 +90,46 @@ namespace cp {
     }
 
 
+    /* alternate commented out version 
+        this creates a different section solely for use in multicasting
+	the off-diagonal T to both off diagonal PC and phantom PC.
+	Should be mathematically equivalent to the main scheme that
+	transposes T for the phantoms.  This is how we used to do it.
+     */
+    void PCSectionManager::createPCsectionX(const int s1, const int s2)
+    {
+      int ecount=0;
+      CkArrayIndex4D *elems=new CkArrayIndex4D[numPlanes*numChunks*4];
+      for(int chunk = numChunks-1; chunk >=0; chunk--)
+        for(int numX = numPlanes-1; numX >=0; numX--)
+        {
+          CkArrayIndex4D idx4d(numX,s1,s2,chunk);
+          elems[ecount++]=idx4d;
+	  if(s1!=s2)
+	    {
+	      CkArrayIndex4D idx4d(numX,s2,s1,chunk);
+	      elems[ecount++]=idx4d;
+	    }
+        }
+      int numOrthoCol= pcGrainSize / orthoGrainSize;
+      int maxorthostateindex=(numStates / orthoGrainSize - 1) * orthoGrainSize;
+      int orthoIndexX=(orthoIndex.x * orthoGrainSize);
+
+      orthoIndexX= (orthoIndexX>maxorthostateindex) ? maxorthostateindex : orthoIndexX;
+      int orthoIndexY=(orthoIndex.y * orthoGrainSize);
+      orthoIndexY= (orthoIndexY>maxorthostateindex) ? maxorthostateindex : orthoIndexY;
+      orthoIndexX-=s1;
+      orthoIndexY-=s2;
+      int orthoArrIndex=orthoIndexX*numOrthoCol+orthoIndexY;
+
+      //std::random_shuffle(elems, elems + ecount);
+
+      /// Create and save this paircalc section
+      pcSectionX = CProxySection_PairCalculator::ckNew(pcArrayID,  elems, ecount);
+      delete [] elems;
+    }
+
+
 
 
     /**
@@ -125,6 +166,7 @@ namespace cp {
      * Hence orthos whose indices correspond to those of phantom paircalc chares, will talk to:
      *  - their original phantom section if the user turns on phantoms
      *  - a mirror non-phantom section if the user turns off phantoms 
+
      *
      */
     void PCSectionManager::setupArraySection(CkCallback cb, bool arePhantomsOn, bool useComlibForOrthoToPC)
@@ -134,16 +176,21 @@ namespace cp {
       CkIndex2D pc = computePCStateIndices(orthoIndex.x,orthoIndex.y);
       /// When phantoms are off, ortho chares that should talk to a phantom section will instead talk to  a mirror section
       if (!arePhantomsOn && isSymmetric && pc.y<pc.x)
-      {   s1 = pc.y;  s2 = pc.x;  }
+      { 
+	s1 = pc.y;  s2 = pc.x;  
+#ifdef VERBOSE_SECTIONMANAGER
+      CkPrintf("Ortho[%d,%d] PCSectionManager switcheroo PC[%d-%d,%d,%d,%d-%d,%d] computedPC x %d y %d\n",orthoIndex.x, orthoIndex.y,0,numPlanes-1,s1,s2,0,numChunks-1,isSymmetric, pc.x, pc.y);
+#endif
+      }
       else
       {   s1 = pc.x;  s2 = pc.y;  }
 
 #ifdef VERBOSE_SECTIONMANAGER
-      CkPrintf("Ortho[%d,%d] PCSectionManager setting up a paircalc section that includes PC[%d-%d,%d,%d,%d-%d,%d]\n",orthoIndex.x, orthoIndex.y,0,numPlanes-1,s1,s2,0,numChunks-1,isSymmetric);
+      CkPrintf("Ortho[%d,%d] PCSectionManager setting up a paircalc section that includes PC[%d-%d,%d,%d,%d-%d,%d] computedPC x %d y %d\n",orthoIndex.x, orthoIndex.y,0,numPlanes-1,s1,s2,0,numChunks-1,isSymmetric, pc.x, pc.y);
 #endif
 
       /// Create the paircalc section that this ortho chare will actually talk to
-      createPCsection(s1,s2);
+
 
       /// Paircalcs end their forward path by sending data to the orthos. Irrespective of their type (symm/asymm) or 
       /// whether phantoms are turned on or not, they always talk to the orthos corresponding to their state indices.
@@ -152,6 +199,7 @@ namespace cp {
       /// Hence, only orthos whose indices correspond to the non-phantoms will register with their pc sections to get data
       if ( !(isSymmetric && pc.y<pc.x) )
       {
+	createPCsection(s1,s2);
         /// Delegate the pc section --> ortho reduction to CkMulticast
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_
         CkMulticastMgr *mcastGrp = CProxy_CkMulticastMgr(orthoRedGrpID).ckLocalBranch();
@@ -166,6 +214,11 @@ namespace cp {
         gredMsg->orthoY=orthoIndex.y;
         pcSection.initGRed(gredMsg);
       } 
+      else
+	{
+	  //	  createPCsectionX(s1,s2);
+	  createPCsection(s1,s2);
+	}
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_      
       CkMulticastMgr *mcastGrp = CProxy_CkMulticastMgr(orthomCastGrpID).ckLocalBranch();
       pcSection.ckSectionDelegate(mcastGrp);
@@ -205,9 +258,12 @@ namespace cp {
         CkAssert( isfinite(omsg->matrix1[i]) );
       }
 #endif
-
       /// Trigger the backward path for my paircalc section
-      pcSection.multiplyResult(omsg);
+      CkIndex2D pc = computePCStateIndices(orthoIndex.x,orthoIndex.y);
+      //      if(isSymmetric && pc.x!=pc.y)
+      //      	pcSectionX.multiplyResult(omsg);
+      //      else
+	pcSection.multiplyResult(omsg);
     }
 
 

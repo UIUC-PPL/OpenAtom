@@ -455,7 +455,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 
   if(config.gSpaceSum){ // no reductions its all coming direct
     if(cp_min_opt==0 && numGrains>1)
-    { AllLambdaExpected=(2*numGrains-1)*config.numChunksAsym;}
+      { AllLambdaExpected=(2*numGrains-1)*config.numChunksAsym;}
     else
     { AllLambdaExpected=numGrains*config.numChunksAsym*AllLambdaExpected;}
   }//endif
@@ -1686,23 +1686,25 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 
     //#define _CP_GS_DUMP_VKS_
 #ifdef _CP_GS_DUMP_VKS_
-    dumpMatrixUber(thisInstance.proxyOffset,"vksBf",(double *)ppForces, 1,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration,"vksBf",(double *)ppForces, 1,
         gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
-    dumpMatrixUber(thisInstance.proxyOffset,"forceBf",(double *)forces, 1,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration,"forceBf",(double *)forces, 1,
         gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_VKS_
     if(savedvksBf==NULL){ // load it
       savedvksBf= new complex[gs.numPoints];
-      loadMatrix("vksBf",(double *)savedvksBf, 1,
-          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUber(thisInstance.proxyOffset."vksBf",(double *)savedvksBf, 1,
+		   gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
     if(savedforceBf==NULL){ // load it
       savedforceBf= new complex[gs.numPoints];
-      loadMatrix("forceBf",(double *)savedforceBf, 1,
-          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration, "forceBf",(double *)savedforceBf, 1,
+          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
 
     for(int i=0;i<gs.numPoints;i++){
       if(fabs(ppForces[i].re-savedvksBf[i].re)>0.0001){
@@ -1962,9 +1964,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     char name2[100];
     sprintf(name1, "lambdaBf.iter.%d", iteration);
     sprintf(name2, "psiBf.iter.%d", iteration);
-    dumpMatrixUber(thisInstance.proxyOffset,name1, (double *)force, 1,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration,name1, (double *)force, 1,
         gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
-    dumpMatrixUber(thisInstance.proxyOffset, name2,(double *)psi, 1,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration, name2,(double *)psi, 1,
         gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
 #endif
 
@@ -1975,14 +1977,16 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     sprintf(name2, "psiBf.iter.%d", iteration);
     if(savedlambdaBf==NULL){ // load it
       savedlambdaBf= new complex[gs.numPoints];
-      loadMatrix(name1,(double *)savedlambdaBf, 1,
-          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,name1,(double *)savedlambdaBf, 1,
+          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
     if(savedpsiBf==NULL){ // load it
       savedpsiBf= new complex[gs.numPoints];
-      loadMatrix(name2,(double *)savedpsiBf, 1,
-          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,name2,(double *)savedpsiBf, 1,
+          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
     double testvalue=0.00000001;
     for(int i=0;i<gs.numPoints;i++){
       if(fabs(force[i].re-savedlambdaBf[i].re)>testvalue){
@@ -2267,7 +2271,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     // Debug Schmoo
 
 #ifdef _CP_GS_DUMP_LAMBDA_
-    dumpMatrixUber(thisInstance.proxyOffset,"lambdaAf",(double *)force, 1, gs.numPoints*2,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration,"lambdaAf",(double *)force, 1, gs.numPoints*2,
         thisIndex.y,thisIndex.x,thisIndex.x,0,false);
 #endif
 
@@ -2275,9 +2279,10 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     double testvalue=0.00000001;
     if(savedlambdaAf==NULL){ // load it
       savedlambdaAf= new complex[gs.numPoints];
-      loadMatrix("lambdaAf",(double *)savedlambdaAf, 1,
-          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,"lambdaAf",(double *)savedlambdaAf, 1,
+          gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
     for(int i=0;i<gs.numPoints;i++){
       CkAssert(fabs(force[i].re-savedlambdaAf[i].re)<testvalue);
       CkAssert(fabs(force[i].im-savedlambdaAf[i].im)<testvalue);
@@ -2724,6 +2729,23 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
       CkAssert(finite(forces[i].im));
     }
 #endif
+    //#define _SUMSQR_CHECK_ 1
+#ifdef _SUMSQR_CHECK_
+    double sumVpsi=0.;
+    double sumPsiG=0.;
+    double sumForces=0.;
+    for(int i=0; i < ncoef; i++)
+      {
+	sumVpsi+=vpsi_g[i].getMagSqr();
+	sumPsiG+=psi_g[i].getMagSqr();
+	sumForces+=forces[i].getMagSqr();
+      }
+    if(sumForces>=10.0 || sumVpsi>0.00001){
+      fprintf(stderr,"[%d][%d] sumsqr Vpsi %.10g psig %.10g forces %.10g\n",thisIndex.x,thisIndex.y,sumVpsi, sumPsiG, sumForces);
+    }
+    CkAssert(sumForces<10.0);
+    CkAssert(sumVpsi<0.00001);
+#endif
     fictEke = 0.0; ekeNhc=0.0; potNHC=0.0;
     int fakeIteration=iteration;
     if(sim->cp_dyn_update==0 && fakeIteration %sim->cp_dyn_reset_frq ==0) 
@@ -3037,22 +3059,27 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DUMP_PSI_
-    dumpMatrixUber(thisInstance.proxyOffset, "psiBfp",(double *)psi, 1, gs.numPoints*2,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration, "psiBfp",(double *)psi, 1, gs.numPoints*2,
         thisIndex.y,thisIndex.x,thisIndex.x,0,false);
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_PSI_
     double testvalue=0.00000001;
-    if(savedpsiBfp==NULL){ // load it
+    if(savedpsiBfp==NULL){ // alloc it
       savedpsiBfp= new complex[gs.numPoints];
-      loadMatrix("psiBfp",(double *)savedpsiBfp, 1, gs.numPoints*2,
+    }
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,"psiBfp",(double *)savedpsiBfp, 1, gs.numPoints*2,
           thisIndex.y,thisIndex.x,thisIndex.x,0,false);
-    }//endif
     for(int i=0;i<gs.numPoints;i++){
       if(fabs(psi[i].re-savedpsiBfp[i].re)>testvalue){
-        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g\n",
-            thisIndex.x, thisIndex.y,i, psi[i].re, savedpsiBfp[i].re);
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].re, savedpsiBfp[i].re, "psiBfp", iteration);
       }//endif
+      if(fabs(psi[i].im-savedpsiBfp[i].im)>testvalue){
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].im, savedpsiBfp[i].im, "psiBfp", iteration);
+      }//endif
+
       CkAssert(fabs(psi[i].re-savedpsiBfp[i].re)<testvalue);
       CkAssert(fabs(psi[i].im-savedpsiBfp[i].im)<testvalue);
     }//endfor
@@ -3290,7 +3317,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     // (E) Debug psi
 
 #ifdef _CP_GS_DUMP_PSI_
-    dumpMatrixUber(thisInstance.proxyOffset, "psiAf",(double *)psi, 1, gs.numPoints*2,thisIndex.y,thisIndex.x,
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration, "psiAf",(double *)psi, 1, gs.numPoints*2,thisIndex.y,thisIndex.x,
         thisIndex.x,0,false);
 #endif
 
@@ -3298,9 +3325,10 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     double testvalue=0.00000001;
     if(savedpsiAf==NULL){
       savedpsiAf= new complex[gs.numPoints];
-      loadMatrix("psiAf",(double *)savedpsiAf, 1, gs.numPoints*2,
-          thisIndex.y,thisIndex.x,thisIndex.x,0,false);
     }//endif
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration, "psiAf",(double *)savedpsiAf, 1, gs.numPoints*2,
+          thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+
     for(int i=0;i<gs.numPoints;i++){
       if(fabs(psi[i].re-savedpsiAf[i].re)>testvalue){
         fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g\n",
@@ -3356,119 +3384,6 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
   //==============================================================================
 
 
-  //==============================================================================
-  //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  //==============================================================================
-  void CP_State_GSpacePlane::sendRedPsiV(){
-  //==============================================================================
-#ifdef DEBUG_CP_GSPACE_PSIV
-    CkPrintf("GSpace[%d,%d] sendRedPsiV: Going to send redundant PsiV data\n",thisIndex.x,thisIndex.y);
-#endif
-    //==============================================================================
-    /// I) Local Pointer setup
-
-    eesCache *eesData = UeesCacheProxy[thisInstance.proxyOffset].ckLocalBranch ();
-    double *coef_mass = eesData->GspData[iplane_ind]->coef_mass;
-
-    int ncoef         = gSpaceNumPoints;
-    complex *psi      = gs.packedPlaneData;
-    complex *vpsi     = gs.packedVelData;       // to evolve psi to time, t.
-    complex *forces   = gs.packedForceData;
-    double ***xNHC    = gs.xNHC;
-    double ***xNHCP   = gs.xNHCP;
-    double ***vNHC    = gs.vNHC;
-    double ***fNHC    = gs.fNHC;
-    double *mNHC      = gs.mNHC;
-    int len_nhc_cp    = gs.len_nhc_cp;
-    int num_nhc_cp    = gs.num_nhc_cp;
-    int nck_nhc_cp    = gs.nck_nhc_cp;
-    int nkx0_red      = gs.nkx0_red;
-    int nkx0_uni      = gs.nkx0_uni;
-    int nkx0_zero     = gs.nkx0_zero;
-    double kTCP       = gs.kTCP;
-
-    //=============================================================================
-    /// II) Sync yourself with psi by integrating to time t if output has not done it
-    //     you have the wrong force but thats OK until you put in a better rotation
-
-    halfStepEvolve = 1;
-
-#ifdef JUNK
-    halfStepEvolve = 0; // do the 1/2 step update now
-    CPINTEGRATE::cp_evolve_vel(ncoef,forces,vpsi,coef_mass,
-        len_nhc_cp,num_nhc_cp,nck_nhc_cp,fNHC,vNHC,xNHC,xNHCP,mNHC,
-        gs.v0NHC,gs.a2NHC,gs.a4NHC,kTCP,nkx0_red,nkx0_uni,nkx0_zero,
-        2,iteration,gs.degfree,gs.degfreeNHC,gs.degFreeSplt,
-        gs.istrNHC,gs.iendNHC,1,  switchMoveNow, new_t_ext, old_t_ext););
-#endif
-
-    //=============================================================================
-    /// III) We still have these funky g=0 plane guys that may be on other procs and
-    //      we have sync those guys, also, or PC won't work correctly
-
-    CPcharmParaInfo *sim       = CPcharmParaInfo::get();
-    RedundantCommPkg *RCommPkg = sim->RCommPkg;
-
-    complex *sendData = gs.packedVelData;
-    int isend         = thisIndex.y;       // my g-space chare index
-    int  *num_send    = RCommPkg[isend].num_send;
-    int **lst_send    = RCommPkg[isend].lst_send;
-    int num_send_tot  = RCommPkg[isend].num_send_tot;
-
-    int iii=0; int jjj=0;
-    if(num_send_tot>0){
-      for(int irecv = 0; irecv < config.nchareG; irecv ++){
-
-        int ncoef       = num_send[irecv];
-        jjj += ncoef;
-        if(ncoef>0){
-          GSRedPsiMsg *msg  = new (ncoef,8*sizeof(int)) GSRedPsiMsg;
-          if(config.prioFFTMsg){
-            CkSetQueueing(msg, CK_QUEUEING_IFIFO);
-            *(int*)CkPriorityPtr(msg) = config.rsfftpriority +
-              thisIndex.x*gs.planeSize[0]+thisIndex.y;
-          }//endif
-          if(ncoef>0){iii++;}
-          msg->size        = ncoef;
-          msg->senderIndex = isend;  // my gspace chare index
-          complex *msgData = msg->data;
-          for (int i=0;i<ncoef; i++){msgData[i] = sendData[lst_send[irecv][i]];}
-          UgSpacePlaneProxy[thisInstance.proxyOffset](thisIndex.x,irecv).acceptRedPsiV(msg);
-        }//endif
-
-      }//endfor
-
-    }//endif : no one to which I have to send
-
-    //==============================================================================
-    /// Check for errors
-
-    if(iii!=num_send_tot){
-      CkPrintf("Error in GSchare %d %d : %d %d : sendRedPsiV.1\n",thisIndex.x,thisIndex.y,
-          num_send_tot,iii);
-      CkExit();
-    }//endif
-    if(numRecvRedPsi==0 && gs.nkx0_red>0){
-      CkPrintf("Error in GSchare %d %d : %d %d : sendRedPsiV.2\n",thisIndex.x,thisIndex.y,
-          numRecvRedPsi,gs.nkx0_red);
-      CkExit();
-    }//endif
-    if(jjj != gs.nkx0_uni-gs.nkx0_zero){
-      CkPrintf("Error in GSchare %d %d : %d %d : sendRedPsiV.3\n",thisIndex.x,thisIndex.y,
-          jjj,gs.nkx0_uni);
-      CkExit();
-    }//endif
-
-    //==============================================================================
-
-    /// I send the stuff and I need a new velocity
-
-    iSentRedPsiV = 1;
-    acceptedVPsi = false;
-
-    //==============================================================================
-  }//end routine
-  //==============================================================================
 
   //==============================================================================
   //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -13,8 +13,13 @@ void loadMatrix(const char *infilename,  double *matrix, int xdim, int ydim,int 
 void loadMatrix(const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
 void dumpMatrixUber(int u,const char *infilename,  double *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
 void dumpMatrixUber(int u, const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
-//void loadMatrixUber(int u, const char *infilename,  double *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
-//void loadMatrixUber(int u, const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+void loadMatrixUber(int u, const char *infilename,  double *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+void loadMatrixUber(int u, const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+
+void dumpMatrixUberIter(int u, int iter, const char *infilename,  double *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+void dumpMatrixUberIter(int u, int iter, const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+void loadMatrixUberIter(int u, int iter, const char *infilename,  double *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
+void loadMatrixUberIter(int u, int iter, const char *infilename, complex *matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
 
 void dumpMatrix2DDouble(const char *infilename, double **matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);
 void loadMatrix2DDouble(const char *infilename, double **matrix, int xdim, int ydim,int w,int x,int y, int z, bool symmetric);

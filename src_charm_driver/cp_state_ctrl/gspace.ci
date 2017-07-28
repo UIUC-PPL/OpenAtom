@@ -2,7 +2,7 @@
   @addtogroup GSpaceState
   @{
  */
-
+//#define BARRIER_CP_GSPACE_PSI
 #ifdef _CP_DEBUG_PSI_OFF_
 #define _SDAG_DEBUG_PSI_OFF_ true
 #else
@@ -289,13 +289,9 @@ module gSpaceDriver
           when doneNewPsi() {}
 
           if (isPsiVupdateNeeded) {
-#ifdef GSP_USE_PRIMITIVE_ROTATION
-            serial "SDAG_dynComputeNewPsiV" { myGSpaceObj->computeNewPsiV(); }
-#else
             serial "SDAG_dynComputeNewPsiVFiniteDifference" {
               myGSpaceObj->computeNewPsiVFiniteDifference();
             }
-#endif
             when donePsiV() serial "SDAG_dynUpdatePsiFlag" {
               isPsiVupdateNeeded = false;
             }
@@ -610,9 +606,6 @@ module gStatePlane
     entry void acceptNewPsi(CkReductionMsg *msg);
     entry void acceptNewPsi(partialResultMsg *msg);
     entry void acceptRedPsi(GSRedPsiMsg *msg);
-    entry void acceptNewPsiV(CkReductionMsg *msg);
-    entry void acceptNewPsiV(partialResultMsg *msg);
-    entry void acceptRedPsiV(GSRedPsiMsg *msg);
 
     entry void makePCproxies();
     entry [local] void startNewIter();
@@ -729,37 +722,6 @@ module gStatePlane
       }
     };
 
-    entry void computeNewPsiV() {
-      serial "SDAG_sendRedPsiV" {
-        acceptedVPsi = false;
-        sendRedPsiV();
-      }
-      while (iRecvRedPsiV == 0) {
-        when acceptRedPsiV(GSRedPsiMsg *msg) serial "SDAG_unpackRedPsiV" {
-          unpackRedPsiV(msg);
-        }
-      }
-      serial "SDAG_doneRedPsiV" {
-        doneRedPsiVIntegrate();
-        sendPsiV();
-      }
-      while (countVPsi != AllPsiExpected) {
-        case {
-          when acceptNewPsiV(CkReductionMsg *msg) serial "SDAG_unpackNewPsiV" {
-            unpackNewPsiV(msg);
-          }
-          when acceptNewPsiV(partialResultMsg *msg)
-            serial "SDAG_unpackPartialNewPsiV" { unpackNewPsiV(msg); }
-        }
-      }
-      serial "SDAG_doNewPsiV" { doNewPsiV(); }
-#ifdef BARRIER_CP_GSPACE_PSIV
-      when allDonePsiV(CkReductionMsg *msg) {}
-#endif
-      serial "SDAG_donePsiV" {
-        UgSpaceDriverProxy[thisInstance.proxyOffset](thisIndex.x, thisIndex.y).donePsiV();
-      }
-    };
 
     entry void computeNewPsiVFiniteDifference() {
       serial "SDAG_finiteDifferencePsiV" {

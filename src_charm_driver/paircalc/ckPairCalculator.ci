@@ -118,7 +118,6 @@ module ckPairCalculator
     entry [inline] void acceptRightData(paircalcInputMsg *msg);
     entry [local] void multiplyForward(bool);
     entry [local] void bwMultiplyDynOrthoT();
-    entry [local] void multiplyPsiV();
     entry void phantomDone();
   };
 }

@@ -3,7 +3,7 @@
 #include <sstream> 
 
 CkReduction::reducerType sumMatrixDoubleType;
-//#define _PAIRCALC_DEBUG_PARANOID_BW_ 1
+//#define _PAIRCALC_DEBUG_DUMP_BW_ 1
 
 void registersumMatrixDouble(void)
 {
@@ -80,7 +80,7 @@ PairCalculator::PairCalculator(const pc::pcConfig _cfg): cfg(_cfg)
       thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,CkMyPe());
 #endif
 
-
+  iterationPC=0; //<-this is a lie only use for debugging
   int remainder        = cfg.numStates%cfg.grainSize;
   grainSizeX=(cfg.numStates- thisIndex.x == cfg.grainSize+remainder) ? cfg.grainSize+remainder: cfg.grainSize;
   grainSizeY=(cfg.numStates- thisIndex.y == cfg.grainSize+remainder) ? cfg.grainSize+remainder: cfg.grainSize;
@@ -88,7 +88,6 @@ PairCalculator::PairCalculator(const pc::pcConfig _cfg): cfg(_cfg)
   this->numPoints = -1;
   this->cb_aid         = cfg.gSpaceAID;
   this->cb_ep          = cfg.gSpaceEP;
-  this->cb_ep_tol      = cfg.PsiVEP;
   orthoGrainSizeRemX=grainSizeX%cfg.orthoGrainSize;
   orthoGrainSizeRemY=grainSizeY%cfg.orthoGrainSize;
   gemmSplitFWk         = cfg.gemmSplitFWk;
@@ -229,7 +228,6 @@ PairCalculator::pup(PUP::er &p)
   p|notOnDiagonal;
   p|cb_aid;
   p|cb_ep;
-  p|cb_ep_tol;
   p|existsLeft;
   p|existsRight;
   p|existsOut;
@@ -306,7 +304,7 @@ PairCalculator::pup(PUP::er &p)
   if (p.isUnpacking())
   {
     CkPrintf("[%d,%d,%d,%d,%d] pup unpacking on %d resumed=%d memory %lf MB\n",thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z,cfg.isSymmetric,CkMyPe(),resumed, CmiMemoryUsage()/(1024.0 * 1024.0));
-    CkPrintf("[%d,%d,%d,%d,%d] pupped : %d,%d,%d,%d,%d %d %d %d %d  %d %d cb cb_aid %d %d %d cb_lb inDataLeft inDataRight outData  %d \n",thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, numRecd, numExpected, cfg.grainSize, cfg.numStates, cfg.numChunks, numPoints, cfg.isSymmetric, cfg.conserveMemory, cfg.isLBon, cfg.reduce, cb_ep, existsLeft, existsRight,  resumed);
+    // rusty   CkPrintf("[%d,%d,%d,%d,%d] pupped : %d,%d,%d,%d,%d %d %d %d %d  %d %d cb cb_aid %d %d %d cb_lb inDataLeft inDataRight outData  %d \n",thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, numRecd, numExpected, cfg.grainSize, cfg.numStates, cfg.numChunks, numPoints, cfg.isSymmetric, cfg.conserveMemory, cfg.isLBon, cfg.reduce, cb_ep, existsLeft, existsRight,  resumed);
 
   }
   else
@@ -498,7 +496,6 @@ void PairCalculator::acceptLeftData(paircalcInputMsg *msg)
     paircalcInputMsg *sampleMsg = leftCollator->getSampleMsg();
     if (sampleMsg)
     {
-      msgLeft->doPsiV = sampleMsg->doPsiV;
       msgLeft->blkSize= sampleMsg->blkSize;
       msgLeft->flag_dp= sampleMsg->flag_dp;
     }
@@ -506,7 +503,6 @@ void PairCalculator::acceptLeftData(paircalcInputMsg *msg)
     {
       // If RDMA is enabled, there will be no sample msgs available for any non-PsiV loop. Hence doPsiV is false
 #ifdef PC_USE_RDMA
-      msgLeft->doPsiV = false;
       // If RDMA is NOT enabled, we should have obtained a sample message. Something must be wrong
 #else
       std::stringstream dbgStr;
@@ -561,7 +557,6 @@ void PairCalculator::acceptRightData(paircalcInputMsg *msg)
       paircalcInputMsg *sampleMsg = rightCollator->getSampleMsg();
       if (sampleMsg)
       {
-        msgRight->doPsiV = sampleMsg->doPsiV;
         msgRight->blkSize= sampleMsg->blkSize;
         msgRight->flag_dp= sampleMsg->flag_dp;
       }
@@ -569,7 +564,6 @@ void PairCalculator::acceptRightData(paircalcInputMsg *msg)
       {
         // If RDMA is enabled, there will be no sample msgs available for any non-PsiV loop. Hence doPsiV is false
 #ifdef PC_USE_RDMA
-        msgRight->doPsiV = false;
         // If RDMA is NOT enabled, we should have obtained a sample message. Something must be wrong
 #else
         std::stringstream dbgStr;
@@ -589,10 +583,11 @@ void PairCalculator::acceptRightData(paircalcInputMsg *msg)
 /** once the data has arrived, launch the forward path */
 void PairCalculator::launchComputations(paircalcInputMsg *aMsg)
 {
+  iterationPC++;
 #ifdef _PAIRCALC_DEBUG_
   CkPrintf("[%d,%d,%d,%d,%d] Going to launch computations... numRecd = %d numExpected = %d numExpectedX = %d, numExpectedY = %d\n",
-      thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,
-      numRecd, numExpected, numExpectedX, numExpectedY);
+	   thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,
+	   numRecd, numExpected, numExpectedX, numExpectedY);
 #endif
   /// Ensure that we're really ready to launch computations
   CkAssert(numRecd == numExpected);
@@ -600,21 +595,18 @@ void PairCalculator::launchComputations(paircalcInputMsg *aMsg)
   bool isForwardPathPending = false; ///< Flag to make sure we cleanup only if FW path starts
 
   // If this is not a PsiV loop, trigger the forward path for just the non-phantom chares
-  if(!aMsg->doPsiV)
-  {
-    // This iteration is a normal loop. Hence normal behavior
-    actionType = NORMALPC;
+  actionType = NORMALPC;
 
-    // Start the forward path substep timer
+  // Start the forward path substep timer
 #ifdef _CP_SUBSTEP_TIMING_
-    if(cfg.forwardTimerID > 0)
+  if(cfg.forwardTimerID > 0)
     {
       double pstart=CmiWallTimer();
       contribute(sizeof(double),&pstart,CkReduction::min_double, cfg.beginTimerCB , cfg.forwardTimerID);
     }
 #endif
 
-    if (!amPhantom)
+  if (!amPhantom)
     {
       /** expectOrthoT is false in any scenario other than asymmetric, dynamics.
        * numRecdBWOT is equal to numOrtho only when it is asymm, dynamics and T has been 
@@ -627,36 +619,23 @@ void PairCalculator::launchComputations(paircalcInputMsg *aMsg)
       if(!expectOrthoT || numRecdBWOT==numOrtho)
         thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).multiplyForward(aMsg->flag_dp);
       else
-      {
-        isForwardPathPending = true;
-        CkPrintf("[%d,%d,%d,%d,%d] Gamma beat OrthoT. Waiting for T to arrive before proceeding with forward path\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric);
-      }
+	{
+	  isForwardPathPending = true;
+	  CkPrintf("[%d,%d,%d,%d,%d] Gamma beat OrthoT. Waiting for T to arrive before proceeding with forward path\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric);
+	}
     }
-    else
+  else
     {
       /// Do nothing for the phantom chare, non-psiv loops. Computation will be triggered only in the backward path
       // Just stop the forward path substep timer for the phantom chares
 #ifdef _CP_SUBSTEP_TIMING_
       if(cfg.forwardTimerID > 0)
-      {
-        double pstart=CmiWallTimer();
-        contribute(sizeof(double),&pstart,CkReduction::max_double, cfg.endTimerCB , cfg.forwardTimerID);
-      }
+	{
+	  double pstart=CmiWallTimer();
+	  contribute(sizeof(double),&pstart,CkReduction::max_double, cfg.endTimerCB , cfg.forwardTimerID);
+	}
 #endif
     }
-  }
-  // else, if this is a PsiV loop (there is no forward path, only backward path computations to update PsiV)
-  else
-  {
-    // This is a PsiV loop. Hence behave accordingly
-    actionType = PSIV;
-    thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).multiplyPsiV();
-#ifdef PC_USE_RDMA
-    // Let the collators know that they should now expect the next batch of (non-PsiV) data via RDMA
-    leftCollator->expectNext();
-    rightCollator->expectNext();
-#endif
-  }
 
   /// Reset the counters and flags for the next iteration
 
@@ -752,7 +731,7 @@ PairCalculator::sendTiles(bool flag_dp)
       //	      for (int i = 0; i < cfg.orthoGrainSize * cfg.orthoGrainSize; i++)
       //		outTiles[orthoIndex][i] *= 2.0;
       //	    }
-#ifdef _PAIRCALC_DEBUG_PARANOID_FW_
+#ifdef _PAIRCALC_DEBUG_DUMP_FW_
       int orthoX=orthoIndex/numOrthoCol;
       int orthoY=orthoIndex%numOrthoCol;
       char filename[80];
@@ -874,7 +853,7 @@ void PairCalculator::multiplyForward(bool flag_dp)
   if (flag_dp)
     alpha = 2.0;
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_FW_
+#ifdef _PAIRCALC_DEBUG_DUMP_FW_
   dumpMatrix("fwlmdata", matrixB, numExpectedX, numPoints*2, thisIndex.x, 0);
   dumpMatrix("fwrmdata", matrixA, numExpectedY, numPoints*2, thisIndex.y, 0);
 #endif
@@ -950,7 +929,7 @@ void PairCalculator::contributeSubTiles(internalType *fullOutput)
    */
 
   CkMulticastMgr *mcastGrp=CProxy_CkMulticastMgr(mCastGrpIdOrtho).ckLocalBranch();
-#ifdef _PAIRCALC_DEBUG_PARANOID_FW_
+#ifdef _PAIRCALC_DEBUG_DUMP_FW_
   dumpMatrix("fullOutput", fullOutput, grainSizeX, grainSizeY, thisIndex.x, thisIndex.y);
 #endif
   internalType *outTile;
@@ -996,7 +975,7 @@ void PairCalculator::contributeSubTiles(internalType *fullOutput)
       for(int ystart=0, itileStart=tileStart; ystart<tileSize; ystart+=bigOindex, itileStart+=bigGindex)
         CmiMemcpy(&(outTile[ystart]),&(fullOutput[itileStart]),ocopySize);
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_FW_
+#ifdef _PAIRCALC_DEBUG_DUMP_FW_
       char filename[80];
       snprintf(filename,80,"fwoutTile_%d_%d:",orthoX,orthoY);
       dumpMatrix(filename, outTile, orthoGrainSizeX, orthoGrainSizeY,thisIndex.x+orthoX*cfg.orthoGrainSize, thisIndex.y+orthoY*cfg.orthoGrainSize);
@@ -1030,7 +1009,7 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
   CkAssert(expectOrthoT);
 
   numRecdBWOT++;
-  //  CkPrintf("[%d,%d,%d,%d,%d] acceptOrthoT, numRecdBWOT now %d \n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,numRecdBWOT);
+  //  CkPrintf("[%d,%d,%d,%d,%d] acceptOrthoT, numRecdBWOT (%d of %d)\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,numRecdBWOT, numOrtho);
 #ifdef _NAN_CHECK_
   for(int i=0;i<msg->size;i++)
     CkAssert( isfinite(msg->matrix1[i]) );
@@ -1066,13 +1045,13 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
     actionType  = NORMALPC;
     bool myfalse= false;
     thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).multiplyForward(myfalse);
-    /** @note: multiplyForward() already checks for numRecdBWOT and calls bwMultiplyDynOrthoT().
-     * There is no need to call it again here. It appears, this would have been a correctness bug 
-     * that would have showed up if gamma did beat OrthoT. Verify.
-     */
-    //thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).bwMultiplyDynOrthoT();
+    /** @note: multiplyForward() already checks for numRecdBWOT and calls bwMultiplyDynOrthoT().*/
     numRecd     = 0;
   }
+  else
+    {
+      //      CkPrintf("[%d,%d,%d,%d,%d] (%d of %d) OrthoT (%d of %d) gamma\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric, numRecdBWOT, numOrtho, numRecd, numExpected);
+    }
 }
 
 
@@ -1119,63 +1098,6 @@ void PairCalculator::multiplyResultI(multiplyResultMsg *msg)
 }
 
 
-/**
- * Tolerance correction PsiV Backward path multiplication
- * This is the same as the regular one matrix backward path with the following exceptions:
- * - inDataLeft and inDataRight contain PsiV
- * - outData contains the orthoT from the previous (standard) backward path invocation
- */
-void PairCalculator::multiplyPsiV()
-{
-#ifdef DEBUG_CP_PAIRCALC_PSIV
-  CkPrintf("[%d,%d,%d,%d,%d] In multiplyPsiV\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric);
-#endif
-
-  // If I am a non-phantom chare in the symmetric instance, send a copy of my data to my mirror phantom chare
-  if(!amPhantom && cfg.arePhantomsOn && cfg.isSymmetric && notOnDiagonal) 
-  {
-    CkAssert(existsRight);
-    paircalcInputMsg *msg2phantom = new (numExpectedY*numPoints, 8*sizeof(int)) paircalcInputMsg(numPoints,0,false,true,msgRight->data(),true,blkSize,numExpectedY);
-    bool prioPhan=false;
-    if(prioPhan)
-    {
-      CkSetQueueing(msg2phantom, CK_QUEUEING_IFIFO);
-      *(int*)CkPriorityPtr(msg2phantom) = 1; // just make it slower than non prioritized
-    }
-    thisProxy(thisIndex.w,thisIndex.y, thisIndex.x,thisIndex.z).acceptRightData(msg2phantom);
-  }
-
-  /// We do not need to go through the all of multiplyresult for PsiV. All we really need is the setup for multiplyHelper
-  // call helper function to do the math
-  int  size=grainSizeX*grainSizeY;
-  bool unitcoef=true;
-  // TODO: figure out relationship between n_in k_in and grainSizeX grainSizeY
-  int m_in=numPoints*2;   // rows of op(A)==rows C
-  int n_in=grainSizeY;     // columns of op(B)==columns C
-  int k_in=grainSizeX;     // columns op(A) == rows op(B)
-  /*
-     if(amPhantom)
-     {
-     n_in=grainSizeX;
-     k_in=grainSizeY;
-     }
-   */
-  double beta(0.0);
-  int orthoX=0;
-  int orthoY=0;
-  //BTransform=T offsets for C and A matrices
-  int BTCoffset=0;
-  int BTAoffset=0;
-  //BTransform=N offsets for C and A matrices
-  int BNCoffset=0;
-  int BNAoffset=0;
-  actionType=PSIV;
-  bwMultiplyHelper(size, outData, NULL, outData, NULL,  unitcoef, m_in, n_in, k_in, BNAoffset, BNCoffset, BTAoffset, BTCoffset, orthoX, orthoY, beta, grainSizeX, grainSizeY);
-  /// Schedule the entry methods that will send the bw results out
-  enqueueBWsend(unitcoef);
-}
-
-
 
 
 /**
@@ -1203,7 +1125,7 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
   //============================================================================
   // Do not delete msg. Its a nokeep.
   //============================================================================
-
+  //  CkPrintf("[%d,%d,%d,%d,%d]: MultiplyResult from orthoX %d orthoY %d size %d numRecdBW %d actionType %d amPhantom %d notOnDiagonal %d cfg.arePhantomsOn %d symmetricOnDiagonal %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, msg->orthoX, msg->orthoY, msg->size, numRecdBW, msg->actionType, amPhantom, notOnDiagonal, cfg.arePhantomsOn, symmetricOnDiagonal);
 #ifdef _PAIRCALC_DEBUG_
   CkPrintf("[%d,%d,%d,%d,%d]: MultiplyResult from orthoX %d orthoY %d size %d numRecdBW %d actionType %d amPhantom %d notOnDiagonal %d cfg.arePhantomsOn %d symmetricOnDiagonal %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, msg->orthoX, msg->orthoY, msg->size, numRecdBW, msg->actionType, amPhantom, notOnDiagonal, cfg.arePhantomsOn, symmetricOnDiagonal);
 #endif
@@ -1246,13 +1168,16 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
   /// Get the indices of the ortho that chare that sent this data to us
   int orthoX=msg->orthoX*cfg.orthoGrainSize;
   int orthoY=msg->orthoY*cfg.orthoGrainSize;
-  // Phantom chares get the T matrix from the orthos corresponding to their mirrors. Hence swap their indices
+
   if(amPhantom)
   {
     int swap=orthoY;
     orthoY=orthoX;
     orthoX=swap;
   }
+
+  // Phantom chares get the T matrix from the orthos corresponding to their mirrors. Hence swap their indices
+
 
   // The state index corresponding to the last ortho tile
   int maxorthostateindex=(cfg.numStates/cfg.orthoGrainSize-1)*cfg.orthoGrainSize;
@@ -1282,22 +1207,22 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 
   /// @note: ASSUMING TMATRIX IS REAL (LOSS OF GENERALITY)
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
-  CkPrintf("orthoGrainSizeX %d orthoGrainSizeY %d orthoX %d orthoY %d e1 %.10g\n",orthoGrainSizeX, orthoGrainSizeY, orthoX, orthoY, msg->matrix1[0]);
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
+  CkPrintf("[%d,%d,%d,%d,%d] orthoGrainSizeX %d orthoGrainSizeY %d orthoX %d orthoY %d e1 %.10g\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric, orthoGrainSizeX, orthoGrainSizeY, orthoX, orthoY, msg->matrix1[0]);
   if(cfg.grainSize==cfg.orthoGrainSize)
   {
-    dumpMatrix("bwm1idata",msg->matrix1,grainSizeX,grainSizeY,0,0,orthoX, orthoY);
+    dumpMatrix("bwm1idata",msg->matrix1,grainSizeX,grainSizeY, thisIndex.x + orthoX * orthoGrainSizeX, thisIndex.y+ orthoY * orthoGrainSizeY, orthoX, orthoY);
     if(!unitcoef)
     { // CG non minimization case
-      dumpMatrix("bwm2idata",msg->matrix2,grainSizeX,grainSizeY);
+      dumpMatrix("bwm2idata",msg->matrix2,grainSizeX,grainSizeY, thisIndex.x + orthoX * orthoGrainSizeX, thisIndex.y + orthoY * orthoGrainSizeY, orthoX, orthoY);
     }
   }
   else
   {          
-    dumpMatrix("bwm1idata",msg->matrix1,orthoGrainSizeX,orthoGrainSizeY,0,0,orthoX, orthoY);
+    dumpMatrix("bwm1idata",msg->matrix1,orthoGrainSizeX,orthoGrainSizeY, thisIndex.x + orthoX * orthoGrainSizeX, thisIndex.y + orthoY * orthoGrainSizeY, orthoX, orthoY);
     if(!unitcoef)
     { // CG non minimization case
-      dumpMatrix("bwm2idata",msg->matrix2,orthoGrainSizeX,orthoGrainSizeY,0,0,orthoX, orthoY);
+      dumpMatrix("bwm2idata",msg->matrix2,orthoGrainSizeX,orthoGrainSizeY,thisIndex.x + orthoX * orthoGrainSizeX, thisIndex.y+ orthoY * orthoGrainSizeY, orthoX, orthoY);
     }
   }
 #endif
@@ -1336,13 +1261,6 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
   {
     amatrix=matrix1;
     // Only one ortho will send to us. Ensure that the appropriate counters are set
-    numRecdBW=numOrtho;
-  }
-  /// else, if this is a PsiV loop
-  else if(actionType==PSIV)
-  {
-    amatrix=matrix1;
-    // The other tiles were already collected for PSIV
     numRecdBW=numOrtho;
   }
   /// else, if PC is collecting all the tiles from Ortho 
@@ -1395,9 +1313,9 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 
   //---------------------------------- Perform the actual computations --------------------------
   /// If we have all the input we need (received all the tiles, or streaming the computations)
-  if(cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho || !cfg.areBWTilesCollected || actionType==PSIV)
+  if(cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho || !cfg.areBWTilesCollected)
   {
-    if(actionType!=PSIV && !cfg.areBWTilesCollected && n_in*k_in > size)
+    if(!cfg.areBWTilesCollected && n_in*k_in > size)
     {
       CkPrintf("[%d,%d,%d,%d,%d] Warning! your n_in %d and k_in %d is larger than matrix1->size %d\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric, n_in,k_in,size);
       n_in=cfg.orthoGrainSize;
@@ -1409,10 +1327,11 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 
 
   //------------------------------ Send out the results as appropriate --------------------------
-  //#define SKIP_PARTIAL_SEND
+#define SKIP_PARTIAL_SEND
 #ifndef SKIP_PARTIAL_SEND
+
   /// If we're stream computing without any barriers, simply send whatever results are ready now
-  if(cfg.isBWstreaming && !cfg.areBWTilesCollected && !cfg.isBWbarriered && actionType!=PSIV)
+  if(cfg.isBWstreaming && !cfg.areBWTilesCollected && !cfg.isBWbarriered)
   {
     bwSendHelper( orthoX, orthoY, k_in, n_in, orthoGrainSizeX, orthoGrainSizeY);
     /// If we're done with all the paircalc work in this loop (iteration), then cleanup
@@ -1420,9 +1339,17 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
       cleanupAfterBWPath();
   }
 #else
+    //TODO : hangs in dynamics.
   /// If SKIP_PARTIAL_SEND is defined, and we're streaming, then we send only if we've received all the tiles
-  if((cfg.isBWstreaming && !cfg.areBWTilesCollected && !cfg.isBWbarriered && actionType!=PSIV) && numRecdBW==numOrtho)
-    enqueueBWsend(unitcoef);
+  if(numRecdBW==numOrtho)
+    {
+      //send it all
+      bool other = ((amPhantom || (!cfg.arePhantomsOn && (othernewData!=NULL)&& notOnDiagonal))&& existsRight);
+      if(cfg.isOutputReduced)
+	sendBWResultImm(other);
+      else
+	sendBWResultDirectImm(other);
+    }
   else
   {
     //    CkPrintf("[%d,%d,%d,%d,%d] not sending cfg.isBWstreaming %d cfg.areBWTilesCollected %d cfg.isBWbarriered %d actionType %d  numRecdBW %d numOrtho%d \n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,cfg.isBWstreaming,cfg.areBWTilesCollected,cfg.isBWbarriered,actionType, numRecdBW,numOrtho);
@@ -1438,11 +1365,9 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
    * @note: cfg.orthoGrainSize == cfg.grainSize implies this PC chare will get only one msg in the bw path. 
    * This is covered by the check numRecdBW==numOrtho, hence is just for paranoia.
    *
-   * @todo: It appears actionType = PSIV will not enter multiplyResult. Needs to be verified as lots of conditions here chk for actionType==PSIV
    */
   if(   ((!cfg.isBWstreaming && cfg.areBWTilesCollected) && (cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho))
       || (cfg.isBWbarriered && (cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho))
-      || actionType==PSIV
     )
   {
     /// If we're barriered on the backward path
@@ -1576,9 +1501,6 @@ void PairCalculator::cleanupAfterBWPath()
   }
   else
   {
-#ifdef DEBUG_CP_PAIRCALC_PSIV
-    CkPrintf("[%d,%d,%d,%d,%d]: Am NOT notifying the message handlers to expectNext() as a PsiV step is next (actionType=%d). Data should be arriving in messages. \n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric,  numRecdBW, actionType);
-#endif
   }
 #endif
 
@@ -1609,13 +1531,13 @@ void PairCalculator::collectTile(bool doMatrix1, bool doMatrix2, bool doOrthoT, 
   // copy out the orthograinSize section
   // into amatrix[goffset]
   // goffset+=grainSize
-  if(!doOrthoT && doMatrix1 && numRecdBW==1 && inResult1==NULL) //alloc on first receipt
+  if( doMatrix1 && numRecdBW==1 && inResult1==NULL) //alloc on first receipt
   {
     CkAssert(inResult1==NULL);
     inResult1 = new internalType[matrixSize];
     bzero(inResult1,sizeof(internalType)*matrixSize);
   }
-
+  //  CkPrintf("[%d,%d,%d,%d,%d]: collectTile aggregating numRecdBW (%d of %d) doMatrix1 %d doMatrix2 %d doOrthoT %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, numRecdBW, numOrtho, doMatrix1, doMatrix2, doOrthoT);
   // advance tilestart to new row and column
   int bigGindex=grainSizeY;
   int bigOindex=orthoGrainSizeY;
@@ -1657,10 +1579,10 @@ void PairCalculator::collectTile(bool doMatrix1, bool doMatrix2, bool doOrthoT, 
     for(int i=0; i<tileSize; i+=bigOindex,tileStart+=bigGindex)
       CmiMemcpy(&(inResult2[tileStart]),&(matrix2[i]),ocopySize);
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
     char filename[80];
     snprintf(filename,80,"bwinResult2_%d_%d:",orthoX,orthoY);
-    dumpMatrix(filename, matrix2, orthoGrainSizeX, orthoGrainSizeY,orthoX*cfg.orthoGrainSize, orthoY*cfg.orthoGrainSize);
+    dumpMatrix(filename, matrix2, orthoGrainSizeX, orthoGrainSizeY,thisIndex.x+ orthoX*cfg.orthoGrainSize, thisIndex.y+ orthoY*cfg.orthoGrainSize);
 #endif
 
   }
@@ -1676,7 +1598,7 @@ void PairCalculator::collectTile(bool doMatrix1, bool doMatrix2, bool doOrthoT, 
 
     for(int i=0; i< tileSize; i+=bigOindex,tileStart+=bigGindex)
       CmiMemcpy(&(dest[tileStart]),&(matrix1[i]),ocopySize);
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
 
     char filename[80];
     if(doOrthoT)
@@ -1714,13 +1636,13 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
     streamCaughtR++;
   CkPrintf("[%d,%d,%d,%d,%d]: bwMultiplyHelper with size %d numRecdBW %d actionType %d orthoX %d orthoY %d orthoGrainSizeX %d orthoGrainSizeY %d BTCoffset %d BNCoffset %d m_in %d n_in %d k_in %d iter %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, size, numRecdBW, actionType, orthoX, orthoY,orthoGrainSizeX, orthoGrainSizeY, BTCoffset, BNCoffset, m_in, n_in, k_in, streamCaughtR);
 #endif
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
   if(cfg.orthoGrainSize==cfg.grainSize || cfg.areBWTilesCollected)
   {
-    dumpMatrix("bwm1cidata",amatrix,grainSizeX,grainSizeY,0,0,0,streamCaughtR);
+    dumpMatrix("bwm1cidata",amatrix,grainSizeX,grainSizeY,thisIndex.x,thisIndex.y,0,streamCaughtR);
     // CG non minimization case
     if(!unitcoef)
-      dumpMatrix("bwm2cidata",amatrix2,grainSizeX, grainSizeY,0,0,0,streamCaughtR);
+      dumpMatrix("bwm2cidata",amatrix2,grainSizeX, grainSizeY,thisIndex.x,thisIndex.y,0,streamCaughtR);
   }
 #endif
 
@@ -1795,7 +1717,7 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
   char transformT = 'T';           // Transpose amatrix
 #endif
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
   int chunksize=blkSize/cfg.numChunks;
   int ystart=chunksize*thisIndex.z;
   if(!amPhantom)
@@ -1814,7 +1736,7 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
   {
     int lk_in=k_in;
     int ln_in=n_in;
-    if(symmetricOnDiagonal && orthoX!=orthoY && !cfg.areBWTilesCollected && actionType!=PSIV )
+    if(symmetricOnDiagonal && orthoX!=orthoY && !cfg.areBWTilesCollected)
     {
       // here is where we need some more juggling
       lk_in=n_in;
@@ -1844,7 +1766,7 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
 #ifdef CMK_TRACE_ENABLED
     traceUserBracketEvent(230, StartTime, CmiWallTimer());
 #endif
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
     char snark[80];
     snprintf(snark,80,"bwgmodata_%d_%d:",orthoX,orthoY);
     if(cfg.isSymmetric)
@@ -1880,7 +1802,7 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
 #ifdef CMK_TRACE_ENABLED
     traceUserBracketEvent(250, StartTime, CmiWallTimer());
 #endif
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
     char snark[80];
     snprintf(snark,80,"bwgomodata_%d_%d:",orthoX,orthoY);
     if(amPhantom)
@@ -1931,7 +1853,7 @@ void PairCalculator::bwMultiplyHelper(int size, internalType *matrix1, internalT
     traceUserBracketEvent(240, StartTime, CmiWallTimer());
 #endif
 
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
     if(notOnDiagonal)  // exists right matrix
       if(amPhantom)
         dumpMatrixComplex("bwg2modata",othernewData,numExpectedY,numPoints,0,ystart,streamCaughtR);
@@ -2021,7 +1943,7 @@ void PairCalculator::bwMultiplyDynOrthoT()
 #ifdef CMK_TRACE_ENABLED
   traceUserBracketEvent(240, StartTime, CmiWallTimer());
 #endif
-#ifdef _PAIRCALC_DEBUG_PARANOID_BW_
+#ifdef _PAIRCALC_DEBUG_DUMP_BW_
   int chunksize=blkSize/cfg.numChunks;
   int ystart=chunksize*thisIndex.z;
   if(notOnDiagonal)
@@ -2175,10 +2097,6 @@ PairCalculator::sendBWResultColumnDirect(bool otherdata, int startGrain, int end
 
 
   int cp_entry=cb_ep;
-  if(actionType==PSIV)
-  {
-    cp_entry= cb_ep_tol;
-  }
   CkAssert(endGrain<=cfg.numStates);
   int numToSend=endGrain-startGrain;
   int permuter=(int) ((float) thisIndex.z/ (float) cfg.numChunks) * (float) numToSend;
@@ -2286,10 +2204,6 @@ void PairCalculator::sendBWResultColumn(bool otherdata, int startGrain, int endG
   // Now we have results in mynewData and if(otherData) othernewData
   CkMulticastMgr *mcastGrp=CProxy_CkMulticastMgr(mCastGrpId).ckLocalBranch();
   int cp_entry=cb_ep;
-  if(actionType==PSIV)
-  {
-    cp_entry= cb_ep_tol;
-  }
   if(otherdata){  // we have this othernewdata issue for the symmetric case
     // and the asymmetric dynamic case
     // for the off diagonal elements
@@ -2372,8 +2286,6 @@ void PairCalculator::sendBWResultDirect(sendBWsignalMsg *msg)
   delete msg;
   /// Determine the callback to use
   int cp_entry=cb_ep;
-  if(actionType==PSIV)
-    cp_entry= cb_ep_tol;
 
   /// Off-diagonal PCs in the symm (and asymm, in dynamics) instance, have to handle othernewdata
   if(otherdata)
@@ -2447,7 +2359,7 @@ void PairCalculator::sendBWResultDirect(sendBWsignalMsg *msg)
   }
 
   /// If we're done with all the paircalc work in this loop (iteration), then cleanup
-  if (numRecdBW == numOrtho || actionType == PSIV)
+  if (numRecdBW == numOrtho)
     cleanupAfterBWPath();
 }
 
@@ -2468,9 +2380,6 @@ void PairCalculator::sendBWResult(sendBWsignalMsg *msg)
   // Now we have results in mynewData and if(cfg.isSymmetric) othernewData
   CkMulticastMgr *mcastGrp=CProxy_CkMulticastMgr(mCastGrpId).ckLocalBranch();
   int cp_entry=cb_ep;
-  if(actionType==PSIV)
-    cp_entry= cb_ep_tol;
-
   if(otherdata)
   {
     // We have this othernewdata issue for the symmetric case
@@ -2525,9 +2434,183 @@ void PairCalculator::sendBWResult(sendBWsignalMsg *msg)
   }
 
   /// If we're done with all the paircalc work in this loop (iteration), then cleanup
-  if (numRecdBW == numOrtho || actionType == PSIV)
+  if (numRecdBW == numOrtho)
     cleanupAfterBWPath();
 }
+
+void PairCalculator::sendBWResultDirectImm(bool otherdata)
+{
+#ifdef _PAIRCALC_DEBUG_
+  CkPrintf("[%d,%d,%d,%d,%d]: sendBWResultDirectImm with actionType %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, actionType);
+#endif
+  /// Determine the callback to use
+  int cp_entry=cb_ep;
+
+  /// Off-diagonal PCs in the symm (and asymm, in dynamics) instance, have to handle othernewdata
+ 
+  if(otherdata)
+  {
+    CkAssert(othernewData!=NULL);
+    int size=grainSizeX;
+    int index=thisIndex.x;
+    if(amPhantom)
+    {
+      index=thisIndex.y;
+      size=grainSizeY;
+    }
+    int permuter=(int) ((float) thisIndex.z/ (float) cfg.numChunks) * (float) size;
+    int endGrain = index+size;
+    for(int j=0;j<size;j++)
+    {
+      int jPermuted=(j+permuter>endGrain) ? (j+permuter-size) : (j+permuter) ;
+      inputType *computed=&(othernewData[jPermuted*numPoints]);
+      //this callback creation could be obviated by keeping an
+      //array of callbacks, not clearly worth doing
+      CkCallback mycb(cp_entry, CkArrayIndex2D(jPermuted + index ,thisIndex.w), cb_aid);
+      partialResultMsg *omsg= new (numPoints, 8*sizeof(int) ) partialResultMsg;
+      if(cfg.resultMsgPriority)
+      {
+        *((int*)CkPriorityPtr(omsg)) = cfg.resultMsgPriority;
+        CkSetQueueing(omsg, CK_QUEUEING_IFIFO);
+      }
+      omsg->init(thisIndex,numPoints, thisIndex.z, computed);
+#ifdef _PAIRCALC_DEBUG_
+      CkPrintf("[%d,%d,%d,%d,%d]:sending other imm partial of size %d offset %d to [%d %d]\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, numPoints,jPermuted,index+jPermuted,thisIndex.w);
+#endif
+#ifdef _NAN_CHECK_
+      for(int i=0;i<omsg->N ;i++)
+      {
+        if( !isfinite(omsg->result[i]) )
+          CkPrintf("[%d,%d,%d,%d,%d]: sendBWResultDirect nan at %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, i);
+        CkAssert( isfinite(omsg->result[i]) );
+      }
+#endif
+      mycb.send(omsg);
+    }
+  }
+
+  ///
+  if(!amPhantom)
+  {
+    CkAssert(mynewData!=NULL);
+    int outsize=grainSizeY;
+    int index=thisIndex.y;
+    int permuter=(int) ((float) thisIndex.z/ (float) cfg.numChunks) * (float) outsize;
+    int endGrain = index+outsize;
+
+    for(int j=0;j<outsize;j++) //mynewdata
+    {
+      int jPermuted=(j+permuter>endGrain) ? (j+permuter-outsize) : (j+permuter) ;
+      inputType *computed=&(mynewData[jPermuted*numPoints]);
+      CkCallback mycb(cp_entry, CkArrayIndex2D(jPermuted+index ,thisIndex.w), cb_aid);
+      partialResultMsg *omsg= new (numPoints, 8*sizeof(int) ) partialResultMsg;
+      if(cfg.resultMsgPriority)
+      {
+        *((int*)CkPriorityPtr(omsg)) = cfg.resultMsgPriority;
+        CkSetQueueing(omsg, CK_QUEUEING_IFIFO);
+      }
+      omsg->init(thisIndex,numPoints, thisIndex.z, computed);
+#ifdef _PAIRCALC_DEBUG_
+      CkPrintf("[%d,%d,%d,%d,%d]:sending partial imm of size %d offset %d to [%d %d]\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric,numPoints,jPermuted,index+jPermuted,thisIndex.w);
+#endif
+#ifdef _NAN_CHECK_
+      for(int i=0;i<omsg->N ;i++)
+      {
+        if( !isfinite(omsg->result[i]) )
+          CkPrintf("[%d,%d,%d,%d,%d]: sendBWResultDirect nan at %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, i);
+        CkAssert( isfinite(omsg->result[i]) );
+      }
+#endif
+      mycb.send(omsg);
+    }
+  }
+
+  /// If we're done with all the paircalc work in this loop (iteration), then cleanup
+  if (numRecdBW == numOrtho)
+    cleanupAfterBWPath();
+}
+
+
+
+
+/** This is an entry method to allow us to delay this outbound communication
+ * to minimize brain dead BG/L interference we have a signal to prioritize this
+ */
+void PairCalculator::sendBWResultImm(bool otherdata)
+{
+#ifdef _PAIRCALC_DEBUG_
+  CkPrintf("[%d,%d,%d,%d,%d]: sendBWResult imm with actionType %d\n", thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, actionType);
+#endif
+
+  // Now we have results in mynewData and if(cfg.isSymmetric) othernewData
+  CkMulticastMgr *mcastGrp=CProxy_CkMulticastMgr(mCastGrpId).ckLocalBranch();
+  int cp_entry=cb_ep;
+  if(otherdata)
+  {
+    // We have this othernewdata issue for the symmetric case
+    // and the asymmetric dynamic case for the off diagonal elements
+    CkAssert(othernewData!=NULL);
+    int size=grainSizeX;
+    int index=thisIndex.x;
+    if(amPhantom)
+    {
+      index=thisIndex.y;
+      size=grainSizeY;
+    }
+    int permuter=(int) ((float) thisIndex.z/ (float) cfg.numChunks) * (float) size;
+    int endGrain = index+size;
+
+    for(int j=0;j<size;j++)
+    {
+      // This callback creation could be obviated by keeping an
+      // array of callbacks, not clearly worth doing
+      int jPermuted=(j+permuter>endGrain) ? (j+permuter-size) : (j+permuter) ;
+      inputType *computed=&(othernewData[jPermuted*numPoints]);
+      CkCallback mycb(cp_entry, CkArrayIndex2D(jPermuted+index ,thisIndex.w), cb_aid);
+#ifdef _PAIRCALC_DEBUG_CONTRIB_
+      CkPrintf("[%d,%d,%d,%d,%d] contributing other imm %d offset %d to [%d %d]\n",thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric, numPoints,j,thisIndex.x+j,thisIndex.w);
+#endif
+      int outOffset=thisIndex.z;
+#ifndef _AUTO_DELEGATE_MCASTMGR_ON_
+    mcastGrp->
+#else
+    CProxySection_PairCalculator::
+#endif
+      contribute(numPoints*sizeof(inputType),computed, sumMatrixDoubleType, otherResultCookies[j], mycb, outOffset);
+    }
+  }
+
+  if(!amPhantom)
+  {
+    int outsize=grainSizeY;
+    int index=thisIndex.y;
+    CkAssert(mynewData!=NULL);
+    int endGrain=index +outsize;
+    int permuter=(int) ((float) thisIndex.z/ (float) cfg.numChunks) * (float) outsize;
+
+    for(int j=0;j<outsize;j++) //mynewdata
+    {
+      int jPermuted=(j+permuter>endGrain) ? (j+permuter-outsize) : (j+permuter) ;
+      inputType *computed=&(mynewData[jPermuted*numPoints]);
+      CkCallback mycb(cp_entry, CkArrayIndex2D(jPermuted+index,thisIndex.w), cb_aid);
+#ifdef _PAIRCALC_DEBUG_CONTRIB_
+      CkPrintf("[%d,%d,%d,%d,%d] contributing imm %d offset %d to [%d %d]\n",thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z, cfg.isSymmetric,numPoints,jPermuted,thisIndex.y+jPermuted,thisIndex.w);
+#endif
+      int outOffset=thisIndex.z;
+#ifndef _AUTO_DELEGATE_MCASTMGR_ON_
+    mcastGrp->
+#else
+    CProxySection_PairCalculator::
+#endif
+      contribute(numPoints*sizeof(inputType), computed, sumMatrixDoubleType, resultCookies[j], mycb, outOffset);
+    }
+  }
+
+  /// If we're done with all the paircalc work in this loop (iteration), then cleanup
+  if (numRecdBW == numOrtho)
+    cleanupAfterBWPath();
+}
+
 
 
 
@@ -2538,8 +2621,8 @@ void PairCalculator::dumpMatrix(const char *infilename, double *matrix, int xdim
   memset(fmt, 0 , 1000);
   memset(filename, 0 , 1000);
   strncpy(fmt,infilename,999);
-  strncat(fmt,"_%d_%d_%d_%d_%d_%d_%d.out\0",999);
-  sprintf(filename, fmt, thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z,
+  strncat(fmt,".i.%d_%d_%d_%d_%d_%d_%d_%d.out\0",999);
+  sprintf(filename, fmt, iterationPC, thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z,
       xtra1, xtra2, cfg.isSymmetric);
   FILE *loutfile = fopen(filename, "w");
   for(int i=0;i<xdim;i++)
@@ -2555,8 +2638,8 @@ void PairCalculator::dumpMatrix(const char *infilename, complex *matrix, int xdi
   memset(fmt, 0 , 1000);
   memset(filename, 0 , 1000); 
   strncpy(fmt,infilename,999);
-  strncat(fmt,"_%d_%d_%d_%d_%d_%d_%d.out",999);
-  sprintf(filename, fmt, thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z,
+  strncat(fmt,".i.%d_%d_%d_%d_%d_%d_%d_%d.out",999);
+  sprintf(filename, fmt, iterationPC, thisIndex.w,thisIndex.x, thisIndex.y, thisIndex.z,
       xtra1, xtra2, cfg.isSymmetric);
   FILE *loutfile = fopen(filename, "w");
   for(int i=0;i<xdim;i++)
@@ -2572,8 +2655,8 @@ void PairCalculator::dumpMatrixComplex(const char *infilename, complex *matrix, 
   memset(fmt, 0 , 1000);
   memset(filename, 0 , 1000);
   strncpy(fmt,infilename,999);
-  strncat(fmt,"_%d_%d_%d_%d_%d_%d.out",999);
-  sprintf(filename, fmt, thisIndex.w,thisIndex.x, thisIndex.y,thisIndex.z, iter ,cfg.isSymmetric);
+  strncat(fmt,".i.%d_%d_%d_%d_%d_%d_%d.out",999);
+  sprintf(filename, fmt, iterationPC, thisIndex.w,thisIndex.x, thisIndex.y,thisIndex.z, iter ,cfg.isSymmetric);
   FILE *loutfile = fopen(filename, "w");
   for(int i=0;i<xdim;i++)
     for(int j=0;j<ydim;j++)

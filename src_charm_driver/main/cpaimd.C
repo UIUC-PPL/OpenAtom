@@ -2521,12 +2521,10 @@ void paircalcstartup(pc::pcConfig *cfgSymmPC, pc::pcConfig *cfgAsymmPC, CPcharmP
   if(cfgSymmPC->isOutputReduced)
     {
       cfgSymmPC->gSpaceEP        = CkIndex_CP_State_GSpacePlane::acceptNewPsi ((CkReductionMsg*)NULL);
-      cfgSymmPC->PsiVEP          = CkIndex_CP_State_GSpacePlane::acceptNewPsiV((CkReductionMsg*)NULL);
     }
   else
     {
       cfgSymmPC->gSpaceEP        = CkIndex_CP_State_GSpacePlane::acceptNewPsi ((partialResultMsg*)NULL);
-      cfgSymmPC->PsiVEP          = CkIndex_CP_State_GSpacePlane::acceptNewPsiV((partialResultMsg*)NULL);
     }
 
   if(cfgAsymmPC->isOutputReduced)

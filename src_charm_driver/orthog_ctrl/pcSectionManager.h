@@ -40,6 +40,10 @@ namespace cp {
       /// Create a paircalc section containing all chares with the specified two state indices
       void createPCsection(const int s1, const int s2);
 
+
+      /// Create a paircalc section containing all chares with the specified two state indices, and their opposite off diagonal
+      void createPCsectionX(const int s1, const int s2);
+
       /// Number of planes that GSpace is decomposed into
       int numPlanes;
       /// Number of states in this simulation
@@ -57,6 +61,8 @@ namespace cp {
       bool isSymmetric;
       /// The section of the array that my owner ortho chare will be talking to
       CProxySection_PairCalculator pcSection;
+      /// A bigger section of the array that my owner ortho chare may be talking to if we have enough decomp to need it
+      CProxySection_PairCalculator pcSectionX;
 
       /// The index of the calling Ortho chare
       CkIndex2D orthoIndex;

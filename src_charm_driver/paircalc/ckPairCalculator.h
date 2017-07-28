@@ -39,7 +39,6 @@
 // Flags to control semantic for matrix contents along different paths thro the PairCalcs
 #define NORMALPC   0  ///< standard
 #define KEEPORTHO  1  ///< retain orthoT
-#define PSIV       2  ///< multiply new psiV by retained orthoT
 
 extern "C" {
 
@@ -126,16 +125,6 @@ extern "C" {
  * gamma was produced by a multiplication with orthoT in the Ortho
  * object.
  *
-* If ortho falls out of tolerance then Ortho will signal the GSP that
-* a tolerance update is needed.  We then proceed with the psi
-* calculation as normal.  On receipt of newpsi, Gspace will then
-* react by sending the PC the Psi velocities (PsiV) in the same way
-* (acceptLeft/RightData) that it sends Psi, but with the psiv flag set
-  * true.  These will be recorded in the left data array.  We will then
-* multiply with the orthoT we kept from the previous invocation (psi)
-  * of the backward path.  We then ship the corrected velocities back
-  * to gspace via the acceptnewVpsi reduction.  Same procedure as for
-  * acceptnewpsi, just a different entry method.
   *
   * Fourth dimension decomposition is along the axis of the nonzero
   * values in gspace.  Therefore it is fundamentally different from the
@@ -328,22 +317,26 @@ extern "C" {
     void acceptOrthoT(multiplyResultMsg *msg);
     /// @entry Backward path multiplication
     void multiplyResult(multiplyResultMsg *msg);
-    /// Dynamics: PsiV Tolerance correction loop called on symmetric instances. Technically, backward path
-    void multiplyPsiV();
+
     /// Multiplies Fpsi by T (from Ortho)
     void bwMultiplyDynOrthoT();
     /// @entry Simply forwards the call to multiplyResult(). @ntodo Dont seem to be any instances in source which call this method. Check.
     void multiplyResultI(multiplyResultMsg *msg);
     /// @entry a debugging tool: a barrier at the end of the backward path before anything is sent over to GSP
     void bwbarrier(CkReductionMsg *msg);
-    /// multiplyPsiV() and multiplyResult() call this to perform the matrix multiply math on the backward path. This calls DGEMM routines for the same.
+    /// multiplyResult() call this to perform the matrix multiply math on the backward path. This calls DGEMM routines for the same.
     void bwMultiplyHelper(int size, internalType *matrix1, internalType *matrix2, internalType *amatrix, internalType *amatrix2, bool unitcoef, int m_in, int n_in, int k_in, int BNAoffset, int BNCoffset, int BTAoffset, int BTCoffset, int orthoX, int orthoY, double beta, int ogx, int ogy);
-    /// Called on the normal backward path (non-psiV) to set up the data sends to GSpace
+    /// Called on the normal backward path to set up the data sends to GSpace
     void bwSendHelper(int orthoX, int orthoY, int sizeX, int sizeY, int ogx, int ogy);
     /// @entry Send the results via multiple reductions as triggered by a prioritized message
     void sendBWResult(sendBWsignalMsg *msg);
     /// @entry
     void sendBWResultDirect(sendBWsignalMsg *msg);
+    /// @entry
+    void sendBWResultImm(bool other);
+    /// @entry
+    void sendBWResultDirectImm(bool other);
+
     ///
     void sendBWResultColumn(bool other, int startGrain, int endGrain);
     ///
@@ -392,6 +385,7 @@ extern "C" {
     /// Data collators for the left and right matrix blocks
     CollatorType *leftCollator, *rightCollator;
     /// Flags indicating if the left and right matrix blocks have been received
+    int iterationPC; //<-this is a lie only use for debugging
     bool isLeftReady, isRightReady;
     int numRecd; 								///< number of messages received
     int numRecdBW; 							///< number of messages received BW
@@ -435,7 +429,6 @@ extern "C" {
 
     CkArrayID cb_aid; 						///< bw path callback array ID
     int cb_ep; 								///< bw path callback entry point
-    int cb_ep_tol; 							///< bw path callback entry point for psiV tolerance
     bool existsLeft; 							///< inDataLeft allocated
     bool existsRight; 						///< inDataRight allocated
     bool existsOut; 							///< outData allocated
@@ -449,7 +442,7 @@ extern "C" {
     internalType *inDataRight; 						///< the input pair to be transformed
     paircalcInputMsg *msgLeft, *msgRight;   ///< Incoming messages with left and right matrix data that are kept around so that we can directly compute on them
     internalType *outData; 							///< results of fw multiply
-    int actionType; 							///< matrix usage control [NORMAL, KEEPORTHO, PSIV]
+    int actionType; 							///< matrix usage control [NORMAL, KEEPORTHO]
 
     double *allCaughtLeft; 					///< unordered rows of FW input
     double *allCaughtRight; 					///< unordered rows of FW input
