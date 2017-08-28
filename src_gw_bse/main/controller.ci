@@ -80,13 +80,11 @@ module controller {
     entry void reportFTime(CkReductionMsg*);
     entry void reportPTime(CkReductionMsg*);
 
-
     entry [reductiontarget] void iterationComplete(){
       serial{
         pmatrix1D_proxy.start_iteration();
       }
     }
-    
     // Main control flow
     entry void run() {
       when fftControllerReady() serial {

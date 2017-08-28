@@ -895,7 +895,6 @@ void Config::set_config_params_GW_parallel  (DICT_WORD *dict, char *fun_key, cha
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
   gw_parallel->transpose_stages = int_arg;
-
   //----------------------------------------------------------------------------- 
 }// end routine
 //================================================================================

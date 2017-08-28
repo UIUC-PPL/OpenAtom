@@ -27,6 +27,7 @@ struct Timers {
   double total_phase2, to1D, to2D, fft1, fft2, trans1, trans2;
   // Phase 3 timers
   double total_phase3;
+	double total_phase4;
 };
 
 class Controller : public CBase_Controller {

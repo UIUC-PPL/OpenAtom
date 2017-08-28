@@ -51,7 +51,6 @@ void PMatrix::generateEpsilon(CProxy_EpsMatrix proxy, std::vector<int> accept){
     msg = new(eps_cols)Phase3Message();
     for(int j=0;j<config.tile_cols;j++){
 
-  //    CkPrintf("\nValue of jnew=%d, jnew_local=%d\n", jnew, jnew_local); 
       if(accept[j]){
         msg->data[jnew_local] = data[j];
         msg->data[jnew_local] *= -1 * sqrt(vcoulb[inew]) * sqrt( vcoulb[jnew]);
@@ -137,9 +136,9 @@ void PMatrix::reportPTime() {
 
 void PMatrix::applyFs() {
   double start = CmiWallTimer();
-//  print_res();
+
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
-//CkPrintf("\napplyFs entered\n");
+
 #ifdef USE_LAPACK
   // Common variables for both ZGERC and ZGEMM
   int M = config.tile_rows, N = config.tile_cols;
@@ -160,7 +159,7 @@ void PMatrix::applyFs() {
     complex* f = psi_cache->getF(l,completed_chunks);
     ZGERC(&N, &M, &alpha, &(f[start_col]), &K, &(f[start_row]), &K, data, &N);
   }
-#endif
+#endif // endif for ifdef USE_ZGEMM
 #else
   for (int l = 0; l < L; l++) {
     complex* f = psi_cache->getF(l,completed_chunks);
@@ -170,7 +169,6 @@ void PMatrix::applyFs() {
       }
     }
   }
-//  CkPrintf("\nApply Fs got fs that were %d", psi_cache->getWrote());
 #endif // endif for ifdef USE_LAPACK
   completed_chunks++;
   contribute(CkCallback(CkReductionTarget(Controller, psiComplete), controller_proxy));
@@ -195,7 +193,7 @@ void PMatrix::fftRows(int direction) {
   }
 
   // Let the controller know we have completed the fft
-//  contribute(CkCallback(CkReductionTarget(Controller, fftComplete), controller_proxy));
+  contribute(CkCallback(CkReductionTarget(Controller, fftComplete), controller_proxy));
 }
 
 // TODO: These methods shouldn't be part of PMatrix, and should also just be

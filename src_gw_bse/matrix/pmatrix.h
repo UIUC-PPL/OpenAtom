@@ -36,7 +36,7 @@ class PMatrix : public CBase_PMatrix {
 
     unsigned start_index, end_index;
     unsigned chare_chunk;
-    unsigned n;
+    unsigned send_count, recv_count;
     unsigned iteration;
     unsigned max_iterations;
 

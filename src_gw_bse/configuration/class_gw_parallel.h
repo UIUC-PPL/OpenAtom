@@ -20,7 +20,6 @@ class GW_PARALLEL{
     unsigned K, L, M;         // Number of k points, occupied, and unoccupied psis
     unsigned n_elems;         // Number of elements in psi
     unsigned pipeline_stages; // Number of stages in the M pipeline
-    unsigned transpose_stages; // Number of stages in fft transpose pipeline
     unsigned rows_per_chare;  // Rows per PMatrix chare
     unsigned cols_per_chare;  // Columns per PMatrix chare
     unsigned transpose_stages; // Number of stages in transpose
@@ -33,7 +32,6 @@ class GW_PARALLEL{
       K = L = M = 0;
       n_elems = 0;
       pipeline_stages = 0;
-      transpose_stages = 0;
       rows_per_chare = 0;
       cols_per_chare = 0;
       transpose_stages = 0;
