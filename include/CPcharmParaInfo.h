@@ -241,7 +241,7 @@ class CPcharmParaInfo {
 //=============================================================================
 
 //=============================================================================
-   CPcharmParaInfo(CPcharmParaInfo &s){
+   CPcharmParaInfo(const CPcharmParaInfo &s){
 //=============================================================================
 #ifdef _CP_DEBUG_PARAINFO_VERBOSE_
      CkPrintf("[%d] CPcharmParaInfo copy constructor\n",CkMyPe());
