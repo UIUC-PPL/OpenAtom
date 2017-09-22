@@ -907,8 +907,15 @@ void PairCalculator::multiplyForward(bool flag_dp)
    * @note: This if condition originally lived in acceptPairData(). Has been shoveled here
    * to reduce branching over there.
    */
+
+  /*  sending this as a prioritized message actually creates a race condition with the arrival of gamma in the backward path.  Therefore, it is only correct to call it inline, so that the Fpsi operation is safely complete before there is any chance of gamma even existing.
+
+      if(expectOrthoT && numRecdBWOT==numOrtho)
+      thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).bwMultiplyDynOrthoT();
+
+  */
   if(expectOrthoT && numRecdBWOT==numOrtho)
-    thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).bwMultiplyDynOrthoT();
+    bwMultiplyDynOrthoT();
 }
 
 
