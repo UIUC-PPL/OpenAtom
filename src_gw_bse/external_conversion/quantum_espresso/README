@@ -19,6 +19,15 @@ EXAMPLE:
 
 In this directory, a sample input file is included (in.pw2openatom). 
 
+Before running pw2openatom.x, STATES directory should exist in your working directory.
+"makewfndir.sh" will create directories for you.
+Usage for makewfndir.sh: 
+./makewfndir.sh num_kpoint num_spin
+
+num_kpoint is the number of k points of your system.
+num_spin is the number of spin in your system.
+
+
 ====================================
 INPUT FILE DESCRIPTION
 
