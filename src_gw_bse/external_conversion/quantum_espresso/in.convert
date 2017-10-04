@@ -1,9 +1,0 @@
-&INPUT
-   prefix='Si'
-   work_dir='./'
-   fsysname = 'sysinfo.dat'
-   doublepack = .false.
-   shift_flag = .false.
-   gpp_flag = .true.
-   Vxc_flag = .false.
-/
