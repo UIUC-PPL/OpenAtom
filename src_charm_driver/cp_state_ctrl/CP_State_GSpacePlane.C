@@ -11,7 +11,7 @@
 //#define BARRIER_CP_GSPACE_NONLOCAL
 //#define BARRIER_CP_GSPACE_IFFT
 
-
+//#define _CP_GS_DEBUG_COMPARE_VKS_ 1
 //============================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //============================================================================
@@ -145,9 +145,10 @@ void CP_State_GSpacePlane::psiCgOvlap(CkReductionMsg *msg){
     exitFlag=1;
     if(thisIndex.x==0 && thisIndex.y==0){
       fprintf(temperScreenFile,"@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-      fprintf(temperScreenFile, "Mag psi force %.10g > %.10g too large for CP dynamics. Ciao! \n",
-          fmagPsi_total/rnatm,tol_cp_dyn);
+      fprintf(temperScreenFile, "{%d} Mag psi force %.10g > %.10g too large for CP dynamics. Ciao! \n", 
+	      thisInstance.proxyOffset, fmagPsi_total/rnatm, tol_cp_dyn);
       fprintf(temperScreenFile,"@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+      CkAbort("Mag psi force too large\n");
     }//endif
   }//endif
   int numBeads=config.UberImax;
@@ -1693,10 +1694,12 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_VKS_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("vks comp bf %d %d\n",thisIndex.x,thisIndex.y);
     if(savedvksBf==NULL){ // load it
       savedvksBf= new complex[gs.numPoints];
     }//endif
-    loadMatrixUber(thisInstance.proxyOffset."vksBf",(double *)savedvksBf, 1,
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration, "vksBf",(double *)savedvksBf, 1,
 		   gs.numPoints*2,thisIndex.y,thisIndex.x,thisIndex.x,0,false);
 
     if(savedforceBf==NULL){ // load it
@@ -1971,6 +1974,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp psi lambda bf %d %d\n",thisIndex.x,thisIndex.y);
+
     char name1[100];
     char name2[100];
     sprintf(name1, "lambdaBf.iter.%d", iteration);
@@ -2137,6 +2143,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     complex *data     = msg->result;
     int       N       = msg->N;
     int offset        = msg->myoffset;
+    CkAssert(offset>=0);
     if(offset<0){offset=0;}
 
 #ifdef _NAN_CHECK_
@@ -2276,6 +2283,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp lambda af %d %d\n",thisIndex.x,thisIndex.y);
+
     double testvalue=0.00000001;
     if(savedlambdaAf==NULL){ // load it
       savedlambdaAf= new complex[gs.numPoints];
@@ -2982,7 +2992,69 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     if(ncoef>0){
       complex *psi     = gs.packedPlaneData;
       complex *psi_red = gs.packedRedPsi;
+#ifdef _CP_GS_DUMP_PSI_
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration, "psiBfRed",(double *)psi, 1, gs.numPoints*2,
+        thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+#endif
+
+#ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp psi bf %d %d\n",thisIndex.x,thisIndex.y);
+
+    double testvalue=0.00000001;
+    if(savedpsiBfp==NULL){ // alloc it
+      savedpsiBfp= new complex[gs.numPoints];
+    }
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,"psiBfRed",(double *)savedpsiBfp, 1, gs.numPoints*2,
+          thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+    for(int i=0;i<gs.numPoints;i++){
+      if(fabs(psi[i].re-savedpsiBfp[i].re)>testvalue){
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].re, savedpsiBfp[i].re, "psiBfp", iteration);
+      }//endif
+      if(fabs(psi[i].im-savedpsiBfp[i].im)>testvalue){
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].im, savedpsiBfp[i].im, "psiBfp", iteration);
+      }//endif
+
+      CkAssert(fabs(psi[i].re-savedpsiBfp[i].re)<testvalue);
+      CkAssert(fabs(psi[i].im-savedpsiBfp[i].im)<testvalue);
+    }//endfor
+#endif
+
+
       for(int i=0;i<ncoef;i++){psi[i]=psi_red[i];}
+
+#ifdef _CP_GS_DUMP_PSI_
+    dumpMatrixUberIter(thisInstance.proxyOffset, iteration, "psiAfRed",(double *)psi, 1, gs.numPoints*2,
+        thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+#endif
+
+#ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp red psi %d %d\n",thisIndex.x,thisIndex.y);
+
+    testvalue=0.00000001;
+    if(savedpsiBfp==NULL){ // alloc it
+      savedpsiBfp= new complex[gs.numPoints];
+    }
+    loadMatrixUberIter(thisInstance.proxyOffset, iteration,"psiAfRed",(double *)savedpsiBfp, 1, gs.numPoints*2,
+          thisIndex.y,thisIndex.x,thisIndex.x,0,false);
+    for(int i=0;i<gs.numPoints;i++){
+      if(fabs(psi[i].re-savedpsiBfp[i].re)>testvalue){
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].re, savedpsiBfp[i].re, "psiBfp", iteration);
+      }//endif
+      if(fabs(psi[i].im-savedpsiBfp[i].im)>testvalue){
+        fprintf(stderr, "GSP [%d,%d] %d element psi  %.10g not %.10g from %s iter %d\n",
+		thisIndex.x, thisIndex.y,i, psi[i].im, savedpsiBfp[i].im, "psiBfp", iteration);
+      }//endif
+
+      CkAssert(fabs(psi[i].re-savedpsiBfp[i].re)<testvalue);
+      CkAssert(fabs(psi[i].im-savedpsiBfp[i].im)<testvalue);
+    }//endfor
+#endif
+
     }//endif
 
   }//end routine
@@ -3064,6 +3136,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp psi bf sympc %d %d\n",thisIndex.x,thisIndex.y);
+
     double testvalue=0.00000001;
     if(savedpsiBfp==NULL){ // alloc it
       savedpsiBfp= new complex[gs.numPoints];
@@ -3322,6 +3397,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 #endif
 
 #ifdef _CP_GS_DEBUG_COMPARE_PSI_
+    if(thisIndex.x==0&&thisIndex.y==0)
+      CkPrintf("comp donewpsi %d %d\n",thisIndex.x,thisIndex.y);
+
     double testvalue=0.00000001;
     if(savedpsiAf==NULL){
       savedpsiAf= new complex[gs.numPoints];
@@ -3449,34 +3527,6 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
   //==============================================================================
 
 
-  //==============================================================================
-  //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  //==============================================================================
-  /** \brief when all red psi velocities are in, integrate */
-  //==============================================================================
-  void CP_State_GSpacePlane::doneRedPsiVIntegrate() {
-  //==============================================================================
-    eesCache *eesData = UeesCacheProxy[thisInstance.proxyOffset].ckLocalBranch ();
-    double *coef_mass = eesData->GspData[iplane_ind]->coef_mass;
-    int ncoef         = gs.numPoints;
-    int ncoef_red     = gs.nkx0_red;
-    complex *vpsi     = gs.packedVelData;
-    int istrt0        = gs.nkx0_red;
-    int istrt         = gs.nkx0_red+gs.nkx0_zero;
-    int iend          = gs.nkx0_red+gs.nkx0_uni;
-
-    if(ncoef_red>0){
-      complex *vpsi_red = gs.packedRedPsiV;
-      for(int i=0;i<ncoef_red;i++){vpsi[i]=vpsi_red[i];}
-    }//endif
-
-    ake_old = 0.0;
-    for(int i=istrt0;i<istrt;i++){ake_old += vpsi[i].getMagSqr()*coef_mass[i];}       // g=0
-    for(int i=istrt;i<iend;i++)  {ake_old += vpsi[i].getMagSqr()*(2.0*coef_mass[i]);} // gx=0
-    for(int i=iend;i<ncoef;i++)  {ake_old += vpsi[i].getMagSqr()*coef_mass[i];}       // gx!=0
-
-  }//end routine
-  //==============================================================================
 
   //==============================================================================
   //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -3729,6 +3779,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
   // Compute the ficitious kinetic energy if you want to rescale it
 
     if(sim->cp_norb_rot_kescal==1){
+      CkAbort("Glenn!!! FIX ake_old computation so this does something sane\n");
       eesCache *eesData   = UeesCacheProxy[thisInstance.proxyOffset].ckLocalBranch ();
       double *coef_mass   = eesData->GspData[iplane_ind]->coef_mass;
       int istrt0          = gs.nkx0_red;
@@ -3741,6 +3792,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
       for(int i=iend;i<ncoef;i++)  {ake_new += vpsi[i].getMagSqr()*coef_mass[i];}       // gx!=0
 
       double scale = sqrt(ake_old/ake_new);
+      ake_old=ake_new;
       for(int i=0;i<ncoef;i++){
         vpsi[i].re *= scale;
         vpsi[i].im *= scale;
@@ -3761,90 +3813,6 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 
 
 
-  //==============================================================================
-  //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-  //==============================================================================
-  /** process all the PsiV data */
-  //==============================================================================
-  void CP_State_GSpacePlane::doNewPsiV(){
-    //=============================================================================
-    /// (0) Error check
-
-#ifdef DEBUG_CP_GSPACE_PSIV
-    CkPrintf("GSpace[%d,%d] doNewPsiV\n",thisIndex.x,thisIndex.y);
-#endif
-
-    CkAssert(countVPsi==AllPsiExpected);
-
-    if(iRecvRedPsiV!=1 || iSentRedPsiV!=1){
-      CkPrintf("GSpace[%d,%d] Error: You can't doNewPsiV() without sending/receiving the redundant PsiV values around: finished %d %d : %d %d\n",thisIndex.x,thisIndex.y,iRecvRedPsiV,iSentRedPsiV,numRecvRedPsi,gs.nkx0_red);
-      CkAbort("Error: GSpace cannot doNewPsiV() without sending the redundant/receiving PsiV values around\n");
-    }//endif
-
-    //=============================================================================
-    /// (I) Reset counters and rescale the kx=0 stuff
-
-    acceptedVPsi    = true;
-    countVPsi       = 0;
-
-    complex *vpsi = gs.packedVelData;
-
-#ifndef PAIRCALC_TEST_DUMP
-    for(int i=0;i<config.numChunksSym;i++){countVPsiO[i]=0;}
-    if(gs.ihave_kx0==1){
-      double rad2 = sqrt(2.0);
-      for(int i=gs.kx0_strt; i<gs.kx0_end; i++){vpsi[i] *= rad2;}
-    }//endif
-#endif
-
-    //=============================================================================
-    /// III) Replace by finite difference until update is better
-
-    CPcharmParaInfo *sim = CPcharmParaInfo::get();
-    eesCache *eesData    = UeesCacheProxy[thisInstance.proxyOffset].ckLocalBranch ();
-
-    double *coef_mass    = eesData->GspData[iplane_ind]->coef_mass;
-    double dt           = sim->dt;
-    double dt2          = 2.0*dt;
-    int ncoef           = gs.numPoints;
-    complex *psi_g      = gs.packedPlaneData;
-    complex *psi_g_tmp  = gs.packedPlaneDataTemp;
-    int istrt0          = gs.nkx0_red;
-    int istrt           = gs.nkx0_red+gs.nkx0_zero;
-    int iend            = gs.nkx0_red+gs.nkx0_uni;
-
-    for(int i=0;i<ncoef;i++){
-      double vre = (psi_g[i].re-psi_g_tmp[i].re)/dt;
-      double vim = (psi_g[i].im-psi_g_tmp[i].im)/dt;
-      vpsi[i].re = vre;
-      vpsi[i].im = vim;
-    }//endif
-
-    double ake_new = 0.0;
-    for(int i=istrt0;i<istrt;i++){ake_new += vpsi[i].getMagSqr()*coef_mass[i];}       // g=0
-    for(int i=istrt;i<iend;i++)  {ake_new += vpsi[i].getMagSqr()*(2.0*coef_mass[i]);} // gx=0
-    for(int i=iend;i<ncoef;i++)  {ake_new += vpsi[i].getMagSqr()*coef_mass[i];}       // gx!=0
-
-    if(sim->cp_norb_rot_kescal==1){
-      double scale = sqrt(ake_old/ake_new);
-      for(int i=0;i<ncoef;i++){
-        vpsi[i].re *= scale;
-        vpsi[i].im *= scale;
-      }//endfor
-    }//endif
-
-    //=============================================================================
-    //// II) A Barrier for debugging
-
-#ifdef BARRIER_CP_GSPACE_PSIV
-    int wehaveours=1;
-    contribute(sizeof(int),&wehaveours,CkReduction::sum_int,
-        CkCallback(CkIndex_CP_State_GSpacePlane::allDonePsiV(NULL),thisProxy));
-#endif
-
-    //------------------------------------------------------------------------------
-  }//end routine
-  //==============================================================================
 
   //==============================================================================
   //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

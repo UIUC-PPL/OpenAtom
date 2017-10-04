@@ -199,7 +199,6 @@ class CP_State_GSpacePlane: public CBase_CP_State_GSpacePlane
     void unpackNewPsiV(CkReductionMsg *msg);
     void unpackNewPsiV(partialResultMsg *msg);
     void finiteDifferencePsiV();
-    void doNewPsiV();
     void psiCgOvlap(CkReductionMsg *msg);
     void unpackLambda(CkReductionMsg *msg);
     void unpackLambda(partialResultMsg *msg);
@@ -217,7 +216,6 @@ class CP_State_GSpacePlane: public CBase_CP_State_GSpacePlane
     void startFFT(CkReductionMsg *msg);
     void sendRedPsiV();
     void unpackRedPsiV(GSRedPsiMsg *msg);
-    void doneRedPsiVIntegrate();
     void screenPrintWallTimes();
     void acceptNewTemperature(double temp);
     const UberCollection thisInstance;        
