@@ -253,7 +253,8 @@ void Ortho::start_calc(CkReductionMsg *msg){
     }//endfor
   }//endif
   // do tolerance check on smat, do_iteration will be called by reduction root
-  if(cfg.isDynamics && (numGlobalIter % config.toleranceInterval)==0 && numGlobalIter>1){
+  //  if(cfg.isDynamics && (numGlobalIter % config.toleranceInterval)==0 && numGlobalIter>1){
+  if(cfg.isDynamics){ // we always pay the dynamics tax, because dynamics is cranky
     double max =array_diag_max(m,n,S);
     contribute(sizeof(double),&max, CkReduction::max_double, 
         CkCallback(CkIndex_Ortho::maxCheck(NULL),CkArrayIndex2D(0,0),
@@ -462,11 +463,11 @@ void Ortho::maxCheck(CkReductionMsg *msg){
 
   double tolMax=fabs(((double *) msg->getData())[0]);
   delete msg;
-  //  CkPrintf("SMAT tol    = %g\n", tolMax);
+  if(numGlobalIter<=1)    CkPrintf("SMAT tol    = %g\n", tolMax);
   if(tolMax < cfg.maxTolerance){
     toleranceCheckOrthoT=false;
     thisProxy.do_iteration();
-  }else{
+  }else if(numGlobalIter >1) {
     // smat is outside of the tolerance range  need new PsiV
     toleranceCheckOrthoT=true;
     CkPrintf("recalculating PsiV due to tolerance failure \n");
@@ -474,7 +475,13 @@ void Ortho::maxCheck(CkReductionMsg *msg){
     // Use the callback to trigger tolerance failure events.
     cfg.uponToleranceFailure.send();
     // Simply suspend all work. We'll be resumed (by GSpaceDriver) when tolerance updates are done.
-  }//endif
+  }
+  else {
+    CkPrintf("S matrix tolerance = %f while maxTolerance = %f\n",tolMax, cfg.maxTolerance);
+    
+    CkAbort("Initial S Matrix fails tolerance check");
+  }
+//endif
 
   //============================================================================
 }//end routine

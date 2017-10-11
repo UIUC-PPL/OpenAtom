@@ -4,6 +4,7 @@
 
 CkReduction::reducerType sumMatrixDoubleType;
 //#define _PAIRCALC_DEBUG_DUMP_BW_ 1
+//#define _PAIRCALC_DEBUG_DUMP_FW_ 1
 
 void registersumMatrixDouble(void)
 {

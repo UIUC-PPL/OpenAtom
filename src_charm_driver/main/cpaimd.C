@@ -2079,7 +2079,11 @@ void control_physics_to_driver(UberCollection thisInstance, CPcharmParaInfo *sim
       // FIXME, this needs a real computation
       // also we need a real map. This was a naive, simple mapping scheme. We
       // can do better.
+#ifndef FORCE_ONE_ATOMCHARE
       int nChareAtoms=(config.numPesPerInstance<natm) ? config.numPesPerInstance : natm;
+#else
+      int nChareAtoms=1;
+#endif
 
       if (firstInstance || config.simpleTopo) {
 	// build the base atom map

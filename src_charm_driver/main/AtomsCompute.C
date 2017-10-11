@@ -1215,7 +1215,7 @@ void AtomsCompute::acceptAtoms(AtomMsg *msg) {
     int output_on = config.atmOutput;
     if(output_on==1 && *iteration<=config.maxIter-1 ){ 
       CPcharmParaInfo *sim  = CPcharmParaInfo::get(); 
-      if(((*iteration+2) % sim->cp_dyn_reset_frq)==0) //|| (((*iteration+1) % sim->cp_dyn_reset_frq)==0))
+      if(sim->cp_dyn_update==0 && ((*iteration+2) % sim->cp_dyn_reset_frq)==0) //|| (((*iteration+1) % sim->cp_dyn_reset_frq)==0))
 	{
 	  if(thisIndex==0){
 	    fprintf(temperScreenFile,"-----------------------------------\n");

@@ -2750,8 +2750,9 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 	sumPsiG+=psi_g[i].getMagSqr();
 	sumForces+=forces[i].getMagSqr();
       }
-    if(sumForces>=10.0 || sumVpsi>0.00001){
+    if(sumForces>=20.0 || sumVpsi>0.0001){
       fprintf(stderr,"[%d][%d] sumsqr Vpsi %.10g psig %.10g forces %.10g\n",thisIndex.x,thisIndex.y,sumVpsi, sumPsiG, sumForces);
+      CkPrintf(stderr,"[%d][%d] sumsqr Vpsi %.10g psig %.10g forces %.10g\n",thisIndex.x,thisIndex.y,sumVpsi, sumPsiG, sumForces);
     }
     CkAssert(sumForces<10.0);
     CkAssert(sumVpsi<0.00001);
