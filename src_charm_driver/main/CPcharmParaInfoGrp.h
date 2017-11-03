@@ -8,7 +8,7 @@ class CPcharmParaInfoGrp: public Group
 {
   public:
     CPcharmParaInfoGrp(CkMigrateMessage *m)  {}
-    CPcharmParaInfoGrp(CPcharmParaInfo &s)   { 
+    CPcharmParaInfoGrp(const CPcharmParaInfo &s) {
       for(int i=0;i<11;i++){
         CkPrintf("before group Rcom copy constructore %d : %d %d \n",i,s.RCommPkg[i].num_recv_tot,s.RCommPkg[i].num_send_tot);
       }

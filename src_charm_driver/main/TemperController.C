@@ -32,7 +32,7 @@ TemperController::TemperController(int _simtype, double *_temperatures, int numt
 }
 
 
-void TemperController::totalEnergy(int temper, int iteration, EnergyStruct &energies)
+void TemperController::totalEnergy(int temper, int iteration, const EnergyStruct &energies)
 {
   sumEnergies(energies, temper);
   CPcharmParaInfo *sim  = CPcharmParaInfo::get(); 
@@ -42,7 +42,7 @@ void TemperController::totalEnergy(int temper, int iteration, EnergyStruct &ener
     }
 }
 
-void TemperController::acceptData(int temper, int iteration, EnergyStruct &energies)
+void TemperController::acceptData(int temper, int iteration, const EnergyStruct &energies)
 {
   reportedIn++;
 
@@ -64,7 +64,7 @@ void TemperController::acceptData(int temper, int iteration, EnergyStruct &energ
     }
 }
 
-void TemperController::sumEnergies(EnergyStruct &inEnergy, int temper)
+void TemperController::sumEnergies(const EnergyStruct &inEnergy, int temper)
 {
   temperEnergy[temper]= inEnergy.enl + inEnergy.eext + inEnergy.eke 
     + inEnergy.ehart + inEnergy.egga + inEnergy.eexc + inEnergy.fictEke 

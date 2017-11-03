@@ -72,7 +72,7 @@ EnergyGroup::EnergyGroup (UberCollection _thisInstance) : thisInstance(_thisInst
  * replicate the energies everywhere for consistency and tolerance
  * checking.
  */
-void EnergyGroup::updateEnergiesFromGS(EnergyStruct &es, UberCollection sender) {
+void EnergyGroup::updateEnergiesFromGS(const EnergyStruct &es, UberCollection sender) {
   //==========================================================================
   countOfEnergies++;
   if(config.UberJmax>1 || config.UberMmax >1)

@@ -786,7 +786,7 @@ Ortho::Ortho(int _m, int _n, CLA_Matrix_interface _matA1,
     CLA_Matrix_interface _matA2, CLA_Matrix_interface _matB2,
     CLA_Matrix_interface _matC2, CLA_Matrix_interface _matA3,
     CLA_Matrix_interface _matB3, CLA_Matrix_interface _matC3,
-    orthoConfig &_cfg,
+    const orthoConfig &_cfg,
     CkArrayID _step2Helper,
 	     int timekeep, CkGroupID _oMCastGID, CkGroupID _oRedGID, bool _lsda):
   cfg(_cfg),

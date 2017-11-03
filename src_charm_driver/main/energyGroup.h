@@ -20,7 +20,7 @@ class EnergyGroup : public Group {
     int iteration_gsp;
     int iteration_atm;
     int kpointEnergyDoneCount;
-    void updateEnergiesFromGS(EnergyStruct &, UberCollection);
+    void updateEnergiesFromGS(const EnergyStruct &, UberCollection);
     void energyDone(CkReductionMsg *);
     void energyDone();
     void sendToTemper(CkReductionMsg *);
