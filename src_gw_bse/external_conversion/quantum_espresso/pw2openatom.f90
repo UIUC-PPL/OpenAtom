@@ -487,7 +487,7 @@ subroutine read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm, &
    
    ! open state.out file
    open(iunit, file=trim(fplace)//trim(fname), form='formatted', status='replace', iostat=open_status)
-   if (open_status \= 0 ) then
+   if (open_status .ne. 0 ) then
       print*, 'Could not open file ', trim(fplace)//trim(fname), '. Please check your STATES directory'
    endif
 
