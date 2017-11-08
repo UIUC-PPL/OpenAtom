@@ -15,7 +15,6 @@
 
 #define eps_rows 20
 #define eps_cols 20
-#define NSIZE 4
 
 void init_plan_lock();
 
@@ -295,7 +294,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
 #endif
   received_chunks++;
 #ifdef TESTING
-if(in_np_list(msg->state_index) && n_np <= NSIZE)
+if(in_np_list(msg->state_index) && n_np <= n_list_size)
 {
   FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
   fvec_cache->computeFTilde(fsave);
@@ -536,7 +535,7 @@ void FVectorCache::setDim(int dim, std::vector<int> accept) {
     totalSize += size_y;
   }
 
-  fs = new complex[K*NSIZE*L*totalSize];
+  fs = new complex[K*n_list_size*L*totalSize];
 
   contribute(CkCallback(CkReductionTarget(Controller,fCacheReady), controller_proxy));
 }
@@ -548,7 +547,7 @@ void FVectorCache::putFVec(int kpt, int n, complex* fs_input){ //fs_input has al
       int global_x = global_offset[2*i];
       global_x += l*ndata;
       int local_x = local_offset[2*i];
-      local_x += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      local_x += kpt*n_list_size*L*totalSize + n*L*totalSize + l*totalSize;
 
       complex *store_x = &fs[local_x];
       complex *load_x = &fs_input[global_x];
@@ -557,7 +556,7 @@ void FVectorCache::putFVec(int kpt, int n, complex* fs_input){ //fs_input has al
       int global_y = global_offset[2*i+1];
       global_y += l*ndata;
       int local_y = local_offset[2*i+1];
-      local_y += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      local_y += kpt*n_list_size*L*totalSize + n*L*totalSize + l*totalSize;
 
       complex *store_y = &fs[local_y];
       complex *load_y = &fs_input[global_y];
@@ -575,13 +574,13 @@ complex* FVectorCache::getFVec(int kpt, int n, int l, int chare_start_index, int
   for(int i=0;i<my_chare_count;i++){
     if(chare_start_index == my_eps_chare_indices_x[i]){
       int local_x = local_offset[2*i];
-      local_x += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      local_x += kpt*n_list_size*L*totalSize + n*L*totalSize + l*totalSize;
       complex *f = &fs[local_x];
       return f;
     }
     if(chare_start_index == my_eps_chare_indices_y[i]){
       int local_y = local_offset[2*i+1];
-      local_y += kpt*NSIZE*L*totalSize + n*L*totalSize + l*totalSize;
+      local_y += kpt*n_list_size*L*totalSize + n*L*totalSize + l*totalSize;
       complex *f = &fs[local_y];
       return f;
     }

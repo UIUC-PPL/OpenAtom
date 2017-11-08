@@ -13,7 +13,6 @@ using std::memcpy;
 
 #define eps_rows 20
 #define eps_cols 20
-#define NSIZE 4
 #define IDX_eps(r,c) ((r)*eps_cols + (c))
 
 EpsMatrix::EpsMatrix() {
