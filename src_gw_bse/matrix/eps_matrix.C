@@ -144,6 +144,68 @@ void EpsMatrix::bareExchange() {
   contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
 }
 
+void EpsMatrix::coh(){
+  complex contribution = (0.0,0.0);
+  FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
+  PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
+
+  int psi_size = nfft[0]*nfft[1]*nfft[2];
+
+  complex* states;// = psi_cache->getStates();
+  std::vector<int> accept_v;// = f_cache->getAcceptVector();
+  std::vector<int> geps_x;// = f_cache->getGepsXVector();
+  std::vector<int> geps_y;// = f_cache->getGepsYVector();
+  std::vector<int> geps_z;// = f_cache->getGepsZVector();
+
+  for (int k = 0; k < K; k++) {
+
+    complex *f;
+    f = new complex[psi_size];
+
+//This could probably done once per node and cached
+    int counter = 0;
+    for (int i = 0; i < f_cache->getNSize(); i++){
+      for (int j = 0; j < f_cache->getNSize(); j++){
+        counter = 0;
+        for(int g=0; g < psi_size; g++){
+          if(accept_v[g]){
+            f[counter] += states[i*psi_size + g] * states[j*psi_size + g];
+            counter++;
+          }
+        }
+        if(counter != psi_size) {
+          CkPrintf("\nWarning!!! %d != %d\n", counter, psi_size);
+          CkAbort("\nsize is not equal expected");
+        }
+
+      }
+    }
+
+    for (int i = 0; i < f_cache->getNSize(); i++) {
+      for (int j = 0; j < f_cache->getNSize(); j++) {
+        for (int r = 0; r < config.tile_rows; r++) {
+          for (int c = 0; c < config.tile_cols; c++) {
+            for(int g=0; g<psi_size; g++) {
+              //apply some filters on which g's should be applied
+              if(geps_x[thisIndex.y*eps_cols+c]-geps_x[thisIndex.x*eps_rows+r] == geps_x[g] &&
+                  geps_y[thisIndex.y*eps_cols+c]-geps_y[thisIndex.x*eps_rows+r] == geps_y[g] &&
+                  geps_z[thisIndex.y*eps_cols+c]-geps_z[thisIndex.x*eps_rows+r] == geps_z[g])
+              {
+                int index = ((thisIndex.x*eps_rows+r)*137)+(thisIndex.y*eps_cols+c);
+                contribution += f[index]*data[IDX_eps(r,c)];
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+  CkCallback cb(CkReductionTarget(Controller, cohComplete), controller_proxy);
+  contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
+}
+
 void EpsMatrix::findAlpha() {
   if (config.chareCols() != 1) {
     CkAbort("findAlpha() only implemented for 1D decompositions\n");

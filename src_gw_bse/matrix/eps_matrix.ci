@@ -22,6 +22,7 @@ module eps_matrix {
     entry void receiveFs(Phase3Message*);
     entry void bareExchange();
     entry void screenedExchange();
+    entry void coh();
     entry void findAlpha();
     entry void multiply_coulb();
     entry void createCopy(CProxy_EpsMatrix other, bool todo);

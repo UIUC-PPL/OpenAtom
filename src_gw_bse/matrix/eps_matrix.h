@@ -34,6 +34,7 @@ class EpsMatrix : public CBase_EpsMatrix {
     void findAlpha(void);
     void screenedExchange();
     void bareExchange();
+    void coh();
     void scalar_multiply(double alpha);
     void convergence_check(CProxy_EpsMatrix cmp_proxy);
     void add_compl_two();
