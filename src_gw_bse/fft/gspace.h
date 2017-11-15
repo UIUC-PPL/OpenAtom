@@ -13,7 +13,9 @@ class GSPACE{
     
     // size of FFT box for density
     //int nfftDense[3];
-
+    int *ig_diff;
+    int *jg_diff;
+    int *kg_diff;
     
 };
 

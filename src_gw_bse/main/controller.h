@@ -103,6 +103,7 @@ class PsiCache : public CBase_PsiCache {
     complex* getF(unsigned,unsigned) const;
     void setVCoulb(std::vector<double> vcoulb_in);
     std::vector<double> getVCoulb();
+    complex* getStates(){return states;}
     bool in_np_list(int n_index);
     void setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols);
     void reportInfo();
@@ -120,6 +121,7 @@ class PsiCache : public CBase_PsiCache {
     complex*** psis_shifted;
     complex* fs;
     complex *fsave;
+    complex *states;
     std::vector<double> vcoulb;
     complex* umklapp_factor;
     int n_np;
@@ -136,13 +138,18 @@ class FVectorCache : public CBase_FVectorCache {
   FVectorCache_SDAG_CODE
   public:
     FVectorCache(){ storing = true;}
-    void setDim(int dim, std::vector<int> accept);
+    void setDim(int dim, std::vector<int> accept,
+    std::vector<int> geps_X, std::vector<int> geps_Y, std::vector<int> geps_Z);
     void computeFTilde(complex* fs_in);
     void putFVec(int kpt, int n, complex* fs_input);
     complex* getFVec(int kpt, int n, int l, int start, int size);
     void applyCutoff(complex* fs_in);
     void findIndices();
     int getNSize(){ return n_list_size;}
+    std::vector<int> getAcceptVector() { return accept_vector;}
+    std::vector<int> getGepsXVector() { return geps_x;}
+    std::vector<int> getGepsYVector() { return geps_y;}
+    std::vector<int> getGepsZVector() { return geps_z;}
   private:
     FComputePacket f_packet;
     unsigned K, L, psi_size, fcount, n_list_size, node_count;
@@ -158,6 +165,9 @@ class FVectorCache : public CBase_FVectorCache {
     complex sum;
     complex* fs;
     std::vector<int> accept_vector;
+    std::vector<int> geps_x;
+    std::vector<int> geps_y;
+    std::vector<int> geps_z;
     int num_chares, num_chares_x, num_chares_y, chare_factor;
     int *charesX;
     int *charesY;

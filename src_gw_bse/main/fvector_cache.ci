@@ -4,6 +4,7 @@ module fvector_cache {
 
   nodegroup FVectorCache {
     entry FVectorCache();
-    entry void setDim(int dim, std::vector<int> accept);
+    entry void setDim(int dim, std::vector<int> accept,std::vector<int> geps_X,
+                      std::vector<int> geps_Y, std::vector<int> geps_Z);
   };
 };

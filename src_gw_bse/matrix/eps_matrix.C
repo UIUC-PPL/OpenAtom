@@ -145,53 +145,67 @@ void EpsMatrix::bareExchange() {
 }
 
 void EpsMatrix::coh(){
+
   complex contribution = (0.0,0.0);
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
 
+  complex* states = psi_cache->getStates();
   int psi_size = nfft[0]*nfft[1]*nfft[2];
-
-  complex* states;// = psi_cache->getStates();
-  std::vector<int> accept_v;// = f_cache->getAcceptVector();
-  std::vector<int> geps_x;// = f_cache->getGepsXVector();
-  std::vector<int> geps_y;// = f_cache->getGepsYVector();
-  std::vector<int> geps_z;// = f_cache->getGepsZVector();
+  std::vector<int> accept_v = f_cache->getAcceptVector();
+  std::vector<int> geps_x = f_cache->getGepsXVector();
+  std::vector<int> geps_y = f_cache->getGepsYVector();
+  std::vector<int> geps_z = f_cache->getGepsZVector();
 
   for (int k = 0; k < K; k++) {
-
     complex *f;
-    f = new complex[psi_size];
+    int epsilon_size = 0;
 
-//This could probably done once per node and cached
+    for(int g=0;g<psi_size;g++)
+      if(accept_v[g]) epsilon_size++;
+
+    f = new complex[epsilon_size];
+
+//This could probably be done once per node and cached
     int counter = 0;
     for (int i = 0; i < f_cache->getNSize(); i++){
       for (int j = 0; j < f_cache->getNSize(); j++){
         counter = 0;
         for(int g=0; g < psi_size; g++){
-          if(accept_v[g]){
+          if(accept_v[g]) {
             f[counter] += states[i*psi_size + g] * states[j*psi_size + g];
             counter++;
           }
         }
-        if(counter != psi_size) {
-          CkPrintf("\nWarning!!! %d != %d\n", counter, psi_size);
+        if(counter != epsilon_size) {
+          CkPrintf("\nWarning!!! %d != %d\n", counter, epsilon_size);
           CkAbort("\nsize is not equal expected");
         }
 
       }
     }
 
+    int end_x = config.tile_rows;
+    int end_y = config.tile_cols;
+
+    int last_index = epsilon_size/eps_rows;
+    if(thisIndex.x == last_index-1) end_x = epsilon_size%eps_rows;
+    if(thisIndex.y == last_index-1) end_y = epsilon_size%eps_cols;
+
     for (int i = 0; i < f_cache->getNSize(); i++) {
       for (int j = 0; j < f_cache->getNSize(); j++) {
-        for (int r = 0; r < config.tile_rows; r++) {
-          for (int c = 0; c < config.tile_cols; c++) {
+        for (int r = 0; r < end_x; r++) {
+          for (int c = 0; c < end_y; c++) {
             for(int g=0; g<psi_size; g++) {
               //apply some filters on which g's should be applied
+              //if( (gppvec(1,igp) .eq. gvec(1,gidx(g)))
+              //.AND.(gppvec(2,igp) .eq. gvec(2,gidx(g))) &
+              //.AND. (gppvec(3,igp) .eq. gvec(3,gidx(g)) )) then
               if(geps_x[thisIndex.y*eps_cols+c]-geps_x[thisIndex.x*eps_rows+r] == geps_x[g] &&
                   geps_y[thisIndex.y*eps_cols+c]-geps_y[thisIndex.x*eps_rows+r] == geps_y[g] &&
                   geps_z[thisIndex.y*eps_cols+c]-geps_z[thisIndex.x*eps_rows+r] == geps_z[g])
               {
-                int index = ((thisIndex.x*eps_rows+r)*137)+(thisIndex.y*eps_cols+c);
+                int index = ((thisIndex.x*eps_rows+r)*epsilon_size)+(thisIndex.y*eps_cols+c);
                 contribution += f[index]*data[IDX_eps(r,c)];
               }
             }
@@ -199,11 +213,11 @@ void EpsMatrix::coh(){
         }
       }
     }
-
-  }
+  } //end of K loop
 
   CkCallback cb(CkReductionTarget(Controller, cohComplete), controller_proxy);
   contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
+
 }
 
 void EpsMatrix::findAlpha() {

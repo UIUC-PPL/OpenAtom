@@ -107,7 +107,7 @@ void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2
    double gxtmp, gytmp, gztmp;
     double vtmp[3];
     double Ekin;
-    int count = 0;
+    int eps_size = 0;
       
     for (int i=0; i<ndata; i++) { //can't be 0?
         gxtmp = gx[i] + qvec[0];
@@ -123,7 +123,7 @@ void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2
         
         if (Ekin <= epsCut) {
             accept[i] = true;
-            count += 1;
+            eps_size += 1;
         }
         else{
             accept[i] = false;
@@ -131,15 +131,15 @@ void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2
 
     }
 
-    CkPrintf("[FFT CONTROLLER] Dimension of epsilon matrix = %d\n", count);
+    CkPrintf("[FFT CONTROLLER] Dimension of epsilon matrix = %d\n", eps_size);
     // set values
-    geps->ng = count;
-    geps->ig = new int [count];
-    geps->jg = new int [count];
-    geps->kg = new int [count];
+    geps->ng = eps_size;
+    geps->ig = new int [eps_size];
+    geps->jg = new int [eps_size];
+    geps->kg = new int [eps_size];
    
     int j=0;
-   
+
     for (int i=0; i<ndata; i++) {
         if (accept[i]) {
             geps->ig[j] = gx[i];
@@ -149,8 +149,29 @@ void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2
         }
     }
    
-    if ( j!= count ) {
+    if ( j!= eps_size ) {
         CkPrintf(" Oops. Error when reducing gspace!!!");
+    }
+
+    geps->ig_diff = new int [eps_size*eps_size];
+    geps->jg_diff = new int [eps_size*eps_size];
+    geps->kg_diff = new int [eps_size*eps_size];
+
+    int ngdata = eps_size;
+    int k=0;
+
+#ifdef DEBUG_2
+    for (int i=0; i<ngdata; i++)
+      CkPrintf("\ninit_geps->ig[%d] = %d\n", i+1, geps->ig[i]);
+#endif
+    for (int i=0; i<ngdata; i++) {
+      for (int j=0; j<ngdata; j++) {
+          geps->ig_diff[k] = geps->ig[j] - geps->ig[i];
+          geps->jg_diff[k] = geps->jg[j] - geps->jg[i];
+          geps->kg_diff[k] = geps->kg[j] - geps->kg[i];
+//          CkPrintf("\ngeps->ig_diff[%d] = %d\n", k+1, geps->ig_diff[k]);
+          k += 1;
+      }
     }
    
     delete[] gx;
@@ -158,15 +179,27 @@ void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2
     delete[] gz;
 
     std::vector<int> accept_v;
+    std::vector<int> geps_x(eps_size);
+    std::vector<int> geps_y(eps_size);
+    std::vector<int> geps_z(eps_size);
     accept_v.resize(ndata);
-    for(int i=0;i<ndata;i++)
-      if(accept[i])
-        accept_v[i] = 1;
-      else
-        accept_v[i] = 0;
 
-    int epsilon_size = count;
-    controller_proxy.receiveEpsDimensions(accept_v, epsilon_size);
+    int counter = 0;
+    for(int i=0;i<ndata;i++){
+      if(accept[i]){
+        accept_v[i] = 1;
+
+        geps_x[counter] = geps->ig[counter];
+        geps_y[counter] = geps->jg[counter];
+        geps_z[counter] = geps->kg[counter];
+        counter++;
+      }
+      else{
+        accept_v[i] = 0;
+      }
+    }
+
+    controller_proxy.receiveEpsDimensions(accept_v, geps_x, geps_y, geps_z, eps_size);
 }
 
 void FFTController::destroy_fftw_stuff() {

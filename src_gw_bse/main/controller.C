@@ -140,6 +140,7 @@ PsiCache::PsiCache() {
 
   fs = new complex[L*psi_size*pipeline_stages];
   fsave = new complex[L*psi_size];
+  states = new complex[n_np*n_np*psi_size];
 
   umklapp_factor = new complex[psi_size];
 
@@ -266,6 +267,17 @@ void PsiCache::computeFs(PsiMessage* msg) {
   double*** e_occ_shifted = gwbse->gw_epsilon.Eocc_shifted;
   double*** e_unocc = gwbse->gw_epsilon.Eunocc;
 
+#define TESTING 1
+#ifdef TESTING
+  if(in_np_list(msg->state_index)){
+//Cache this
+    int data_size_x = psi_size;
+    complex *store_x = &states[(msg->state_index-L)*data_size_x];
+    complex *load_x = msg->psi;
+    memcpy(store_x, load_x, data_size_x*sizeof(complex));
+  }
+#endif
+
   // Create the FComputePacket for this set of f vectors and start CkLoop
   f_packet.size = psi_size;
   f_packet.unocc_psi = msg->psi;
@@ -294,14 +306,14 @@ void PsiCache::computeFs(PsiMessage* msg) {
 #endif
   received_chunks++;
 #ifdef TESTING
-if(in_np_list(msg->state_index) && n_np <= n_list_size)
-{
-  FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
-  fvec_cache->computeFTilde(fsave);
-//compute ftilde first - similar to ckloop above for all L's
-  fvec_cache->applyCutoff(fsave);
-  fvec_cache->putFVec(msg->k_index, msg->state_index-L, fsave);
-}
+  if(in_np_list(msg->state_index))
+  {
+    FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
+    fvec_cache->computeFTilde(fsave);
+  //compute ftilde first - similar to ckloop above for all L's
+    fvec_cache->applyCutoff(fsave);
+    fvec_cache->putFVec(msg->k_index, msg->state_index-L, fsave);
+  }
 #endif
 
   // Let the matrix chares know that the f vectors are ready
@@ -453,9 +465,13 @@ void FVectorCache::findIndices(){
   return;
 }
 
-void FVectorCache::setDim(int dim, std::vector<int> accept) {
+void FVectorCache::setDim(int dim, std::vector<int> accept,
+  std::vector<int> geps_X, std::vector<int> geps_Y, std::vector<int> geps_Z) {
   eps_chares_x = eps_chares_y = dim;
   accept_vector = accept;
+  geps_x = geps_X;
+  geps_y = geps_Y;
+  geps_z = geps_Z;
   epsilon_size = 0;
   for(int i=0;i<accept_vector.size();i++)
     if(accept_vector[i])
