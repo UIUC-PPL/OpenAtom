@@ -6,4 +6,5 @@
    shift_flag = .false.
    gpp_flag = .true.
    Vxc_flag = .false.
+   nbandschunk = 100
 /

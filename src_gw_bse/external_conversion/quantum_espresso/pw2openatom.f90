@@ -57,17 +57,19 @@ Program converter
    ! wavefunction cutoff
    real(dp) :: ecutwfc
    ! array to collect all g list in all k points
-   integer, allocatable :: gkidx_allkpt(:)
+   !integer, allocatable :: gkidx_allkpt(:)
    ! kmax_cp
    integer :: kmax_cp(3)
    ! number of g vectors
-   integer :: ngdoublepack, ngkpt
+   integer :: ngdoublepack, ngkpt, ngoa
    ! doublepack has only half sphere
    logical :: doublepack
    ! new g list that fits to OpenAtom
    integer, allocatable :: glist_doublepack(:,:), glist_kpt(:,:)
+   ! mapping between OA g list and QE g list
+   integer, allocatable :: idxmap(:)
    ! number of planewaves at each k points (same numbers!)
-   integer :: ncoeff 
+   !integer :: ncoeff 
    
    integer :: ib, ispin, ik, npwk
    integer, allocatable :: idxgk(:)
@@ -81,9 +83,14 @@ Program converter
    logical :: Vxc_flag
    character(256) :: fname_vxc
 
+   ! optional variables
+   integer :: nbandschunk ! number of bands to be read at each loop
+                         ! this number sometimes matter since this converter is serial!
+                         ! this variable will be used in read_write_wfn subroutine
+
    integer :: stdin = 5
 
-   NAMELIST /INPUT/ prefix, work_dir, fsysname, doublepack, shift_flag, gpp_flag, Vxc_flag
+   NAMELIST /INPUT/ prefix, work_dir, fsysname, doublepack, shift_flag, gpp_flag, Vxc_flag, nbandschunk
 
 !---------------------------------------------------------------------
 ! starts here
@@ -96,9 +103,10 @@ Program converter
    gpp_flag = .false.
    Vxc_flag = .false.
    fname_vxc = 'Vxcr.dat'
-   
+   nbandschunk = 0
+
    read( stdin, INPUT, iostat=ierr )
-   
+
    ! initialize QEXML library
    
    dirname = trim(work_dir) // '/' // trim(prefix) // '.save/'
@@ -148,110 +156,133 @@ Program converter
    ! of course, 0.5*|g+k|^2 < ecutwfc(original) but g itself can be outside of ecutwfc(original)
    call adjust_ecutwfc( cell, ecutwfc, nk, xk )
 
-   ! set gkidx_allkpt and initialize
-   allocate( gkidx_allkpt( ngm ) )
-   gkidx_allkpt(:) = 0 ! 0 - do not include, 1 - include
+! --- lets not set gkidx_allkpt
+!  ! set gkidx_allkpt and initialize
+!  allocate( gkidx_allkpt( ngm ) )
+!  gkidx_allkpt(:) = 0 ! 0 - do not include, 1 - include
+!  
+!  do ik = 1, nk
+!     ! read number of plane-waves at this k point
+!     call qexml_read_gk( ik, NPWK=npwk, IERR=ierr)
+!     allocate( idxgk( npwk ) )
+!     ! read plane-wave index to idxgk. idxgk connects to master_gv
+!     call qexml_read_gk( ik, index=idxgk, IERR=ierr )
+!     ! now, update gkidx_allkpt
+!     call set_gkidx_allkpt( npwk, idxgk, ngm, master_gv, gkidx_allkpt )
+
+!     deallocate( idxgk )
+!  enddo
+!  ! finally, we got the number of planewaves at each k point (each k point has the same number of planewaves)
+!  ncoeff = sum(gkidx_allkpt)
+!
+!  ! finished
    
-   do ik = 1, nk
-      ! read number of plane-waves at this k point
-      call qexml_read_gk( ik, NPWK=npwk, IERR=ierr)
-      allocate( idxgk( npwk ) )
-      ! read plane-wave index to idxgk. idxgk connects to master_gv
-      call qexml_read_gk( ik, index=idxgk, IERR=ierr )
-      ! now, update gkidx_allkpt
-      call set_gkidx_allkpt( npwk, idxgk, ngm, master_gv, gkidx_allkpt )
+   !print*, "(new) number of planewaves at each k points are:", ncoeff
 
-      deallocate( idxgk )
-   enddo
-   ! finally, we got the number of planewaves at each k point (each k point has the same number of planewaves)
-   ncoeff = sum(gkidx_allkpt)
-   ! print out
-   print*, "(new) number of planewaves at each k points are:", ncoeff
-
-!---------------------------------
-! We do not use kmax_cp, countkvec3d_sm, setkvec3d_sm
-! countkvec3d_sm_kpt, setkvec3d_sm_kpt
-! because it ends up with much bigger size of the g list
-!---------------------------------
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BEGIN DO NOT USE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   ! Here, we set the glist for OpenAtom
+   ! There are two similar subroutines, one for doublepack, one of k points calculations
+   ! doublepack means we save the wavefunctions only for the half sphere
+   ! ngdoublepack = number of g vectors for doublepack
+   ! ngkpt = number of g vectors for kpoints calcualtions
+   ! ngkpt >= ncoeff 
+  
    ! set kmax_cp
    ! initialization
-!  kmax_cp = 0 
-!  do ispin = 1, nspin
-!     do ik = 1, nk
-!        ! read number of plane-waves at this k point
-!        call qexml_read_gk( ik, NPWK=npwk, IERR=ierr )
-!        allocate( idxgk( npwk ) )
-!        ! read planewave index to idxgk. idxgk connects to master_gv
-!        call qexml_read_gk( ik, index=idxgk, IERR=ierr )
-!        ! now, we want to convert wavefunctions to openatom output format
-!        ! all k points should include the same number of g vectors
-!        call get_kmax( ngm, master_gv, npwk, idxgk, kmax_cp )
-!        deallocate( idxgk )
-!     enddo
-!  enddo
-!  ! to be safe, let's add 1 in each direction
-!  kmax_cp(:) = kmax_cp(:) + 1
-!  print*, 'kmax_cp is : ', kmax_cp(1), kmax_cp(2), kmax_cp(3)
+   kmax_cp = 0 
+   do ispin = 1, nspin
+      do ik = 1, nk
+         ! read number of plane-waves at this k point
+         call qexml_read_gk( ik, NPWK=npwk, IERR=ierr )
+         allocate( idxgk( npwk ) )
+         ! read planewave index to idxgk. idxgk connects to master_gv
+         call qexml_read_gk( ik, index=idxgk, IERR=ierr )
+         ! now, we want to convert wavefunctions to openatom output format
+         ! all k points should include the same number of g vectors
+         call get_kmax( ngm, master_gv, npwk, idxgk, kmax_cp )
+         deallocate( idxgk )
+      enddo
+   enddo
+   ! to be safe, let's add 1 in each direction
+   !kmax_cp(:) = kmax_cp(:) + 1
+
+   print*, 'now we are modifying fftsize for density by calling radixme routine'
+   print*, 'original fft size: ', fftsize
+   call radixme(kmax_cp,fftsize)
+   print*, 'new fft size after radixme: ', fftsize
 
    ! let's set the list of G vectors here
    ! warning: gamma point will contain only half sphere if doublepack flag is on
-!  if (doublepack) then
-!     call countkvec3d_sm( kmax_cp, ngdoublepack, ecutwfc, cell )
-!     allocate( glist_doublepack(3,ngdoublepack) )
-!     call setkvec3d_sm_simple( kmax_cp, ngdoublepack, ecutwfc, cell, glist_doublepack )
-!  endif
-!  
-!  call countkvec3d_sm_kpt( kmax_cp, ngkpt, ecutwfc, cell )
-!  allocate( glist_kpt(3,ngkpt) )
-!  call setkvec3d_sm_kpt( kmax_cp, ngkpt, ecutwfc, cell, glist_kpt)
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END DO NOT USE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   if (doublepack) then
+      call countkvec3d_sm( kmax_cp, ngdoublepack, ecutwfc, cell )
+      allocate( glist_doublepack(3,ngdoublepack) )
+      call setkvec3d_sm_simple( kmax_cp, ngdoublepack, ecutwfc, cell, glist_doublepack )
+   else
+      call countkvec3d_sm_kpt( kmax_cp, ngkpt, ecutwfc, cell )
+      allocate( glist_kpt(3,ngkpt) )
+      call setkvec3d_sm_kpt( kmax_cp, ngkpt, ecutwfc, cell, glist_kpt)
+   endif
+
+   ! now we need to map the two gvector lists to shuffle things around
+   ! mapping between OA and QE g vector list
 
 
    ! read and write wfc into state.out file
    do ispin = 1, nspin
       do ik = 1, nk
-         ! get number of plane-waves 
+
+         print*, 'reading and writing... spin index:',ispin,'   k point index:',ik
+         ! get number of plane-waves
          call qexml_read_gk( ik, NPWK=npwk, IERR=ierr)
-         allocate( idxgk( npwk ) )
-         ! read plane-wave index to idxgk. idxgk connects to master_gv
-         call qexml_read_gk( ik, index=idxgk, IERR=ierr )
-         do ib = 1, nb
-            ! if k is at gamma point and doublepack flag is on
-            ! it saves only half sphere
-            if ( ik==1 .and. doublepack .eqv. .true. ) then
-               call read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm,&
-                    fftsize, shift_flag, gkidx_allkpt, doublepack)
-            ! if not gamma point or not doublepack
-            else
-               call read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm,&
-                    fftsize, shift_flag, gkidx_allkpt, doublepack)
-            endif
-         enddo! ib loop
-         deallocate( idxgk )
+         allocate( idxgk( npwk ) ) 
+         ! read planewave index to idxgk, idxgk connects to master_gv
+         call qexml_read_gk( ik, index=idxgk, IERR=ierr)
+
+         ! now we need to map the two gvector lists to shuffle things around
+         ! mapping between OA and QE g vector list
+         if (doublepack) then
+            allocate( idxmap(ngdoublepack) )
+            call mapping_glist( doublepack, ngdoublepack, glist_doublepack, ngm, master_gv, npwk, idxgk, idxmap )
+         else
+            allocate( idxmap(ngkpt) )
+            call mapping_glist( doublepack, ngkpt, glist_kpt, ngm, master_gv, npwk, idxgk, idxmap )
+         endif
+         ! if k is at gamma point and doublepack flag is on
+         ! it saves only half sphere
+         if ( ik==1 .and. doublepack .eqv. .true. ) then
+            call read_write_wfn( nb, ik, ispin, npwk, idxgk, master_gv, ngm,&
+                 fftsize, shift_flag, doublepack, ngdoublepack, glist_doublepack, idxmap, nbandschunk)
+         ! if not gamma point or not doublepack
+         else
+            call read_write_wfn( nb, ik, ispin, npwk, idxgk, master_gv, ngm,&
+                 fftsize, shift_flag, doublepack, ngkpt, glist_kpt, idxmap, nbandschunk)
+         endif
+         deallocate( idxmap, idxgk )
       enddo! ik loop
    enddo! is loop
    ! wfn order: is-ik-ib-ig
-   
+
    call qexml_closefile( "read", IERR=ierr )
 
-   
+   if (doublepack) ngoa = ngdoublepack
+   if ( .not. doublepack) ngoa = ngkpt
+
+
    if ( shift_flag .eqv. .false.) then
       ! Write system information
-      call write_system_info( cell, ncoeff, xk, wk, &
+      call write_system_info( cell, ngoa, xk, wk, &
                        nspin, nk, nb, fftsize, fsysname )
    else
       continue
    endif
-                          
+
    ! write eigenvalues and occupation numbers
    do ispin = 1, nspin
       do ik = 1, nk
          call write_eig_occ(ispin, ik, nb, eig(:,ik,ispin), occ(:,ik,ispin), shift_flag)
       enddo
-   enddo   
-
+   enddo
    
+
 ! If RHO flag is on, create rho.dat file for GPP calculations
    if ( gpp_flag ) then
       call qexml_read_rho( NR1=nr(1), NR2=nr(2), NR3=nr(3), IERR=ierr )
@@ -276,6 +307,7 @@ Program converter
 !                        SUBROUTINES
 !
 !****************************************************************!
+
 contains
 
 
@@ -323,8 +355,6 @@ contains
 !  rhog_core(:) = 0.d0
 !  call v_xc( rho, rho_core, rhog_core, etxc, vtxc, vxcr )
 !  
-
-!  
 !  ! ngm is the number of g vectors in this process (with gamma tricks, only G>=0)
 !  ! ngm_g is the total number of g vectors
 !  ! if serial, ngm = ngm_g
@@ -365,8 +395,11 @@ contains
 !end subroutine
 
 
-  
-subroutine write_eig_occ( ispin, ik, nstate, eig, occ, shift_flag ) 
+
+
+   
+
+subroutine write_eig_occ( ispin, ik, nstate, eig, occ, shift_flag )
 
    integer, intent(in) :: ispin, ik, nstate
    real(dp), dimension(nstate), intent(in) :: eig, occ
@@ -421,15 +454,19 @@ end subroutine
 
 !------------------------------------------------------------------------------
 ! name of the output file: state\\ib\\.out.gz
-subroutine read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm, &
-                           fftsize, shift_flag, gkidx_allkpt, doublepack)
+subroutine read_write_wfn( nb, ik, ispin, npwk, idxgk, master_gv, ngm, &
+                           fftsize, shift_flag, doublepack, ngoa, glist_oa, idxmap, nbandschunk)
 
-   integer, intent(in) :: ib, ik, ispin, npwk, fftsize(3), ngm
+   integer, intent(in) :: nb, ik, ispin, npwk, fftsize(3), ngm
    integer, intent(in) :: master_gv(3,ngm)
    integer, intent(in) :: idxgk(npwk)
    logical, intent(in) :: shift_flag
-   integer, intent(in) :: gkidx_allkpt(ngm)
    logical, intent(in) :: doublepack
+   integer, intent(in) :: ngoa ! number of g vectors in openatom g list
+   integer, intent(in) :: glist_oa(3,ngoa)
+   integer, intent(in) :: idxmap(ngoa) ! mapping array to write wavefunctions in OA g vector order
+   integer, intent(in) :: nbandschunk ! this sets nblockband
+
    complex(dp), allocatable :: wfn(:,:)
    integer :: iunit = 30
    character (len=100) :: fplace, fname
@@ -440,15 +477,18 @@ subroutine read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm, &
    integer :: ngktot
    logical :: notfound
    real(dp) :: ZERO
-   ZERO = dble(0)
+   integer :: nblockband  ! number of bands to be read at each qexml_read_wfc function call
+   integer :: iloop, nloop
+   integer :: ib, ibstart, ibend, ibcounter, wfcounter, jstart
+   integer :: counter
+ 
+   ! variables to decide nblockband if nbandschunk is not given
+   complex(dp) :: complexnumber
+   integer :: sizeofcomplex
+   integer :: memoryinGB = 10 ! let assume that the single node has 10GB memory.
 
-   ! read wavefunction values
-   allocate( wfn( npwk, 1 ) )
-   if ( ispin .eq. 1 )  then
-      call qexml_read_wfc ( IBNDS=ib, IBNDE=ib, IK=ik, WF=wfn, IERR=ierr)
-   else
-      call qexml_read_wfc ( IBNDS=ib, IBNDE=ib, IK=ik, ISPIN=ispin, WF=wfn, IERR=ierr)
-   endif
+
+   ZERO = dble(0)
 
    ! set up the directory where state files are stored
    if ( shift_flag .eqv. .false. ) then
@@ -471,61 +511,141 @@ subroutine read_write_wfn( ib, ik, ispin, npwk, idxgk, master_gv, ngm, &
       endif
    endif
    
-   ! set file name state.out
-   if ( ib .lt. 10) write( fname, '( "state", I1, ".out" )' )ib
-   if ( ib .ge. 10 .and. ib .lt. 100) &
-      write( fname, '( "state", I2, ".out" )' ) ib
-   if ( ib .ge. 100 .and. ib .lt. 1000) &
-      write( fname, '( "state", I3, ".out" )' ) ib
-   if ( ib .ge. 1000 .and. ib .lt. 10000) &
-      write( fname, '( "state", I4, ".out" )' ) ib
-   if ( ib .ge. 10000 .and. ib .lt. 100000) &
-      write( fname, '( "state", I2, ".out" )' ) ib
-   
-   !------------------------------------------
-   ! writing starts here
-   
-   ! open state.out file
-   open(iunit, file=trim(fplace)//trim(fname), form='formatted', status='replace', iostat=open_status)
-   if (open_status .ne. 0 ) then
-      print*, 'Could not open file ', trim(fplace)//trim(fname), '. Please check your STATES directory'
+   ! I assume that the login node (or computing node) has at least 10GB of memory (usually they offer much bigger memory)
+
+   if ( nbandschunk .ne. 0 ) then
+      nblockband = nbandschunk
+   else
+      sizeofcomplex = sizeof(complexnumber)
+      ! the single state file takes npwk*sizeofcomplex bytes of memeory
+      nblockband = memoryinGB*10**9/(npwk*sizeofcomplex) 
+   endif 
+
+   ! if nblockband is less than total number of bands
+   if ( nblockband .ge. nb ) then 
+      nblockband = nb
+      nloop = 0
    endif
 
-   ! 1. write total number of g vectors and dense FFT grid size
-   ngktot = sum(gkidx_allkpt)
-   write(iunit,*) ngktot, fftsize(1:3)
+   print*, 'number of bands to be read at each loop:', nblockband
 
-   ! 2. write rest of them
-   do i = 1, ngm
-      notfound = .true.
-      if ( gkidx_allkpt(i) == 0 ) then
-         ! do nothing
-      elseif ( gkidx_allkpt(i) == 1) then
-         ! let's find if 
-         do j = 1, npwk
-            if( idxgk(j) == i ) then
-               notfound = .false.
-               write(iunit,"(2E25.15,3I10)") real( wfn(j,1) ), imag( wfn(j,1) ),&
-                    master_gv(1:3,idxgk(j))
-               ! finish do j loop
-               exit
-            endif
-         enddo
-         if( notfound ) then
-            write(iunit,"(2E25.15,3I10)") ZERO, ZERO, master_gv(1:3,i)
-         endif  
+   do iloop = 1, nloop+1
+      if (iloop .lt. nloop+1) then
+         ibstart = 1 + (iloop-1)*nblockband
+         ibend = iloop*nblockband
+      elseif ( iloop .eq. nloop+1 ) then
+         ibstart = 1 + nloop*nblockband
+         ibend = nb
       else
-         ! something wrong
-         print*, '@@@@@@@@@@@@@@@@@_ERROR_@@@@@@@@@@@@@@@@@@'
-         print*, 'gkdix_allkpt has illegal value for the point', i
-         print*, '@@@@@@@@@@@@@@@@@_ERROR_@@@@@@@@@@@@@@@@@@'
+         print*, 'No band index found in routine read_write_wfc, program exits'
          stop
       endif
-   enddo
 
-   close(iunit)
-   deallocate( wfn )
+      print*, 'reading wavefunctions from',ibstart,'to',ibend
+      
+      ! allocate memory to save savefunctions
+      ! total number of bands for iloop is (ibend-ibstart+1)
+      allocate( wfn( npwk, ibend-ibstart+1 ) )
+
+      if ( ispin .eq. 1 ) then
+         call qexml_read_wfc ( IBNDS=ibstart, IBNDE=ibend, IK=ik, WF=wfn, IERR=ierr)
+      else
+         call qexml_read_wfc ( IBNDS=ibstart, IBNDE=ibend, IK=ik, ISPIN=ispin, WF=wfn, IERR=ierr)
+      endif
+
+      ! writing
+      do ib = ibstart, ibend
+         ! set-up the file name
+         if ( ib .lt. 10) write( fname, '( "state", I1, ".out" )' )ib
+         if ( ib .ge. 10 .and. ib .lt. 100) &
+            write( fname, '( "state", I2, ".out" )' ) ib
+         if ( ib .ge. 100 .and. ib .lt. 1000) &
+            write( fname, '( "state", I3, ".out" )' ) ib
+         if ( ib .ge. 1000 .and. ib .lt. 10000) &
+            write( fname, '( "state", I4, ".out" )' ) ib
+         if ( ib .ge. 10000 .and. ib .lt. 100000) &
+            write( fname, '( "state", I2, ".out" )' ) ib
+         ! open states file name
+         open(iunit, file=trim(fplace)//trim(fname), form='formatted', status='replace', iostat=open_status)
+         if (open_status .ne. 0 ) then
+            print*, 'Could not open file ', trim(fplace)//trim(fname), '. Please check your STATES directory'
+         endif
+         !---------------------------------------------
+         ! writing starts here
+         write(iunit,"(I10,3I4)") ngoa, fftsize(1:3)
+
+         ! we need to set some counter 
+         ! wfn(1:npwk,1:nblockband)
+         ibcounter = ib - ibstart ! this will set the starting point
+
+         ! initialization
+         jstart = 1 ! initialize
+         counter = 1
+
+         print*, 'writing band #', ib
+
+         do i = 1, ngoa
+            if ( idxmap(i) .ne. -1 ) then
+               write(iunit,99) real( wfn(idxmap(i),ibcounter+1) ), imag( wfn(idxmap(i),ibcounter+1) ), &
+                    glist_oa(1:3,i)
+            elseif ( idxmap(i) .eq. -1 ) then
+               write(iunit,99) ZERO, ZERO, glist_oa(1:3,i)
+            endif
+         enddo
+         
+
+
+
+! let's not use below---------- BEGIN DO NOT USE
+!        do i = 1, ngm
+!            notfound = .true.
+!           if ( gkidx_allkpt(i) == 0 ) then
+!           ! do nothing
+!           elseif ( gkidx_allkpt(i) == 1) then
+!              ! let's find it
+!              do j = jstart, npwk
+!                 if( idxgk(j) == i ) then
+!                    jstart = j + 1 ! updating searching index
+!                    notfound = .false.
+!                    write(iunit,99) real( wfn(j,ibcounter+1) ), imag( wfn(j,ibcounter+1) ),&
+!                      master_gv(1:3,idxgk(j))
+!                    ! --- modification starts here
+!                    ! save wavefunctions at this band index
+!                    thisBandwfn(counter) = wfn(j,ibcounter+1)
+!                    qeglist(1:3,counter) = master_gv(1:3,idxgk(j))
+!                    counter = counter + 1
+!                    ! finish do j loop
+!                    exit
+!                 endif
+!              enddo
+!              if( notfound ) then
+!                 write(iunit,99) ZERO, ZERO, master_gv(1:3,i)
+!              endif
+!           else
+!              ! something wrong
+!              print*, '@@@@@@@@@@@@@@@@@_ERROR_@@@@@@@@@@@@@@@@@@'
+!              print*, 'gkidx_allkpt has illegal value for the point', i
+!              print*, '@@@@@@@@@@@@@@@@@_ERROR_@@@@@@@@@@@@@@@@@@'
+!              stop
+!           endif
+!        enddo ! end i
+! END DO NOT USE
+
+         close(iunit)
+
+      enddo ! end ib
+
+      deallocate(wfn)
+
+   enddo ! end iloop
    
+   ! final call for qexml_read_wfc
+   
+!  FORMAT WARNING: If your G vector index is smaller than -999 (e.g. -1000), you need to change the format
+99 FORMAT(2E13.5,3I5)
+! old format for comparison
+!99 FORMAT(2E25.15,3I10)
+ 
 end subroutine
 
 
@@ -564,7 +684,8 @@ subroutine write_system_info( cell, ncoeff, xk, wk, &
 
    write(iunit,*) nspin, nk, nb
    
-   ! number of planewaves at each k point -> will might need to be removed
+   ! number of planewaves at each k point 
+   ! update: the number of planewaves at each k point is now the same
    do ik = 1, nk
       write(iunit,*) ncoeff
    enddo
@@ -814,12 +935,285 @@ subroutine get_kmax( ngm, master_gv, npwk, idxgk, kmax_cp)
 end subroutine get_kmax
 
 
- !-----------------------------------------------------------------------------
- ! Below subroutines come from OpenAtom program
- ! It is actually NOT called inside of the main program
- ! But I leave it here in case we may modify this converter later
- !-----------------------------------------------------------------------------
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BEGIN DO NOT USE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!-----------------------------------------------------------------------------
+! Below subroutines come from OpenAtom program
+! It is actually NOT called inside of the main program
+! But I leave it here in case we may modify this converter later
+! Okay, now I'm modifying the converter, 
+! so below routines are now called in the main program (Nov. 2017)
+!-----------------------------------------------------------------------------
+subroutine radixme( kmax_cp, fftsize )
+
+   integer, intent(inout) :: kmax_cp(3)
+   integer, intent(inout) :: fftsize(3) 
+   ! work variables
+   integer :: i1, i2, i3
+   integer :: i, k1, k2, k3
+   integer :: kk1, kk2, kk3
+   integer :: nrad
+   integer :: krad(0:180)
+   integer :: nrad_in = 180
+   integer :: n(3)
+
+   call set_fftsizes(nrad_in, nrad, krad )
+
+   kk1 = 2*(2*kmax_cp(1) + 1);
+   kk2 = 2*(2*kmax_cp(2) + 1);
+   kk3 = 2*(2*kmax_cp(3) + 1);
+
+   i1 = 0
+   do i=nrad,1,-1
+      if ( krad(i) .ge. kk1 ) then
+         k1 = krad(i)
+         i1 = i
+      endif
+   enddo
+   if ( i1 == 0 ) then 
+      print*, 'Bad Radix' 
+      stop
+   endif
+   
+   i2 = 0
+   do i=nrad,1,-1
+      if ( krad(i) .gt. kk2 ) then
+         k2 = krad(i)
+         i2 = i
+      endif
+   enddo
+   if ( i2 == 0 ) then
+      print*, 'Bad Radix'
+      stop
+   endif
+
+   i3 = 0
+   do i=nrad,1,-1
+      if ( krad(i) .ge. kk3 ) then
+         k3 = krad(i)
+         i3 = i
+      endif
+   enddo
+   if ( i3 == 0 ) then
+      print*, 'Bad Radix'
+      stop
+   endif
+
+   print*, 'Radix data : k1, kmax1, kk1', k1 ,kmax_cp(1), kk1
+   print*, 'Radix data : k2, kmax2, kk2', k2, kmax_cp(2) ,kk2
+   print*, 'Radix data : k3, kmax3, kk3', k3, kmax_cp(3), kk3
+  
+
+   n(1) = k1 
+   n(2) = k2
+   n(3) = k3
+   
+   fftsize(1:3) = n(1:3)
+
+
+end subroutine radixme
+
+
+subroutine set_fftsizes( nrad_in, nrad, krad )
+
+   integer, intent(in) :: nrad_in
+   integer, intent(inout) :: nrad
+   integer, intent(inout) :: krad(0:180)
+   !integer, intent(in) :: fft_opt
+  
+   integer :: nrad_tmp = 179
+   
+   nrad = nrad_tmp
+
+   if( nrad_in < nrad_tmp) then
+     print*,'@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@'
+     print*,'Internal Error in hardcoded radix size array.'
+     print*,'@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@' 
+   endif
+
+   krad(1)   = 4;
+   krad(2)   = 6;
+   krad(3)   = 8;
+   krad(4)   = 10;
+   krad(5)   = 12;
+   krad(6)   = 14;
+   krad(7)   = 16;
+   krad(8)   = 18;
+   krad(9)   = 20;
+   krad(10)  = 22;
+   krad(11)  = 24;
+   krad(12)  = 28;
+   krad(13)  = 30;
+   krad(14)  = 32;
+   krad(15)  = 36;
+   krad(16)  = 40;
+   krad(17)  = 42;
+   krad(18)  = 44;
+   krad(19)  = 48;
+   krad(20)  = 56;
+   krad(21)  = 60;
+   krad(22)  = 64;
+   krad(23)  = 66;
+   krad(24)  = 70;
+   krad(25)  = 72;
+   krad(26)  = 80;
+   krad(27)  = 84;
+   krad(28)  = 88;
+   krad(29)  = 90;
+   krad(30)  = 96;
+   krad(31)  = 112;
+   ! if(fft_opt==0){krad[31]  = 100;}
+   krad(32)  = 112;
+   krad(33)  = 120;
+   krad(34)  = 128;
+   krad(35)  = 128;
+   krad(36)  = 132;
+   krad(37)  = 140;
+   krad(38)  = 144;
+   krad(39)  = 154;
+   krad(40)  = 160;
+   krad(41)  = 168;
+   krad(42)  = 176;
+   krad(43)  = 180;
+   krad(44)  = 192;
+   krad(45)  = 198;
+   krad(46)  = 210;
+   krad(47)  = 220;
+   krad(48)  = 224;
+   krad(49)  = 240;
+   krad(50)  = 252;
+   krad(51)  = 256;
+   krad(52)  = 264;
+   krad(53)  = 280;
+   krad(54)  = 288;
+   krad(55)  = 308;
+   krad(56)  = 320;
+   krad(57)  = 330;
+   krad(58)  = 336;
+   krad(59)  = 352;
+   krad(60)  = 360;
+   krad(61)  = 384;
+   krad(62)  = 396;
+   krad(63)  = 420;
+   krad(64)  = 440;
+   krad(65)  = 448;
+   krad(66)  = 462;
+   krad(67)  = 480;
+   krad(68)  = 504;
+   krad(69)  = 512;
+   krad(70)  = 528;
+   krad(71)  = 560;
+   krad(72)  = 576;
+   krad(73)  = 616;
+   krad(74)  = 630;
+   krad(75)  = 640;
+   krad(76)  = 660;
+   krad(77)  = 672;
+   krad(78)  = 704;
+   krad(79)  = 720;
+   krad(80)  = 768;
+   krad(81)  = 770;
+   krad(82)  = 792;
+   krad(83)  = 840;
+   krad(84)  = 880;
+   krad(85)  = 896;
+   krad(86)  = 924;
+   krad(87)  = 960;
+   krad(88)  = 990;
+   krad(89)  = 1008;
+   krad(90)  = 1024;
+   krad(91)  = 1056;
+   krad(92)  = 1120;
+   krad(93)  = 1152;
+   krad(94)  = 1232;
+   krad(95)  = 1260;
+   krad(96)  = 1280;
+   krad(97)  = 1320;
+   krad(98)  = 1344;
+   krad(99)  = 1386;
+   krad(100) = 1408;
+   krad(101) = 1440;
+   krad(102) = 1536;
+   krad(103) = 1540;
+   krad(104) = 1584;
+   krad(105) = 1680;
+   krad(106) = 1760;
+   krad(107) = 1792;
+   krad(108) = 1848;
+   krad(109) = 1920;
+   krad(110) = 1980;
+   krad(111) = 2016;
+   krad(112) = 2048;
+   krad(113) = 2112;
+   krad(114) = 2240;
+   krad(115) = 2304;
+   krad(116) = 2310;
+   krad(117) = 2464;
+   krad(118) = 2520;
+   krad(119) = 2560;
+   krad(120) = 2640;
+   krad(121) = 2688;
+   krad(122) = 2772;
+   krad(123) = 2816;
+   krad(124) = 2880;
+   krad(125) = 3072;
+   krad(126) = 3080;
+   krad(127) = 3168;
+   krad(128) = 3360;
+   krad(129) = 3520;
+   krad(130) = 3584;
+   krad(131) = 3696;
+   krad(132) = 3840;
+   krad(133) = 3960;
+   krad(134) = 4032;
+   krad(135) = 4096;
+   krad(136) = 4224;
+   krad(137) = 4480;
+   krad(138) = 4608;
+   krad(139) = 4620;
+   krad(140) = 4928;
+   krad(141) = 5040;
+   krad(142) = 5120;
+   krad(143) = 5280;
+   krad(144) = 5376;
+   krad(145) = 5544;
+   krad(146) = 5632;
+   krad(147) = 5760;
+   krad(148) = 6144;
+   krad(149) = 6160;
+   krad(150) = 6336;
+   krad(151) = 6720;
+   krad(152) = 6930;
+   krad(153) = 7040;
+   krad(154) = 7168;
+   krad(155) = 7392;
+   krad(156) = 7680;
+   krad(157) = 7920;
+   krad(158) = 8064;
+   krad(159) = 8192;
+   krad(160) = 8448;
+   krad(161) = 8960;
+   krad(162) = 9216;
+   krad(163) = 9240;
+   krad(164) = 9856;
+   krad(165) = 10080;
+   krad(166) = 10240;
+   krad(167) = 10560;
+   krad(168) = 10752;
+   krad(169) = 11088;
+   krad(170) = 11264;
+   krad(171) = 11520;
+   krad(172) = 12288;
+   krad(173) = 12320;
+   krad(174) = 12672;
+   krad(175) = 13440;
+   krad(176) = 13860;
+   krad(177) = 14080;
+   krad(178) = 14336;
+   krad(179) = 14784;   
+ 
+end subroutine set_fftsizes
+
+
+
 !------------------------------------------------------------------------------
 !  count number of g vectors for doublepack (only half sphere is saved)
  subroutine countkvec3d_sm( kmax_cp, ng , ecut, cell )
@@ -971,6 +1365,8 @@ end subroutine get_kmax
             
  end subroutine countkvec3d_sm
 
+
+ ! set g vectors for when doublepack = .true.
  subroutine setkvec3d_sm_simple( kmax_cp, ng, ecut, cell, glist )
    integer, intent(in) :: kmax_cp(3)
    integer, intent(in) :: ng
@@ -1026,7 +1422,7 @@ end subroutine get_kmax
  
 
 
-
+ ! count g vectors for the full sphere (doublepack = .false.)
  subroutine countkvec3d_sm_kpt( kmax_cp, ng, ecut, cell )
    integer, intent(in) :: kmax_cp(3)
    integer, intent(inout) :: ng
@@ -1072,6 +1468,9 @@ end subroutine get_kmax
 
  end subroutine countkvec3d_sm_kpt
 
+
+
+ ! set g vectors for the full sphere ( doublepack = .false. )
  subroutine setkvec3d_sm_kpt( kmax_cp, ng, ecut, cell, glist )
    integer, intent(in) :: kmax_cp(3)
    integer, intent(in) :: ng
@@ -1107,7 +1506,7 @@ end subroutine get_kmax
       enddo
    enddo
 
-   ! printint error
+   ! printint errocr
    if ( icount .ne. ng ) then
       print*, '@@@@@@@@@@@@@@@@@@@@@@_ERROR_@@@@@@@@@@@@@@@@@@@@@@'
       print*, 'incorrect number of small kvectors in full sphere'
@@ -1116,19 +1515,6 @@ end subroutine get_kmax
    endif
 
  end subroutine setkvec3d_sm_kpt
- 
-
-
-end program
-
-
-
-
-
-
-
-
-
 
 ! we don't use this
 
@@ -1258,4 +1644,48 @@ end program
 !  glist(:,icount) = 0
 
 !end subroutine setkvec3d_sm
-!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END DO NOT USE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ ! this subroutine maps OA glist to QE glist
+ ! this is called at each k point
+ 
+subroutine mapping_glist( doublepack, ngoa, glist_oa, ngm, master_gv, npwk, gidx_qe, idxmap )
+   logical, intent(in) :: doublepack
+   integer, intent(in) :: ngoa ! number of g vectors for openatom
+   integer, intent(in) :: glist_oa(3,ngoa) ! g list of openatom
+   integer, intent(in) :: ngm ! number of g vectors in the master_gv list
+   integer, intent(in) :: master_gv(3,ngm)
+   integer, intent(in) :: npwk
+   integer, intent(in) :: gidx_qe(ngm) ! index array that indicates which gvector we include and whatnot
+   integer, intent(inout) :: idxmap(ngoa) ! indexing map from oa to qe
+
+   integer :: i, j, k
+   integer, allocatable :: glist_qe(:,:)
+
+
+   allocate (glist_qe(3,npwk))
+   do i=1,npwk
+      glist_qe(:,i) = master_gv(:,gidx_qe(i))
+   enddo
+
+
+   ! initialize
+   idxmap(:) = -1
+   do i=1, ngoa
+      do j=1, npwk
+         if ( glist_oa(1,i) == glist_qe(1,j) .and. glist_oa(2,i) == glist_qe(2,j) .and. &
+              glist_oa(3,i) == glist_qe(3,j) ) then
+            idxmap(i) = j
+            ! finish search
+            exit
+         endif
+      enddo
+   enddo
+
+   ! mapping done
+
+   deallocate( glist_qe )
+   
+end subroutine mapping_glist
+ 
+
+end program
