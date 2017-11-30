@@ -73,12 +73,15 @@ void States::sendToCache() {
   msg->shifted = false;
   psi_cache_proxy.receivePsi(msg);
 
-  msg = new (ndata) PsiMessage(ndata, stateCoeffR_shifted);
-  msg->spin_index = ispin;
-  msg->k_index = ikpt;
-  msg->state_index = istate;
-  msg->shifted = true;
-  psi_cache_proxy.receivePsi(msg);
+  int qindex = Q_IDX;
+  if(qindex == 0){
+    msg = new (ndata) PsiMessage(ndata, stateCoeffR_shifted);
+    msg->spin_index = ispin;
+    msg->k_index = ikpt;
+    msg->state_index = istate;
+    msg->shifted = true;
+    psi_cache_proxy.receivePsi(msg);
+  }
 }
 
 //==============================================================================

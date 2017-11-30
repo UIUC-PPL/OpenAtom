@@ -34,7 +34,7 @@ class EpsMap : public CkArrayMap {
 
       int node_size = CkNumPes()/CkNumNodes();
 
-      int chares_per_pe = chares_on_node/node_size;
+      int chares_per_pe = ceil((double)chares_on_node/(double)node_size);
       if(chares_per_pe == 0) chares_per_pe = 1;
 
       if(count < quo+rem){ //node = 0
