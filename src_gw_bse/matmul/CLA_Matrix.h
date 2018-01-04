@@ -26,6 +26,8 @@ class CLA_Matrix : public CBase_CLA_Matrix{
      CProxy_CLA_Matrix other1, CProxy_CLA_Matrix other2, CkCallback ready);
     void receiveA(CLA_Matrix_msg *m);
     void receiveB(CLA_Matrix_msg *m);
+    void done();
+    void createSection();
 
     /* For 3D algorithm */
     CLA_Matrix(CProxy_CLA_MM3D_multiplier p, int M, int K, int N, int m, int k,
@@ -53,6 +55,7 @@ class CLA_Matrix : public CBase_CLA_Matrix{
 
     /* For 2D algorithm */
     CProxySection_CLA_Matrix commGroup2D; // used by A and B
+    CkCallback ready_cb;
     complex *tmpA, *tmpB;
     complex    *dest; // used by C
     int row_count, col_count; // used by C

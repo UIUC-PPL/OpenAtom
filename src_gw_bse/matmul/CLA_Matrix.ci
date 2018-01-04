@@ -58,6 +58,8 @@ module CLA_Matrix{
      CkCallback ready);
     entry void receiveA(CLA_Matrix_msg *m);
     entry void receiveB(CLA_Matrix_msg *m);
+    entry void done();
+    entry void createSection();
 
     /* for 3D algorithm */
     entry void CLA_Matrix(CProxy_CLA_MM3D_multiplier p, int M, int K, int N,

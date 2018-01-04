@@ -183,6 +183,7 @@ CLA_Matrix::CLA_Matrix(int M, int K, int N, int m, int k, int n,
   this->M_stride = strideM;
   this->K_stride = strideK;
   this->N_stride = strideN;
+  this->ready_cb = ready;
   M_chunks = (M + m - 1) / m;
   K_chunks = (K + k - 1) / k;
   N_chunks = (N + n - 1) / n;
@@ -230,6 +231,7 @@ CLA_Matrix::CLA_Matrix(int M, int K, int N, int m, int k, int n,
     row_count = col_count = 0;
   }
 
+#if 0
   /* make communication group for A, B, destination arrays for C */
   if(part == MULTARG_A){
     commGroup2D = CProxySection_CLA_Matrix::ckNew(other2, thisIndex.x,
@@ -239,13 +241,37 @@ CLA_Matrix::CLA_Matrix(int M, int K, int N, int m, int k, int n,
     commGroup2D = CProxySection_CLA_Matrix::ckNew(other2, 0,
      (M_chunks - 1) * strideM, strideM, thisIndex.y, thisIndex.y, 1);
     tmpA = tmpB = NULL;
-  } else if(part == MULTARG_C) {
+  } else
+#endif
+  if(part == MULTARG_C) {
     tmpA = new complex[this->m * K];
     tmpB = new complex[K * this->n];
   }
 
   /* let the caller know we are ready */
-  contribute(0, NULL, CkReduction::sum_int, ready);
+  if(part == MULTARG_C){
+    contribute(0, NULL, CkReduction::sum_int, ready);
+    CkCallback cb(CkIndex_CLA_Matrix::done(), thisProxy(0,0));
+    contribute(cb);
+  }
+}
+
+void CLA_Matrix::done(){
+  other1.createSection();
+  other2.createSection();
+}
+
+void CLA_Matrix::createSection(){
+  if(part == MULTARG_A){
+    commGroup2D = CProxySection_CLA_Matrix::ckNew(other2, thisIndex.x,
+      thisIndex.x, 1, 0, (N_chunks - 1) * N_stride, N_stride);
+    tmpA = tmpB = NULL;
+  } else if(part == MULTARG_B) {
+    commGroup2D = CProxySection_CLA_Matrix::ckNew(other2, 0,
+     (M_chunks - 1) * M_stride, M_stride, thisIndex.y, thisIndex.y, 1);
+    tmpA = tmpB = NULL;
+  }
+  contribute(0, NULL, CkReduction::sum_int, ready_cb);
 }
 
 /* constructor for 3D algorithm */
