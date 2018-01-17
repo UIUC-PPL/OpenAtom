@@ -42,7 +42,9 @@ module controller {
 
     // reductions used for control flow
     entry void matricesReady();
+#if USE_CLA
     entry void matrixReady();
+#endif
     entry void computeEpsDimensions();
     entry void calc_Geps();
     entry [reductiontarget] void created1d_complete();
@@ -290,12 +292,14 @@ module controller {
       }
 
       when matricesReady() serial{
+#if USE_CLA
         mat_mul_proxy.setup(matA, matB, matC,
             eps_matrix2D_m_proxy, eps_matrix2D_mT_proxy, eps_matrix2D_X_proxy,
             padded_epsilon_size, eps_rows);
       }
 
       when matrixReady() serial {
+#endif
         CkPrintf("[CONTROLLER] 2D Matrices are ready\n");
         pmatrix1D_proxy.generateEpsilon(eps_matrix2D_m_proxy, accept_result);
       }
@@ -352,6 +356,7 @@ module controller {
 
         when transpose_complete() serial {
           // Step 1-(a) : M1 = -A * X
+#if USE_CLA
           mat_mul_proxy.setup(matA2, matB2, matC2,
               eps_matrix2D_X_proxy, eps_matrix2D_A_proxy, eps_matrix2D_M1_proxy,
               padded_epsilon_size, eps_rows);
@@ -359,6 +364,7 @@ module controller {
           // matrix multiplication
         }
         when matrixReady() serial {
+#endif
           if(iteration%percent==0)
           CkPrintf("[CONTROLLER] Matrix Setup done\n");
           mat_mul_proxy.do_multiply(
@@ -378,12 +384,14 @@ module controller {
           if (iteration%percent==0)
             CkPrintf("[CONTROLLER] Step 1-(b) : M1 = 2I-M1\n");
           // Result X1 - eps_matrix2D_X1_proxy
+#if USE_CLA
           mat_mul_proxy.setup(matA3, matB3, matC3,
               eps_matrix2D_M1_proxy, eps_matrix2D_X_proxy, eps_matrix2D_X1_proxy,
               padded_epsilon_size, eps_rows);
         }
 
         when matrixReady() serial {
+#endif
           if (iteration%percent==0)
             CkPrintf("[CONTROLLER] Matrix Setup done\n");
           mat_mul_proxy.do_multiply(

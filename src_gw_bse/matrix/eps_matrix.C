@@ -15,6 +15,20 @@ using std::memcpy;
 #define eps_cols 20
 #define IDX_eps(r,c) ((r)*eps_cols + (c))
 
+void example_dgemm(int M, int N, int K, double alpha,
+                   complex *A, complex *B, complex *C) {
+  /* multiply */
+  for (int i = 0; i < M; ++i) {
+    for (int j = 0; j < N; ++j) {
+      complex sum = 0.0;
+      for (int k = 0; k < K; ++k) {
+        sum += A[i*K + k] * B[k*N + j];
+      }
+      C[N*i + j] = C[N*i + j] + alpha*sum;
+    }
+  }
+}
+
 EpsMatrix::EpsMatrix() {
   GWBSE* gwbse = GWBSE::get();
 
@@ -30,6 +44,8 @@ EpsMatrix::EpsMatrix() {
 
 EpsMatrix::EpsMatrix(MatrixConfig config) : CBase_EpsMatrix(config) {
   GWBSE* gwbse = GWBSE::get();
+  blockSize = config.tile_rows;
+  numBlocks = config.chareRows();
 
   // Set some constants
   K = gwbse->gw_parallel.K;
@@ -64,7 +80,7 @@ void EpsMatrix::receiveFs(Phase3Message* msg) {
     contribute(cb);
   }
 }
- 
+
 void EpsMatrix::multiply(double alpha, double beta) {
   matrix.multiply(alpha, beta, data, EpsMatrix::done_cb, (void*) this,
        thisIndex.x, thisIndex.y);

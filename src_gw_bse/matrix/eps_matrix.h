@@ -7,6 +7,7 @@
 #include "ckcomplex.h"
 
 class EpsMatrix : public CBase_EpsMatrix {
+  EpsMatrix_SDAG_CODE
   private:
     unsigned K, L; // Number of occupied psis
     int* nfft; // number of fft grids in each direction
@@ -15,6 +16,7 @@ class EpsMatrix : public CBase_EpsMatrix {
     unsigned data_received;
     double total_time;
     CLA_Matrix_interface matrix;
+    unsigned int blockSize, numBlocks, block;
 
   public:
     EpsMatrix();

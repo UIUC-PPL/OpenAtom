@@ -90,16 +90,24 @@ public:
   void do_multiply(CProxy_EpsMatrix aproxy, CProxy_EpsMatrix bproxy, CProxy_EpsMatrix cproxy, double alpha) {
     msg_received = 0;
 
+#if USE_CLA
     aproxy.multiply(1.0, 0);
     bproxy.multiply(1.0, 0);
     cproxy.multiply(alpha, 0);
+#else
+    aproxy.pdgemmSendInput(cproxy, true);
+    bproxy.pdgemmSendInput(cproxy, false);
+    cproxy.pdgemmRun(alpha, CkCallback(CkReductionTarget(Controller, m_multiplied), controller_proxy));
+#endif
   }
 
   void chunk_inited() {
     msg_received++;
     if (msg_received==3) {
       msg_received = 0;
+#if USE_CLA
       controller_proxy.matrixReady();
+#endif
     }
   }
 };
