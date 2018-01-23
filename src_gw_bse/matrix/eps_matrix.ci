@@ -31,19 +31,20 @@ module eps_matrix {
     entry void pdgemmSendInput(CProxy_EpsMatrix output, bool aOrB) {
       serial {
         if (aOrB)
-          output((thisIndex.x-thisIndex.y+numBlocks)%numBlocks, thisIndex.y).inputA(0, data, blockSize, blockSize);
+          output(thisIndex.x, (thisIndex.y-thisIndex.x+numBlocks)%numBlocks).inputA(0, data, blockSize, blockSize, thisIndex.x, thisIndex.y);
         else
-          output(thisIndex.x, (thisIndex.y-thisIndex.x+numBlocks)%numBlocks).inputB(0, data, blockSize, blockSize);
+          output((thisIndex.x-thisIndex.y+numBlocks)%numBlocks, thisIndex.y).inputB(0, data, blockSize, blockSize, thisIndex.x, thisIndex.y);
       }
     };
 
     entry void pdgemmRun(double alpha, CkCallback done) {
       forall [block] (0:numBlocks-1,1) {
         when
-          inputA[block](int blockIdA, complex blockA[M*KA], unsigned int M, unsigned int KA),
-          inputB[block](int blockIdB, complex blockB[KB*N], unsigned int KB, unsigned int N)
+          inputA[block](int blockIdA, complex blockA[M*KA], unsigned int M, unsigned int KA, int a_index_x, int a_index_y),
+          inputB[block](int blockIdB, complex blockB[KB*N], unsigned int KB, unsigned int N, int b_index_x, int b_index_y)
           serial {
           CkAssert(KA == KB);
+//          CkPrintf("\n C[%d,%d] received A[%d,%d], B[%d,%d]", thisIndex.x, thisIndex.y, a_index_x, a_index_y, b_index_x, b_index_y);
 
           // This DGEMM makes no attempt at optimization. For
           // benchmarking, it should be replaced with a library
@@ -52,14 +53,14 @@ module eps_matrix {
                         alpha,
                         blockA, blockB, data);
           if (blockIdA != numBlocks) {
-            int destX = (thisIndex.x + 1) % numBlocks;
-            int destY = thisIndex.y;
-            thisProxy(destX, destY).inputA(blockIdA+1, blockA, M, KA);
-          }
-          if (blockIdB != numBlocks) {
             int destX = thisIndex.x;
             int destY = (thisIndex.y + 1) % numBlocks;
-            thisProxy(destX, destY).inputB(blockIdB+1, blockB, KB, N);
+            thisProxy(destX, destY).inputA(blockIdA+1, blockA, M, KA, a_index_x, a_index_y);
+          }
+          if (blockIdB != numBlocks) {
+            int destX = (thisIndex.x + 1) % numBlocks;
+            int destY = thisIndex.y;
+            thisProxy(destX, destY).inputB(blockIdB+1, blockB, KB, N, b_index_x, b_index_y);
           }
         }
       }
@@ -67,7 +68,7 @@ module eps_matrix {
         contribute(done);
       }
     };
-    entry void inputA(int blockIdA, complex blockA[M*KA], unsigned int M, unsigned int KA);
-    entry void inputB(int blockIdB, complex blockB[KB*N], unsigned int KB, unsigned int N);
+    entry void inputA(int blockIdA, complex blockA[M*KA], unsigned int M, unsigned int KA, int a_index_x, int a_index_y);
+    entry void inputB(int blockIdB, complex blockB[KB*N], unsigned int KB, unsigned int N, int b_index_x, int b_index_y);
   };
 };
