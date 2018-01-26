@@ -1486,7 +1486,7 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
 
   for (int s = 0; s < nspin; s++) {
     for (int k = 0; k < nkpt; k++) {
-      sprintf(fromFile, "./STATES_IN/Spin.%d_Kpt.%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->eigFileName);
+      sprintf(fromFile, "./STATES/Spin.%d_Kpt.%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->eigFileName);
       FILE* fp = fopen(fromFile, "r");
       if (fp == NULL) {
         PRINTF("Cannot open Eigen Value File: %s\n", fromFile);
@@ -1506,7 +1506,7 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   if(qindex == 0)
   for (int s = 0; s < nspin; s++) {
     for (int k = 0; k < nkpt; k++) {
-      sprintf(fromFile, "./STATES_IN/Spin.%d_Kpt.0%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->eigFileName);
+      sprintf(fromFile, "./STATES/Spin.%d_Kpt.0%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->eigFileName);
       FILE* fp = fopen(fromFile, "r");
       if (fp == NULL) {
         PRINTF("Cannot open Eigen Value File: %s\n", fromFile);
@@ -1528,7 +1528,7 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   // =======================================================================
   // Let's determine the FFT size for the epsilon calculation
   int nfft[3];
-  sprintf(fromFile, "./STATES_IN/Spin.0_Kpt.0_Bead.0_Temper.0/state1.out");
+  sprintf(fromFile, "./STATES/Spin.0_Kpt.0_Bead.0_Temper.0/state1.out");
   int nPacked,minga,mingb,mingc,maxga,maxgb,maxgc,nx,ny,nz;
   int ibinary_opt = gwbseopts->ibinary_opt, doublePack = gwbseopts->doublePack;
   

@@ -25,7 +25,7 @@ States::States() {
   // set the option for the type of file read
   ibinary_opt = gwbse->gwbseopts.ibinary_opt;
   // set file name to read my state from
-  sprintf(fileName, "./STATES_IN/Spin.%d_Kpt.%d_Bead.0_Temper.0/state%d.out", ispin, ikpt, istate+1);
+  sprintf(fileName, "./STATES/Spin.%d_Kpt.%d_Bead.0_Temper.0/state%d.out", ispin, ikpt, istate+1);
   // if doublePack is true -> gamma point only calculation (only 1 k point)
   // if doublePack is false -> multiple k points
   // double pack is hard coded. FIXME : minjung needs to change this
@@ -39,7 +39,7 @@ States::States() {
   nocc = gwbse->gw_epsilon.nocc;
   int qindex = Q_IDX;
   if( istate < nocc && qindex == 0){
-    sprintf(fileName,"./STATES_IN/Spin.%d_Kpt.0%d_Bead.0_Temper.0/state%d.out", ispin, ikpt, istate+1);
+    sprintf(fileName,"./STATES/Spin.%d_Kpt.0%d_Bead.0_Temper.0/state%d.out", ispin, ikpt, istate+1);
     readStateShifted(fileName);
   }
   
