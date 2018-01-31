@@ -48,6 +48,7 @@ class Controller : public CBase_Controller {
     unsigned dimension, rows;
     bool resultInsert;
     double epsCut;
+    double tol_iter_mtxinv;
     double alat;
     double vol;
     std::vector<double> vcoulb;

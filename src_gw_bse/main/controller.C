@@ -32,7 +32,8 @@ Controller::Controller() {
   dimension = gwbse->gw_parallel.n_elems;
   rows = gwbse->gw_parallel.rows_per_chare;
 
-  epsCut = 5;
+  epsCut = gwbse->gw_epsilon.Ecuteps;
+  tol_iter_mtxinv = gwbse->gw_epsilon.tol_iter;
   alat = 10.261200; 
   shift[0] = 0;
   shift[1] = 0;

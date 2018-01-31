@@ -411,7 +411,7 @@ module controller {
 
         when converge_results(double max) serial {
           double diff = (prev_max-max > 0) ? prev_max-max : (prev_max-max)*-1;
-          if (diff < 0.00001) {
+          if (diff < tol_iter_mtxinv) {
             // int(prev_max*100000) == (int)(max*100000))
             CkPrintf("\nConverged at iteration %d\n", iteration);
             iteration = MAX_ITERATIONS;
