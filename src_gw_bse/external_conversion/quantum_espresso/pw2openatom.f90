@@ -975,7 +975,7 @@ subroutine radixme( kmax_cp, fftsize )
    
    i2 = 0
    do i=nrad,1,-1
-      if ( krad(i) .gt. kk2 ) then
+      if ( krad(i) .ge. kk2 ) then
          k2 = krad(i)
          i2 = i
       endif

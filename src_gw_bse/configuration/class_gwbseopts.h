@@ -17,7 +17,6 @@ class GWBSEOPTS{
 
   //----------------
   public:
-    bool gwbse_on;               // Opt: Is GW-BSE of any type ``on''
     bool write_epsmatinv;        // Opt: write epsilon inverse matrix
     bool read_epsmatinv;         // Opt: read epsilon inverse matrix (if it skipps epsilon)
     bool doublePack;             // Opt: gamma point real wavefunctions if on
@@ -44,7 +43,6 @@ class GWBSEOPTS{
     //----------------
     //con-destruct:
     GWBSEOPTS(){
-      gwbse_on        = false;
       write_epsmatinv = false;
       read_epsmatinv  = false;
       doublePack      = false;
@@ -62,7 +60,6 @@ class GWBSEOPTS{
     //----------------
     //pupping :
     void pup(PUP::er &p){
-      p | gwbse_on;
       p | write_epsmatinv;
       p | read_epsmatinv;
       p | doublePack;
@@ -112,7 +109,6 @@ class GWBSEOPTS{
       sprintf (fileName, "%d_gwbseopts.out", CKMYPE());
       FILE *fp;  fp = fopen(fileName,"w");
       // ints
-      fprintf(fp,"bwgse_on %d\n",gwbse_on);
       fprintf(fp,"write_epsmatinv %d\n",write_epsmatinv);
       fprintf(fp,"read_epsmatinv %d\n",read_epsmatinv);
       fprintf(fp,"doublePack %d\n",doublePack);

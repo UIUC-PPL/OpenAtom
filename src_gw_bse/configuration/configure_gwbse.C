@@ -306,65 +306,58 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   //=================================================================================
   // III) Set up the dictionary
   int ind;
-  //-----------------------------------------------------------------------------
-  //  1)\gwbse_opt{}
-  ind =   1;
-  strcpy((*dict)[ind].keyword,"gwbse_opt");
-  strcpy((*dict)[ind].keyarg,"off");
-  strcpy((*dict)[ind].error_mes,"on or off");
-  //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  2)\num_tot_state{}
-  ind =   2;   
+  //  1)\num_tot_state{}
+  ind =   1;   
   strcpy((*dict)[ind].keyword,"num_tot_state");
   strcpy((*dict)[ind].keyarg,"2");
   strcpy((*dict)[ind].error_mes,"an integer > 1 ");
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  3)\num_occ_state{}
-  ind =   3;   
+  //  2)\num_occ_state{}
+  ind =   2;   
   strcpy((*dict)[ind].keyword,"num_occ_state");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"an integer > 0 ");
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  4)\num_unocc_state{}
-  ind =   4;   
+  //  3)\num_unocc_state{}
+  ind =   3;   
   strcpy((*dict)[ind].keyword,"num_unocc_state");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"an integer > 0");
   //-----------------------------------------------------------------------------  
 
   //-----------------------------------------------------------------------------
-  //  5)\num_kpoint{}
-  ind =   5;
+  //  4)\num_kpoint{}
+  ind =   4;
   strcpy((*dict)[ind].keyword,"num_kpoint");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"an integer > 0");
   //----------------------------------------------------------------------------- 
 
   //-----------------------------------------------------------------------------
-  //  6)\num_spin{}
-  ind =   6;
+  //  5)\num_spin{}
+  ind =   5;
   strcpy((*dict)[ind].keyword,"num_spin");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"an integer > 0");
   //----------------------------------------------------------------------------- 
 
   //-----------------------------------------------------------------------------
-  //  7)\coulb_trunc_opt{}
-  ind =   7;
+  //  6)\coulb_trunc_opt{}
+  ind =   6;
   strcpy((*dict)[ind].keyword,"coulb_trunc_opt");
   strcpy((*dict)[ind].keyarg,"0");
   strcpy((*dict)[ind].error_mes,"0-no truncation, 1-wire, 2-sheet, 3-molecule");
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  8)\statefile_binary_opt{}
-  ind =   8;
+  //  7)\statefile_binary_opt{}
+  ind =   7;
   strcpy((*dict)[ind].keyword,"statefile_binary_opt");
   strcpy((*dict)[ind].keyarg,"off");
   strcpy((*dict)[ind].error_mes,"off,off_gzip,on,on_gzip");
@@ -395,37 +388,51 @@ void Config::set_config_dict_GW_epsilon  (int *num_dict ,DICT_WORD **dict){
   //=================================================================================
   // III) Set up the dictionary
   int ind;
+
+  
   //-----------------------------------------------------------------------------
-  //  1)\Ecuteps{}
-  ind =   1;
-  strcpy((*dict)[ind].keyword,"Ecuteps");
-  strcpy((*dict)[ind].keyarg,"10");
+  //  1)\EcutFFT{}
+  ind =   1;   
+  strcpy((*dict)[ind].keyword,"EcutFFT");
+  strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"a number > 0");
   //-----------------------------------------------------------------------------
 
+  
   //-----------------------------------------------------------------------------
-  //  2)\tol_iter_mtxinv{}
-  ind =   2;   
+  //  2)\Ecuteps{}
+  ind =   2;
+  strcpy((*dict)[ind].keyword,"Ecuteps");
+  strcpy((*dict)[ind].keyarg,"1");
+  strcpy((*dict)[ind].error_mes,"0 < a number =< EcutFFT");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  3)\tol_iter_mtxinv{}
+  ind =   3;   
   strcpy((*dict)[ind].keyword,"tol_iter_mtxinv");
   strcpy((*dict)[ind].keyarg,"0.001");
   strcpy((*dict)[ind].error_mes,"an integer > 1 ");
   //-----------------------------------------------------------------------------
 
+  
   //-----------------------------------------------------------------------------
-  //  3)\state_eigen_value_file{}
-  ind =   3;   
+  //  4)max_iter{}
+  ind =   4;   
+  strcpy((*dict)[ind].keyword,"max_iter");
+  strcpy((*dict)[ind].keyarg,"100");
+  strcpy((*dict)[ind].error_mes,"an integer > 1 ");
+  //-----------------------------------------------------------------------------
+
+
+  //-----------------------------------------------------------------------------
+  //  5)\state_eigen_value_file{}
+  ind =   5;   
   strcpy((*dict)[ind].keyword,"state_eigen_value_file");
   strcpy((*dict)[ind].keyarg,"eigenvalues.in");
   strcpy((*dict)[ind].error_mes,"a file containing nocc + nunocc eigenvalues");
   //-----------------------------------------------------------------------------
 
-  //-----------------------------------------------------------------------------
-  //  4)\EcutFFT{}
-  ind =   4;   
-  strcpy((*dict)[ind].keyword,"EcutFFT");
-  strcpy((*dict)[ind].keyarg,"25");
-  strcpy((*dict)[ind].error_mes,"a number > 0");
-  //-----------------------------------------------------------------------------
 
 }//end routine
 //===================================================================================
@@ -630,57 +637,50 @@ void Config::set_config_params_gen_GW  (DICT_WORD *dict, char *fun_key, char *in
   // Fill me with joy.
 
   //-----------------------------------------------------------------------------
-  //  1)\gwbse_opt{}
+  //  1)\num_tot_state{}
   ind =   1;   
-  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
-  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
-  gwbseopts->gwbse_on = (int_arg==1?true:false);  //if int_arg ==1, then true 
-
-  //-----------------------------------------------------------------------------
-  //  2)\num_tot_state{}
-  ind =   2;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<2){keyarg_barf(dict,input_name,fun_key,ind);}  
   gwbseopts->nstate = int_arg;
   
   //-----------------------------------------------------------------------------
-  //  3)\num_occ_state{}
-  ind =   3;   
+  //  2)\num_occ_state{}
+  ind =   2;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->nocc = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  4)\num_unocc_state{}
-  ind =   4;   
+  //  3)\num_unocc_state{}
+  ind =   3;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->nunocc = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  5)\num_kpoint{}
-  ind =   5;   
+  //  4)\num_kpoint{}
+  ind =   4;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->nkpt = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  6)\num_spin{}
-  ind =   6;   
+  //  5)\num_spin{}
+  ind =   5;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->nspin = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  7)\coulb_trunc_opt{}
-  ind =   7;   
+  //  6)\coulb_trunc_opt{}
+  ind =   6;   
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->coulb_trunc_opt = int_arg;
 
   //-----------------------------------------------------------------------------
   //  7)\statefile_binary_opt{}
-  ind =   8;   
+  ind =   7;   
 
   ifound = 0;
   if(strcasecmp(dict[ind].keyarg,"off")==0)
@@ -727,35 +727,49 @@ void Config::set_config_params_GW_epsilon  (DICT_WORD *dict, char *fun_key, char
   // Fill me with joy.
 
   //-----------------------------------------------------------------------------
-  //  1)\Ecuteps{}
-  ind =   1;   
-  sscanf(dict[ind].keyarg,"%lg",&real_arg);
-  if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}
-  gw_epsilon->Ecuteps =real_arg; 
-
-  //-----------------------------------------------------------------------------
-  //  2)\tol_iter_mtxinv{}
-  ind =   2;   
-  sscanf(dict[ind].keyarg,"%lg",&real_arg);
-  if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}  
-  gw_epsilon->tol_iter = real_arg;
-  //----------------------------------------------------------------------------- 
-
-  //-----------------------------------------------------------------------------
-  //  3)\state_eigen_value_file{}
-  ind =   3;  
-  strcpy(gw_epsilon->eigFileName, dict[ind].keyarg);
-  if (strlen(gw_epsilon->eigFileName) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
-
-  //----------------------------------------------------------------------------- 
-
-  //-----------------------------------------------------------------------------
-  //  4)\EcutFFT{}
-  ind =   4;  
+  //  1)\EcutFFT{}
+  ind = 1;
   sscanf(dict[ind].keyarg,"%lg",&real_arg);
   if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}  
   gw_epsilon->EcutFFT = real_arg;
+  //-----------------------------------------------------------------------------
+
+
+  //-----------------------------------------------------------------------------
+  //  2)\Ecuteps{}
+  ind = 2;
+  sscanf(dict[ind].keyarg,"%lg",&real_arg);
+  if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}
+  if (real_arg>gw_epsilon->EcutFFT){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_epsilon->Ecuteps = real_arg;
+  //-----------------------------------------------------------------------------
+
+  
+  //-----------------------------------------------------------------------------
+  //  3)\tol_iter_mtxinv{}
+  ind = 3;   
+  sscanf(dict[ind].keyarg,"%lg",&real_arg);
+  if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}  
+  gw_epsilon->tol_iter = real_arg;
+  //-----------------------------------------------------------------------------
+
+  
+  //-----------------------------------------------------------------------------
+  //  4)\max_iter{}
+  ind =  4;  
+  sscanf(dict[ind].keyarg,"%lg",&real_arg);
+  if (real_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_epsilon->max_iter = real_arg;
   //----------------------------------------------------------------------------- 
+
+  
+  //-----------------------------------------------------------------------------
+  //  5)\state_eigen_value_file{}
+  ind =  5;  
+  strcpy(gw_epsilon->eigFileName, dict[ind].keyarg);
+  if (strlen(gw_epsilon->eigFileName) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+  //----------------------------------------------------------------------------- 
+
 
 }// end routine
 //================================================================================
@@ -1337,7 +1351,7 @@ void Config::read_nnpbandlist(GW_SIGMA *gw_sigma){
         // if we failed to read our pair of integers, get out
         if (nread != 2)
         break;
-                                                                                                     // if we read two integers, up the counter as we suceeded
+        // if we read two integers, up the counter as we suceeded
         counter++;
         }
 
