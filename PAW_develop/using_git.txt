@@ -1,4 +1,5 @@
 1. if you create a new file or directory: git add name
+	never do git add * b/c you don't want junk like executables in the repo
 2. after adding any new stuff or changing old stuff, you commit your changes: git commit -a
 3. to make sure to don't overwrite anybody else: git pull
 4. when you are done making all your changes: git push
