@@ -1,0 +1,6 @@
+1. if you create a new file or directory: git add name
+2. after adding any new stuff or changing old stuff, you commit your changes: git commit -a
+3. to make sure to don't overwrite anybody else: git pull
+4. when you are done making all your changes: git push
+
+DON'T FORGET STEP 3, OR YOU'LL OVERWRITE SOMEONE ELSE'S WORK!!
