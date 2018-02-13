@@ -5730,7 +5730,7 @@ The long-range force is
 \begin{equation}
 \begin{split}
 -\frac{\p E^{(\rcomp,\rlong)}}{\p \RJb}
-&= -\frac{1}{2V} \sum_{\bg \neq 0}^{\Gc} \frac{4\pi}{g^2} \rexp\left(-\frac{g^2}{4\bal^2}\right) \frac{\p}{\p \RJb}\left|\bar n ^{(\rcomp)}(\bg)\right|^2 \\
+&= -\frac{1}{2V} \sum_{\bg \neq 0}^{\Gc} \frac{4\pi}{g^2} \rexp\left(-\frac{g^2}{4\bal^2}\right) \frac{\p}{\p \RJb}\left|\bar n ^{(\rcomp)}(\bg)\right|^2 
 \end{split}
 \end{equation}
 
@@ -5740,8 +5740,8 @@ where
 \begin{split}
 \frac{\p}{\p \RJb} \bar n ^{(\rcomp)}(\bg)
 &= \frac{\p}{\p \RJb} \sum_{J'} Z_{J'} \re^{-\ibgR_{J'}} -  \frac{\p}{\p \RJb} \sum_{J'} \tilde Z_{J'} \re^{-\ibgR_{J'} - g^2/(4\al_{J'}^2)}\\
-&= -Z_J g_{\beta} \re^{-\ibgR_{J}} + \tilde Z_J g_{\beta} \re^{-\ibgR_{J}- g^2/(4\al_{J}^2)} \\
-&= -i\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right]\re^{-\ibgR_{J}}g_{\beta}
+&= -iZ_J g_{\beta} \re^{-\ibgR_{J}} + i\tilde Z_J g_{\beta} \re^{-\ibgR_{J}- g^2/(4\al_{J}^2)} \\
+&= -ig_{\beta}\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right]\re^{-\ibgR_{J}}
 \end{split}
 \end{equation}
 
@@ -5749,8 +5749,8 @@ where
 \begin{split}
 \frac{\p}{\p \RJb}\left|\bar n ^{(\rcomp)}(\bg)\right|^2
 &= \bar n ^{(\rcomp)}(\bg) \frac{\p}{\p \RJb}  \bar n ^{(\rcomp)*}(\bg) + \bar n ^{(\rcomp)*}(\bg) \frac{\p}{\p \RJb}  \bar n ^{(\rcomp)}(\bg) \\
-&= i\left[\bar n ^{(\rcomp)}(\bg) \re^{\ibgR_{J}} - \bar n ^{(\rcomp)*}(\bg)\re^{-\ibgR_{J}}\right]\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right] g_{\beta}\\
-&= -2 \Im{\bar n ^{(\rcomp)}(\bg) \re^{\ibgR_{J}}}\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right] g_{\beta}
+&= ig_{\beta}\left[\bar n ^{(\rcomp)}(\bg) \re^{\ibgR_{J}} - \bar n ^{(\rcomp)*}(\bg)\re^{-\ibgR_{J}}\right]\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right] \\
+&= -g_{\beta}2 \Im{\bar n ^{(\rcomp)}(\bg) \re^{\ibgR_{J}}}\left[Z_J - \tilde Z_J\re^{- g^2/(4\al_{J}^2)}\right] 
 \end{split}
 \end{equation}
 
@@ -5821,18 +5821,37 @@ the first structure factor was constructed earlier with EES and the second part 
 &=  \sum_f w_f \left\{\sum_J \left[\Dng\sum_{\hs}^{\NFFTnEES} \sum_{\bk} \re^{-2\pi i\gcnEES \cdot \hs} M_p^{(n)}(\bu_{Jf}-\hs)\delta_{\hat \bs,\bl_{Jf}-\bk}\right]  \tilde Z_J \left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}} \re^{-\al_J^2 r_f^2} \right\} \\
  &= D_p^{(n)}(\bg)\sum_{\hat \bs}^{\NFFTnEES} \re^{-2\pi i\gcnEES \cdot \hat\bs}\left\{\sum_J \left[ \sum_f w_f \tilde Z_J \left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}} \re^{-\al_J^2 r_f^2} \sum_{\bk}  M_p^{(n)}(\bu_{Jf}-\hat \bs)\delta_{\hat \bs,\bl_{Jf}-\bk}\right] \right\}\\
  &= D_p^{(n)}(\bg)\sum_{\hat \bs}^{\NFFTnEES} \re^{-2\pi i\gcnEES \cdot \hat\bs} n^{(e,\rcomp,\rEES)}(\hs)\\
- &= \Dng \FFTniEES \left[ n^{(e,\rcomp,\rEES)}(\hs), \Gc \right]\\
+ &= \Dng \FFTniEES \left[ n^{(e,\rcomp,\rEES)}(\hs), \Gc \right]
 \end{split}
 \end{equation}
 
 \begin{equation}
 \begin{split}
 n_J^{(e,\rcomp,\rEES)}(\hs) &=\tilde Z_J \left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}}\sum_f w_f  \re^{-\al_J^2 r_f^2}\sum_{\bk}  M_p^{(n)}(\bu_{Jf}-\hat \bs)\big|_{\hs=\bl_{Jf}-\bk} \hsinJn\\
-n^{(e,\rcomp,\rEES)}(\hs) &= \sum_J \sum_{\hspJn}^{\pzn} n_J^{(e,\rcomp,\rEES)}(\hs') \delta_{\hs,\hs'} \hsinnEES\\
+n^{(e,\rcomp,\rEES)}(\hs) &= \sum_J \sum_{\hspJn}^{\pzn} n_J^{(e,\rcomp,\rEES)}(\hs') \delta_{\hs,\hs'} \hsinnEES
 \end{split}
 \end{equation}
 
 There is no need for atom type resolution here, because there is no $\bg$-dependent part that depends on atom index. In fact, we can do 1 FFT by adding $n^{(e,\rcomp,\rEES)}(\hs)$ to $S^{(N,\rcomp,\rEES)}(\hs)$.
+
+To calculated the force, we have
+\begin{equation}
+\begin{split}
+\frac{\p}{\p \RJb} \bar n ^{(\rcomp)}(\bg)
+&= \frac{\p}{\p \RJb} \sum_{J'} Z_{J'} \re^{-\ibgR_{J'}} -  \frac{\p}{\p \RJb} \sum_{J'} \tilde Z_{J'} \left(\frac{\al_{J'}^2}{\pi}\right)^{\frac{3}{2}} \sum_f w_f \re^{-\al_{J'}^2 r_f^2} \re^{-i\bg\cdot\left(\br_f+\bR_{J'}\right)}\\
+&= -iZ_J g_{\beta} \re^{-\ibgR_{J}} + i\tilde Z_J \left(\frac{\al_{J}^2}{\pi}\right)^{\frac{3}{2}} g_{\beta} \re^{-\ibgR_{J}} \sum_f w_f \re^{-\al_{J}^2 r_f^2}\re^{-i\bg\cdot \br_f }\\
+&= -i\left[Z_J - \tilde Z_J  \left(\frac{\al_{J}^2}{\pi}\right)^{\frac{3}{2}}\sum_f w_f \re^{-\al_{J}^2 r_f^2}\re^{-i\bg\cdot \br_f }\right]\re^{-\ibgR_{J}}g_{\beta}
+\end{split}
+\end{equation}
+
+\begin{equation}
+\begin{split}
+\frac{\p}{\p \RJb}\left|\bar n ^{(\rcomp)}(\bg)\right|^2
+&= \bar n ^{(\rcomp)}(\bg) \frac{\p}{\p \RJb}  \bar n ^{(\rcomp)*}(\bg) + \bar n ^{(\rcomp)*}(\bg) \frac{\p}{\p \RJb}  \bar n ^{(\rcomp)}(\bg) \\
+&= -2 g_{\beta}\Im{\bar n ^{(\rcomp)}(\bg) \re^{\ibgR_{J}}\left[Z_J - \tilde Z_J \left(\frac{\al_{J}^2}{\pi}\right)^{\frac{3}{2}}\sum_f w_f \re^{-\al_{J}^2 r_f^2}\re^{i\bg\cdot \br_f }\right]} 
+\end{split}
+\end{equation}
+
 
 \newpage
 \section{Charged systems under 3D periodic boundary conditions}\label{App:c3D}
