@@ -43,8 +43,8 @@ int main (int argc, char *argv[]){
   double hmati[10];				  // inverse simulation box
   double volume;				  // simulation box volume
 
-  int rorderfull = 40, thetaorder = 4, phiorder = 8;    // grid sizes
-  int lmax = 2;									// maximum angular momentum
+  int rorder = 10, thetaorder = 4, phiorder = 8;    // grid sizes
+  int lmax = 3;									// maximum angular momentum
   double delta = 1e-6;
 
   ESTRUCT energy;		// compensation charge energy terms stored nicely
@@ -240,7 +240,6 @@ int main (int argc, char *argv[]){
 
   //========================================================================
   // compute the grids 
-  int rorder = (rorderfull%2 == 0 ) ? rorderfull/2 : (rorderfull/2 + 1);
   int nf = rorder*thetaorder*phiorder;
   FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
   for (int i=0; i<natm_typ; i++) {
@@ -248,7 +247,6 @@ int main (int argc, char *argv[]){
   	fgrid[i].nr = rorder;
   	fgrid[i].ntheta = thetaorder;
   	fgrid[i].nphi = phiorder;
-  	fgrid[i].nrfull = rorderfull;
   	fgrid[i].wf = new double [nf];
   	fgrid[i].xf = new double [nf];
   	fgrid[i].yf = new double [nf];
@@ -258,7 +256,7 @@ int main (int argc, char *argv[]){
   	fgrid[i].xphi = new double [phiorder];
 	fgrid[i].Ylmf = new complex [nf];
 	int J = list_atm_by_typ[i][0];
-  	gen_fgrid (rorderfull, rorder, thetaorder, phiorder, lmax, alp[J], &fgrid[i]);
+  	gen_fgrid (rorder, thetaorder, phiorder, lmax, alp[J], &fgrid[i]);
   } // end for
 
   //========================================================================
@@ -374,11 +372,10 @@ int main (int argc, char *argv[]){
   
   double * fdummy = new double [3];
   for (int j=0; j<3; j++) {
-	fdummy[j] = (energy_minus[j].Etot3D.E -  energy_plus[j].Etot3D.E)/(2.0*delta);
+	fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
 //	fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
-//	fdummy[j] = (energy_minus[j].Etot3D.E - energy_minus[j].Elong.E + energy_plus[j].Elong.E -  energy_plus[j].Etot3D.E)/(2.0*delta);
   }
-  PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fx[iii], fy[iii], fz[iii]);
+  PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
 
 //#endif // _FORCECHECK_
 

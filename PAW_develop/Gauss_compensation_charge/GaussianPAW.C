@@ -469,9 +469,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
           if (j != i) {
               double R_ij    = dist((x[i]-x[j]), (y[i]-y[j]), (z[i]-z[j]));
 			  double coeff1  = -q[i]*q[j];
-//			  fxg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(x[j] - x[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-//			  fyg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(y[j] - y[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-//			  fzg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(z[j] - z[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+			  fxg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(x[j] - x[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+			  fyg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(y[j] - y[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+			  fzg[i]		+= (coeff1)/(R_ij*R_ij*R_ij)*(z[j] - z[i])*(1 + erfc_a_r_over_r(R_ij, alpb)); 
           } // end if
       } // end for 
   } // end for
@@ -514,9 +514,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 							double tmp_K  = -Ncoeff_K*qt[K]*q[J]*wf_ktyp[f1]/r_K;
 							double coeffJ = tmp_J/(r_J*r_J);
 							double coeffK = tmp_K/(r_K*r_K);
-//							fxg[J]		 += coeffJ*dx_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dx_K*(1 + erfc_a_r_over_r(r_K, alpb));
-//							fyg[J]		 += coeffJ*dy_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dy_K*(1 + erfc_a_r_over_r(r_K, alpb));
-//							fzg[J]		 += coeffJ*dz_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dz_K*(1 + erfc_a_r_over_r(r_K, alpb));
+							fxg[J]		 += coeffJ*dx_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dx_K*(1 + erfc_a_r_over_r(r_K, alpb));
+							fyg[J]		 += coeffJ*dy_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dy_K*(1 + erfc_a_r_over_r(r_K, alpb));
+							fzg[J]		 += coeffJ*dz_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dz_K*(1 + erfc_a_r_over_r(r_K, alpb));
 							for (int f2=0; f2 < nf; f2++) {
 								double Hdx_J 	= xf_jtyp[f1]-xf_ktyp[f2]-x[K]+x[J];
 								double Hdy_J 	= yf_jtyp[f1]-yf_ktyp[f2]-y[K]+y[J];
@@ -534,9 +534,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 								double Htmp_K 	= 0.5*Ncoeff_K*Ncoeff_J*qt[J]*qt[K]*wf_ktyp[f1]*wf_jtyp[f2]/Hr_K;
 								double HcoeffJ  = Htmp_J/(Hr_J*Hr_J);
 								double HcoeffK  = Htmp_K/(Hr_K*Hr_K);
-//								fxg[J]		   += HcoeffJ*Hdx_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdx_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-//								fyg[J]		   += HcoeffJ*Hdy_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdy_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-//								fzg[J]		   += HcoeffJ*Hdz_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdz_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+								fxg[J]		   += HcoeffJ*Hdx_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdx_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+								fyg[J]		   += HcoeffJ*Hdy_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdy_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+								fzg[J]		   += HcoeffJ*Hdz_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdz_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
 							} // end for f2
 						} // end for f1
 					} // end if
@@ -721,14 +721,29 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 					Elong += prefact*normng;
 					ElongGrid += prefact*normngf;
 					for (int jtyp=0; jtyp<natm_typ; jtyp++) {
+						double *xf		    = fgrid[jtyp].xf;
+						double *yf		    = fgrid[jtyp].yf;
+						double *zf		    = fgrid[jtyp].zf;
+				        double *wf          = fgrid[jtyp].wf;
+ 			            int K 				= list_atm_by_typ[jtyp][0];
+						double Ncoeff 		= pow(alp[K]*alp[K]/(M_PI),1.5);
 						for(int j=0; j<natm_atm_typ[jtyp];j++){
  			        		int J = list_atm_by_typ[jtyp][j];
 							double  gdotR 		= -(ggx*x[J] + ggy*y[J] + ggz*z[J]);
 							double  ng_pref     = q[J] - qt[J]*exp(-g2/(4.0*alp[J]*alp[J]));
+							complex ngf_pref    = complex (q[J],0.0);
 							double  fg_tmp		= 2.0*(ng*CkExpIm(-gdotR)).im;
 							fx[J]			   += fg_tmp*ng_pref*ggx*prefact;
 							fy[J]			   += fg_tmp*ng_pref*ggy*prefact;
 							fz[J]			   += fg_tmp*ng_pref*ggz*prefact;
+							for (int f=0; f<nf; f++) {
+								double gdotf    = ggx*xf[f] + ggy*yf[f] + ggz*zf[f];
+								ngf_pref	   -= qt[J]*wf[f]*CkExpIm(gdotf)*Ncoeff;
+							}// end for f
+							double  fgf_tmp		= 2.0*(ng*CkExpIm(-gdotR)*ngf_pref).im;
+							fxg[J]			   += fgf_tmp*ggx*prefact;
+							fyg[J]			   += fgf_tmp*ggy*prefact;
+							fzg[J]			   += fgf_tmp*ggz*prefact;
 						} // end for j
 					}// end for jtyp
 				} // end if

@@ -15,6 +15,7 @@
 // Function prototypes
 
 #include "grid.h"
+#include "myGaussian.h"
 
 //==========================================================================
 
@@ -24,12 +25,12 @@
 //==========================================================================
 //  Grid generation : Controller
 //==========================================================================
-void gen_fgrid (int rorderfull, int rorder, int thetaorder, int phiorder, int lmax, double expalpha, FGRID *fgrid) {
+void gen_fgrid (int rorder, int thetaorder, int phiorder, int lmax, double expalpha, FGRID *fgrid) {
   //==========================================================================
   // Local variables
 
 	int mmax = lmax;
-    double *wrfull,*xrfull, *wr, *xr, *wcostheta, *wphi;  // grid weights and nodes
+    double *wr, *xr, *wcostheta, *wphi;  // grid weights and nodes
 
   //==========================================================================
   //==========================================================================
@@ -38,8 +39,8 @@ void gen_fgrid (int rorderfull, int rorder, int thetaorder, int phiorder, int lm
 	PRINTF("Generating the spherical polar weights and nodes, {nr, ntheta, nphi} = {%d, %d, %d}\n",rorder, thetaorder, phiorder);
 	PRINT_LINE_DASH;
 
-	wrfull = new double [rorderfull];
-	xrfull = new double [rorderfull];
+	wr = new double [rorder];
+	xr = new double [rorder];
 	wcostheta = new double [thetaorder];
 
 	if (thetaorder < lmax){ 
@@ -55,29 +56,17 @@ void gen_fgrid (int rorderfull, int rorder, int thetaorder, int phiorder, int lm
 		EXIT(1);
 	} //end if
 
-	int rordertmp = (rorderfull%2 == 0 ) ? rorderfull/2 : (rorderfull/2 + 1);
-	if (rordertmp != rorder) {
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		PRINTF("Error! rorder incorrect %d vs %d\n",rordertmp, rorder);
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		EXIT(1);
-  	} //end if
   //=========================================================================
   // Generate r, theta, phi grids using DVR: Hermite, Legendre, Fourier (equal space)
 
 	int kind = 1; double aaa = -1; double bbb = 1;
-	int kindr = 6; double aar = 0.0;
+//	int kindr = 6; double aar = 0.0;
+	int type = 2; int iopt = 0; 
 	control_quad_rule(kind, thetaorder, aaa, bbb, wcostheta, fgrid->xcostheta); // Legendre
-	control_quad_rule(kindr, rorderfull, aar, expalpha*expalpha, wrfull, xrfull); // Hermite
+//	control_quad_rule(kindr, rorderfull, aar, expalpha*expalpha, wrfull, xrfull); // Hermite
+	gen_Gauss_quad(type, rorder, expalpha, wr, xr, 0);
 	wphi = new double [phiorder];
 	genphigrid(phiorder,wphi,fgrid->xphi); // Fourier (equal space)
-	
-  //=========================================================================
-  // Change the input r grid to integrate from 0 to infinity 
-
-  	wr = new double [rorder];
-  	xr = new double [rorder];
-	calcHermiteHalfSpace(rorder, rorderfull, wrfull, xrfull, wr, xr);
 	
   //=========================================================================
   // Generate the spherical polar grid, Jacobian r^2 absorbed into weight
@@ -111,8 +100,6 @@ void gen_fgrid (int rorderfull, int rorder, int thetaorder, int phiorder, int lm
 
   //==========================================================================
   // Clean up the memory
-	delete [] wrfull;
-	delete [] xrfull;
 	delete [] wcostheta;
   	delete [] wr;
   	delete [] xr;

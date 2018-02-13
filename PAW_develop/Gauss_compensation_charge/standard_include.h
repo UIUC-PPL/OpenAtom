@@ -16,6 +16,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
+#include <algorithm>
 #include "ckcomplex.h"
 
 using namespace std;
