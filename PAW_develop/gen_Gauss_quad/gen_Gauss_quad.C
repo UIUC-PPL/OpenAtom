@@ -1,26 +1,24 @@
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //==========================================================================
-//
-//  This program computes the compensation charg energy for a frozen Gaussian
-//	core density
-//
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
-// Standard include files
-
-#include "standard_include.h"
-#include "myGaussian.h"
-
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
 // Compute the Gaussian quadature weights and nodes of order n for a general weighting 
 //	function, given the first 2n moments of weighting function
 //  Int_xpow (k) = \int_a^b dx w(x) x^k   k=0 ... 2n 
 //==========================================================================
-void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * node, int iopt){
+// include files
+
+#include "standard_include.h"
+#include "gen_Gauss_quad_entry.h"
+#include "gen_Gauss_quad_local.h"
+
+//==========================================================================
+//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//==========================================================================
+// Controller for the Gaussian quadature weights and nodes of order n for a general weighting 
+//	function, given the first 2n moments of weighting function
+//  Int_xpow (k) = \int_a^b dx w(x) x^k   k=0 ... 2n 
+//==========================================================================
+void gen_Gauss_quad(int n, double * Int_xpow, double * wght, double * node, int iopt){
 //==========================================================================
 //	First: Compute the polynomial coefficients a of the orthogonal polynomials over the weight using Gram Schmidt
 //  	We provide a function for each type which computes the integral over the
@@ -33,23 +31,6 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 //		Opoly[n].a[0..n] are the desired coefficients
 //		GramSmit just requires the evaluation of overlaps over the weighting function
 //		for which we have derived a general formula involving the moments which is Int_xpow.
-
-    double * Int_xpow = new double [2*n + 1]; 
-    switch(type) {
-            case 0: // w(x) = 1; [-1, 1] 
-                    fetch_Int_xpow_uniform(n, Int_xpow); break;
-            case 1: // w(x) = e^(-x^2); [-infty,infty]
-                    fetch_Int_xpow_Gaussfull(n, Int_xpow); break;
-            case 2: // w(x) = e^(-x^2); [-infty,infty]
-                    fetch_Int_xpow_Gausshalf(n, Int_xpow); break;
-            default:
-                    PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-                    PRINTF("Parameters out of range\n");
-                    PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-                    FFLUSH(stdout);
-                    EXIT(1);
-    }//end switch
-
 
 	POLY * poly = new POLY [n + 1];
 
@@ -84,17 +65,16 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 
 	for (int k=1; k<n+1; k++) {
 		poly[k].a[k] = 1.0;
-//		PRINTF("Norm: %d: %g \n",k,poly[k].Norm);
 		for (int j=0; j<k; j++) {
 			poly[k].a[j] = 0.0;
 			for (int l=j; l < k; l++) {
 				poly[k].a[j] += poly[l].a[j]*poly[k].c[l];
 			} // end for l
-//			PRINTF("%d %d : %g \n",k,j,poly[k].a[j]);
 		} // end for j
 	} // end for k
 
 	double *a = poly[n].a;
+	double *c = poly[n].c;
 
 //==========================================================================
 //	Construct the companion matrix, A, using the polynomial coefficients a
@@ -156,11 +136,26 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 
 	if (iii != 0) {
 		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		PRINTF("The roots of the polynomial must be real!\n");
+		PRINTF("The roots of the polynomial must be real!\nAre the 'a' coefficients ill-posed?\n");
+		double cmax = fabs(c[0]); double amax = fabs(a[0]);
+		double cmin = fabs(c[0]); double amin = fabs(a[0]);
+		for (int i=1; i<n+1; i++) {
+			cmax = MAX(cmax,fabs(c[i]));
+			amax = MAX(amax,fabs(a[i]));
+			if (fabs(c[i]) > 0.0) { cmin = MIN(cmin,fabs(c[i]));}
+			if (fabs(a[i]) > 0.0) { amin = MIN(amin,fabs(a[i]));}
+		} // end for
+		PRINTF("a range = [%.10g, %.10g], c range = [%.10g, %.10g],\n",amin, amax, cmin, cmax);
 		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
 		FFLUSH(stdout);
 		EXIT(1);
 	} // end if
+
+//==========================================================================
+// Test the nodes
+	for (int i=0; i<n; i++) {node[i] = ALPHAR[i];}
+	sort(node, node + n);
+	testnodes(n, node, a);
 
 //==========================================================================
 //	We construct the weights using the zeros and the derivatives of the polynomial
@@ -171,21 +166,17 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 	double Normn1 = poly[n-1].Norm; 
 	double *pnp = new double [n];
 	for (int i=0; i<n; i++) {
-		pnp[i] = ((double)i+1.0)*a[i+1];
+		double tmp = ((double)i)+1.0;
+		pnp[i] = tmp*a[i+1];
 	} // end for
 	double *pn1 = poly[n-1].a;
 
 	for (int i=0; i<n; i++) {
-		double pn1v = 0, pnpv = 0;
+		double pn1v = 0.0, pnpv = 0.0;
 		horner(n, pn1, node[i], &pn1v);
 		horner(n, pnp, node[i], &pnpv);
 		wght[i] = Normn1/(pn1v*pnpv);
 	}// end for
-	for (int i=0; i<n; i++) {
-		node[i] = node[i]/alphasq;
-		wght[i] = wght[i]/alphasq;
-	}
-
 	delete [] pnp;
 
 //==========================================================================
@@ -203,9 +194,11 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 		PRINTF("=================================================\n");
 		PRINTF("Test integrals of 2n-1 moments using the quadrature:\n");
 		PRINTF("-------------------------------------------------\n");
-		testgrid(n, wght, Int_xpow, node);
+		testgrid(n, wght, Int_xpow, node, iopt);
 		PRINTF("=================================================\n\n");
-	} // end if
+	} else {
+		testgrid(n, wght, Int_xpow, node, iopt);
+	}// end if	
 
 //==========================================================================
 //  Clean up the memory
@@ -233,44 +226,6 @@ void gen_Gauss_quad(int type, int n, double alphasq, double * wght, double * nod
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //==========================================================================
-// Integrals of powers of x over uniform weight on [-1,1]
-//==========================================================================
-void fetch_Int_xpow_uniform(int n, double * Int_xpow){
-	for (int i=0; i<2*n+1; i++) {
-		int tmp = (i % 2 == 0) ? 1:-1;
-		Int_xpow[i] = (1.0 + (double) tmp)/(1.0 + (double) i);
-	}// end for i
-}//end routine
-
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
-// Integrals of powers of x over Gaussian weight on [-inf,inf]
-//==========================================================================
-void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow){ 
-	Int_xpow[0] = sqrt(M_PI);
-	for (int i=1; i<2*n+1; i++) {
-		if (i%2 == 1) Int_xpow[i] = 0;
-		else Int_xpow[i] = Int_xpow[i-2]*((double)i-1.0)/2.0;
-	}// end for i
-}//end routine
-
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
-// Integrals of powers of x over Gaussian weight on [0,inf]
-//==========================================================================
-void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow){
-	Int_xpow[0] = sqrt(M_PI)/2.0;
-	Int_xpow[1] = 1.0/2.0;
-	for (int i=2; i<2*n+1; i++) {
-		Int_xpow[i] = Int_xpow[i-2]*((double)i-1.0)/2.0;
-	}// end for i
-}//end routine
-
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
 // Valuating the p_n(x_i) using horner's method.
 //==========================================================================
 void horner(int n, double *a, double x, double *value){
@@ -283,14 +238,64 @@ void horner(int n, double *a, double x, double *value){
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //==========================================================================
+// Test the nodes
+//==========================================================================
+void testnodes(int n, double * x, double * a) {
+	int ierr = 0;
+	double err = 0.0;
+	for (int i=0; i<n; i++) {
+		double zero = 0.0;
+		horner(n+1, a, x[i], &zero);
+		err = MAX(err,fabs(zero));
+		if (fabs(zero) > 1.0e-8) {ierr++;}
+	}//end for
+	PRINTF("The maximum err in your zeros is %g\n", err);
+	if (ierr > 0) {
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		PRINTF("You have %d zeros out of error range! Write a root refinement routine!\n", ierr);
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		FFLUSH(stdout);
+		EXIT(1);
+	} // end if
+} // end routine
+
+//==========================================================================
+//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//==========================================================================
 // Test the correctness
 //==========================================================================
-void testgrid(int n, double *w, double * Int_xpow, double *x) {
-	for (int power=0; power<11; power++) {
+void testgrid(int n, double *w, double * Int_xpow, double *x, int iopt) {
+	if (iopt == 1) {
+		for (int power=0; power<2*n-1; power++) {
+			double result = 0;
+			for (int i= 0; i<n; i++) {
+				result += w[i]*pow(x[i],power);
+			} //end for
+			PRINTF("%d  %.10g  %.10g\n", power, result, Int_xpow[power]);
+		} //end for
+	} // end if
+
+	int ierr = 0;
+	double errmax = 0.0;
+	for (int power=0; power<2*n-1; power++) {
 		double result = 0;
 		for (int i= 0; i<n; i++) {
 			result += w[i]*pow(x[i],power);
 		} //end for
-	PRINTF("%d  %.10g  %.10g\n", power, result, Int_xpow[power]);
+		double err = result - Int_xpow[power];
+		if (fabs(Int_xpow[power]) > 1.0e-5) { err /= fabs(Int_xpow[power]);}
+		errmax = MAX(err,errmax);
+		if (fabs(err) > 1.0e-7) {
+			ierr++;
+			PRINTF("Error out of range %g for moment %d  %.10g  %.10g\n", err, power, result, Int_xpow[power]);
+		} // end if
 	} //end for
+	PRINTF("The maximum err in your moments is %g\n", errmax);
+	if (ierr > 0) {
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		PRINTF("You have %d moments out of error range!\n", ierr);
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		FFLUSH(stdout);
+		EXIT(1);
+	} // end if
 } //end routine

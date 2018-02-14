@@ -43,7 +43,7 @@ int main (int argc, char *argv[]){
   double hmati[10];				  // inverse simulation box
   double volume;				  // simulation box volume
 
-  int rorder = 10, thetaorder = 4, phiorder = 8;    // grid sizes
+  int rorder = 10, thetaorder = 6, phiorder = 10;    // grid sizes
   int lmax = 3;									// maximum angular momentum
   double delta = 1e-6;
 
