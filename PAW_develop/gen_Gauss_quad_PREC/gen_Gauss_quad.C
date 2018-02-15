@@ -71,7 +71,7 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 		} // end for j
 		double sgn_tmp = ((normtmp >= 0 )? 1: -1);
 		double scale   = sgn_tmp/sqrt(fabs(normtmp));
-		PRINTF("k = %d scale =%.10g\n", k, scale);
+		if (iopt == 1) {PRINTF("k = %d scale =%.10g\n", k, scale);}
 		for (int j=0; j<k+1; j++) {
 			poly[k].c[j] *= scale;
 			poly[k].O[j] *= scale;
