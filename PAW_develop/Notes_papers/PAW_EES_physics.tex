@@ -6021,15 +6021,15 @@ Next, we prove by induction that a Gram-Schmidt procedure can be used to constru
 \begin{split}
 \int_a^b \rd x w(x) p_k(x) p_j(x) 
 &= \int_a^b \rd x w(x) \left[\sum_{i=0}^{k-1} p_{i}(x) c_{ki} + c_{kk} x^k\right] p_i(x) =0 \\
-&= \sum_{i=0}^{k-1} \int_a^b \rd x w(x) p_{i}(x) p_j(x) c_{ki} + \int_a^b \rd x w(x) x^k p_j(x)=0 \\
-&= \sum_{j=0}^{k-1} c_{ki} N_{ii} \delta_{ij} + O_{kj}=0\\
-&= N_{jj} c_{kj} + O_{kj}=0\\
+&= \sum_{i=0}^{k-1} \int_a^b \rd x w(x) p_{i}(x) p_j(x) c_{ki} + c_{kk}\int_a^b \rd x w(x) x^k p_j(x)=0 \\
+&= \sum_{j=0}^{k-1} c_{ki} N_{ii} \delta_{ij} + c_{kk} O_{kj}=0\\
+&= N_{jj} c_{kj} + c_{kk} O_{kj}=0\\
 \end{split}
 \end{equation}
 
 which leads to
 \begin{equation}
-c_{kj} = -\frac{O_{kj}}{N_{jj}}\ \ \ \
+c_{kj} = -\frac{c_{kk} O_{kj}}{N_{jj}}\ \ \ \
 j = 0\ldots k-1
 \end{equation}
 Here,
@@ -6078,6 +6078,14 @@ N_{nn} &= \int_a^b \rd x w(x) p_n(x) p_n(x) \\
 &= \sum_{j=0}^{n-1} c_{nj}^2 N_{jj} + 2c_{nn}  \sum_{j=0}^{n-1} c_{nj} O_{nj} + c_{nn}^2 I_{2n}
 \end{split}
 \end{equation}
+
+If we desire to work with unit norm, we can use $c_{nn}$ to renormalize all our coefficients as all are scaled by $c_{nn}$.
+\begin{equation}
+\begin{split}
+c_{nj} &= \frac{c_{nj}^{(0)}}{\sqrt{N_{nn}^{(0)}}}\ \ \ \ j = 0 \ldots n \\
+\end{split}
+\end{equation}
+where $c_{nj}^{(0)}$ is Eq. (N.8) with $c_{nn} = 1$, and $N_{nn}^{(0)}$ is Eq. (N.13) also with $c_{nn} = 1$.
 
 We next treat Gaussian weights over the full space
 \begin{equation}
