@@ -210,7 +210,7 @@ void EpsMatrix::coh(){
       for (int j = 0; j < f_cache->getNSize(); j++) {
         for (int r = 0; r < end_x; r++) {
           for (int c = 0; c < end_y; c++) {
-            for(int g=0; g<psi_size; g++) {
+            for(int g=0; g<epsilon_size; g++) {
               //apply some filters on which g's should be applied
               //if( (gppvec(1,igp) .eq. gvec(1,gidx(g)))
               //.AND.(gppvec(2,igp) .eq. gvec(2,gidx(g))) &
@@ -219,8 +219,7 @@ void EpsMatrix::coh(){
                   geps_y[thisIndex.y*eps_cols+c]-geps_y[thisIndex.x*eps_rows+r] == geps_y[g] &&
                   geps_z[thisIndex.y*eps_cols+c]-geps_z[thisIndex.x*eps_rows+r] == geps_z[g])
               {
-                int index = ((thisIndex.x*eps_rows+r)*epsilon_size)+(thisIndex.y*eps_cols+c);
-                contribution += f[index]*data[IDX_eps(r,c)];
+                contribution += f[g]*data[IDX_eps(r,c)];
               }
             }
           }
