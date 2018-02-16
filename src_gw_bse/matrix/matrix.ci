@@ -18,7 +18,7 @@ module matrix {
 
     entry void receiveData(DataMessage* msg);
     entry void waitForData(CkCallback cb) {
-      serial { data_received = 0; }
+      serial { data_received = 0; result = true; }
       while (data_received < total_data) {
         when receiveData(DataMessage* msg) serial {
           (((Matrix*)this)->*Matrix::dataHandler)(msg);
@@ -26,7 +26,10 @@ module matrix {
           delete msg;
         }
       }
-      serial { busy = false; contribute(cb); }
+      serial {
+        busy = false;
+        contribute(sizeof(bool), &result, CkReduction::logical_and_bool, cb);
+      }
     }
   };
 };

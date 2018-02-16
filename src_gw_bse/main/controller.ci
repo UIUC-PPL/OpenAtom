@@ -41,13 +41,11 @@ module controller {
     entry Controller();
 
     // reductions used for control flow
-    entry void matricesReady();
 #if USE_CLA
     entry void matrixReady();
 #endif
     entry void computeEpsDimensions();
     entry void calc_Geps();
-    entry [reductiontarget] void created1d_complete();
     entry void receiveEpsDimensions(std::vector<int> accept, std::vector<int>
                                     geps_x,std::vector<int> geps_y,
                                     std::vector<int> geps_z, int epsilon_size);
@@ -60,10 +58,9 @@ module controller {
     entry [reductiontarget] void psiComplete();
     entry [reductiontarget] void fftComplete();
     entry [reductiontarget] void transposeComplete();
-    entry [reductiontarget] void copyComplete();
+    entry [reductiontarget] void copyComplete(bool success);
     entry [reductiontarget] void transpose_complete();
     entry [reductiontarget] void copy_complete();
-    entry [reductiontarget] void matrix_created();
     entry [reductiontarget] void m_multiplied();
     entry [reductiontarget] void conjugateComplete();
     entry [reductiontarget] void complement_multiplied();
@@ -75,12 +72,13 @@ module controller {
     entry [reductiontarget] void bareExchangeComplete(complex x);
     entry [reductiontarget] void screenedExchangeComplete(complex x);
     entry [reductiontarget] void cohComplete(complex x);
-    entry [reductiontarget] void finished_copy();
     entry [reductiontarget] void s_ready();
-
-#if defined(VERIFY_P) || defined(VERIFY_EPS) || defined(VERIFY_EPS_INV)
-    entry [reductiontarget] void verifyComplete();
-#endif
+    entry [reductiontarget] void readComplete(bool success);
+    entry [reductiontarget] void writeComplete(bool success);
+    entry [reductiontarget] void verifyComplete(bool success);
+    entry void PMatrixFormed();
+    entry void EpsilonFormed();
+    entry void EpsilonInverted();
 
     entry void reportFTime(CkReductionMsg*);
     entry void reportPTime(CkReductionMsg*);
@@ -92,13 +90,18 @@ module controller {
     }
     // Main control flow
     entry void run() {
+      /************************************************************************/
+      /** Setup ***************************************************************/
+      /************************************************************************/
       when fftControllerReady() serial {
         //precompute epsilon dimensions to enable caching necessary subsets of f-vectors
         computeEpsDimensions();
       }
-      when receiveEpsDimensions(std::vector<int> accept, std::vector<int>
-                                geps_x,std::vector<int> geps_y, std::vector<int> geps_z,int epsilon_size)
-      serial{
+      when receiveEpsDimensions(std::vector<int> accept,
+                                std::vector<int> geps_x,
+                                std::vector<int> geps_y,
+                                std::vector<int> geps_z,
+                                int epsilon_size) serial {
         accept_result = accept;
         PAD(epsilon_size);
         fvector_cache_proxy.setDim(padded_epsilon_size/eps_rows,
@@ -120,6 +123,264 @@ module controller {
         PHASE_BOUNDARY(total_setup, total_phase1, "SETUP COMPLETE");
       }
 
+      /************************************************************************/
+      /** Phase 1: Form the P Matrix ******************************************/
+      /************************************************************************/
+      serial {
+        if (!p_config.read) {
+          CkPrintf("[CONTROLLER] Computing P Matrix...\n");
+          thisProxy.formPMatrix();
+        } else {
+          CkPrintf("[CONTROLLER] Reading P Matrix from files %s...\n",
+              p_config.read_prefix.c_str());
+          matrixRead(pmatrix1D_proxy, p_config.read_prefix, readCB);
+        }
+      }
+      case {
+        when PMatrixFormed() {
+          serial {
+            PHASE_BOUNDARY(total_phase1, total_phase2, "PHASE 1 (P in G Space) COMPLETE");
+          }
+          if (p_config.write) {
+            serial {
+              matrixWrite(pmatrix1D_proxy, p_config.write_prefix, writeCB);
+            }
+            when writeComplete(bool success) serial {
+              if (success) {
+                CkPrintf("[CONTROLLER] P Matrix written out to %s\n",
+                    p_config.write_prefix.c_str());
+              } else {
+                CkPrintf("[CONTROLLER] Error writing P Matrix out to %s\n",
+                    p_config.write_prefix.c_str());
+              }
+            }
+          }
+          if (p_config.verify) {
+            serial {
+              matrixVerify(pmatrix1D_proxy, p_config.verify_prefix, verifyCB);
+            }
+            when verifyComplete(bool success) serial {
+              if (success) {
+                CkPrintf("[CONTROLLER] P Matrix verification against %s success!\n",
+                    p_config.verify_prefix.c_str());
+              } else {
+                CkPrintf("[CONTROLLER] P Matrix verification against %s failed!\n",
+                    p_config.verify_prefix.c_str());
+              }
+            }
+          }
+        }
+        when readComplete(bool success) serial {
+          if (!success) {
+            CkAbort("Failed to read in P Matrix from file!\n");
+          } else {
+            PHASE_BOUNDARY(total_phase1, total_phase2, "PHASE 1 (P in G Space) COMPLETE");
+          }
+        }
+      }
+
+      /************************************************************************/
+      /** Phase 2: Form the Epsilon Matrix ************************************/
+      /************************************************************************/
+      serial {
+        MatrixConfig cfg2D;
+        cfg2D.mat_rows = cfg2D.mat_cols = padded_epsilon_size;
+        cfg2D.tile_rows = eps_rows;
+        cfg2D.tile_cols = eps_cols;
+
+        CProxy_EpsMap map = CProxy_EpsMap::ckNew(cfg2D);
+        CkArrayOptions opts(cfg2D.chareRows(), cfg2D.chareCols());
+        opts.setMap(map);
+
+        eps_matrix2D_m_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+        eps_matrix2D_mT_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+        eps_matrix2D_X_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+        eps_matrix2D_A_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+        eps_matrix2D_M1_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+        eps_matrix2D_X1_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+
+        s_matrix2D_proxy = CProxy_EpsMatrix::ckNew(
+            cfg2D, opts);
+
+        MatrixConfig cfg1D = convertTo1D(cfg2D, eps_rows);
+        eps_matrix1D_proxy = CProxy_EpsMatrix::ckNew(
+            cfg1D, cfg1D.chareRows(), cfg1D.chareCols());
+
+        if (!eps_config.read) {
+          CkPrintf("[CONTROLLER] Computing Epsilon Matrix...\n");
+          thisProxy.formEpsilon();
+        } else {
+          CkPrintf("[CONTROLLER] Reading Epsilon Matrix from files %s...\n",
+              eps_config.read_prefix.c_str());
+          matrixRead(eps_matrix1D_proxy, eps_config.read_prefix, readCB);
+        }
+      }
+      case {
+        when EpsilonFormed() {
+          serial {
+            PHASE_BOUNDARY(total_phase2, total_phase3, "PHASE 2 (Epsilon) COMPLETE");
+          }
+          if (eps_config.write || eps_config.verify) {
+            serial {
+              matrixCopy(eps_matrix2D_m_proxy, eps_matrix1D_proxy, copyCB);
+            }
+            when copyComplete(bool success) {}
+
+            if (eps_config.write) {
+              serial {
+                matrixWrite(eps_matrix1D_proxy, eps_config.write_prefix, writeCB);
+              }
+              when writeComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] Epsilon Matrix written out to %s\n",
+                      eps_config.write_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] Error writing Epsilon Matrix out to %s\n",
+                      eps_config.write_prefix.c_str());
+                }
+              }
+            }
+            if (eps_config.verify) {
+              serial {
+                matrixVerify(eps_matrix1D_proxy, eps_config.verify_prefix, verifyCB);
+              }
+              when verifyComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] Epsilon Matrix verification against %s success!\n",
+                      eps_config.verify_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] Epsilon Matrix verification against %s failed!\n",
+                      eps_config.verify_prefix.c_str());
+                }
+              }
+            }
+          }
+        }
+        when readComplete(bool success) {
+          serial {
+            if (!success) {
+              CkAbort("Failed to read in Epsilon Matrix from file!\n");
+            } else {
+              matrixCopy(eps_matrix1D_proxy, eps_matrix2D_m_proxy, copyCB);
+            }
+          }
+          when copyComplete(bool success) serial {
+            if (!success) {
+              CkAbort("Failed to copy Epsilon Matrix to 2D decomposition!\n");
+            } else {
+              PHASE_BOUNDARY(total_phase2, total_phase3, "PHASE 2 (Epsilon) COMPLETE");
+            }
+          }
+        }
+      }
+
+      /************************************************************************/
+      /** Phase 3: Invert the Epsilon Matrix **********************************/
+      /************************************************************************/
+      serial {
+        if (!eps_inv_config.read) {
+          CkPrintf("[CONTROLLER] Inverting Epsilon Matrix...\n");
+          thisProxy.invertEpsilon();
+        } else {
+          CkPrintf("[CONTROLLER] Reading Inverted Epsilon Matrix from files %s...\n",
+              eps_inv_config.read_prefix.c_str());
+          matrixRead(eps_matrix1D_proxy, eps_inv_config.read_prefix, readCB);
+        }
+      }
+      case {
+        when EpsilonInverted() {
+          serial {
+	          PHASE_BOUNDARY(total_phase3, total_phase4, "PHASE 3 (Epsilon Matrix Inversion) COMPLETE");
+          }
+          if (eps_inv_config.write || eps_inv_config.verify) {
+            serial {
+              matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, copyCB);
+            }
+            when copyComplete(bool success) {}
+
+            if (eps_inv_config.write) {
+              serial {
+                matrixWrite(eps_matrix1D_proxy, eps_inv_config.write_prefix, writeCB);
+              }
+              when writeComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] Inverted Epsilon Matrix written out to %s\n",
+                      eps_inv_config.write_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] Error writing Inverted Epsilon Matrix out to %s\n",
+                      eps_inv_config.write_prefix.c_str());
+                }
+              }
+            }
+            if (eps_inv_config.verify) {
+              serial {
+                matrixVerify(eps_matrix1D_proxy, eps_inv_config.verify_prefix, verifyCB);
+              }
+              when verifyComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] Inverted Epsilon Matrix verification against %s success!\n",
+                      eps_inv_config.verify_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] Inverted Epsilon Matrix verification against %s failed!\n",
+                      eps_inv_config.verify_prefix.c_str());
+                }
+              }
+            }
+          }
+        }
+        when readComplete(bool success) {
+          serial {
+            if (!success) {
+              CkAbort("Failed to read in Inverted Epsilon Matrix from file!\n");
+            } else {
+              matrixCopy(eps_matrix1D_proxy, eps_matrix2D_X_proxy, copyCB);
+            }
+          }
+          when copyComplete(bool success) serial {
+            if (!success) {
+              CkAbort("Failed to copy Inverted Epsilon Matrix to 2D decomposition!\n");
+            } else {
+	            PHASE_BOUNDARY(total_phase3, total_phase4, "PHASE 3 (Epsilon Matrix Inversion) COMPLETE");
+            }
+          }
+        }
+      }
+
+      /************************************************************************/
+      /** Phase 4 *************************************************************/
+      /************************************************************************/
+      serial {
+        eps_matrix2D_X_proxy.createCopy(s_matrix2D_proxy, false);
+      }
+      when copy_complete() serial {
+        s_matrix2D_proxy.multiply_coulb();
+      }
+      when s_ready() serial {
+        eps_matrix2D_X_proxy.bareExchange();
+        s_matrix2D_proxy.screenedExchange();
+        s_matrix2D_proxy.coh();
+      }
+      overlap {
+        when bareExchangeComplete(complex x) serial {
+          CkPrintf("Bare Exchange complete: %11.8lf + %fi\n", x.re, x.im);
+        }
+        when screenedExchangeComplete(complex x) serial {
+          CkPrintf("Screened Exchange complete: %f + %fi\n", x.re, x.im);
+        }
+        when cohComplete(complex x) serial{
+          CkPrintf("COH complete: %lf + %lfi\n", x.re, x.im);
+        }
+      }
+      serial { CkExit(); }
+    }
+
+    entry void formPMatrix() {
       // Send a message to each unoccupied state, telling them to broadcast to
       // all PsiCaches. When a PsiCache receives an unoccupied state, it
       // uses its local copies of the occupied states to compute all the f
@@ -210,14 +471,12 @@ module controller {
             ((double)timers.pcomp_count/CkNumPes()),
             timers.avg_pcomp * ((double)timers.pcomp_count/CkNumPes()));
 
-        PHASE_BOUNDARY(total_phase1, total_phase2, "PHASE 1 (P in R Space) COMPLETE");
-        CkCallback cb(CkReductionTarget(Controller, copyComplete), thisProxy);
-        matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, cb);
+        matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, copyCB);
       }
 
       // When we receive this message, we know that P has switched to a 1D
       // decomposition, so tell it to FFT all of it's rows.
-      when copyComplete() serial{
+      when copyComplete(bool success) serial{
         STEP_BOUNDARY(to1D, fft1, "Matrix decomposition changed to 1D");
         pmatrix1D_proxy.fftRows(1);
       }
@@ -245,53 +504,16 @@ module controller {
       // The final transpose is complete so now switch back to the 2D decomp.
       when transposeComplete() serial{
         STEP_BOUNDARY(trans2, to2D, "Second transpose complete");
+        thisProxy.PMatrixFormed();
       }
+    }
 
-#ifdef VERIFY_P
+    entry void formEpsilon() {
       serial {
-        CkCallback cb(CkReductionTarget(Controller, verifyComplete), thisProxy);
-        matrixVerify(pmatrix1D_proxy, "serial_output/PMatrix", cb);
-      }
-      when verifyComplete() serial { CkPrintf("[CONTROLLER] Matrix Verified\n"); }
-#endif
-
-      // Start phase 3 by figuring out epsilon size and creating the matrices
-      serial {
-        PHASE_BOUNDARY(total_phase2, total_phase3, "PHASE 2 (FFT P) COMPLETE");
         calc_Geps();
       }
-      when prepare_epsilon() serial {
-        MatrixConfig cfg2D;
-        cfg2D.mat_rows = cfg2D.mat_cols = padded_epsilon_size;
-        cfg2D.tile_rows = eps_rows;
-        cfg2D.tile_cols = eps_cols;
 
-        CProxy_EpsMap map = CProxy_EpsMap::ckNew(cfg2D);
-        CkArrayOptions opts(cfg2D.chareRows(), cfg2D.chareCols());
-        opts.setMap(map);
-
-        eps_matrix2D_m_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-        eps_matrix2D_mT_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-        eps_matrix2D_X_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-        eps_matrix2D_A_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-        eps_matrix2D_M1_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-        eps_matrix2D_X1_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-
-        s_matrix2D_proxy = CProxy_EpsMatrix::ckNew(
-            cfg2D, opts);
-
-        MatrixConfig cfg1D = convertTo1D(cfg2D, eps_rows);
-        eps_matrix1D_proxy = CProxy_EpsMatrix::ckNew(
-            cfg1D, cfg1D.chareRows(), cfg1D.chareCols());
-      }
-
-      when matricesReady() serial{
+      when prepare_epsilon() serial{
 #if USE_CLA
         mat_mul_proxy.setup(matA, matB, matC,
             eps_matrix2D_m_proxy, eps_matrix2D_mT_proxy, eps_matrix2D_X_proxy,
@@ -307,18 +529,12 @@ module controller {
         CkPrintf("[CONTROLLER] Created Epsilon Matrix\n");
       }
 
-#ifdef VERIFY_EPS
       serial {
-        CkCallback cb(CkReductionTarget(Controller, copyComplete), thisProxy);
-        matrixCopy(eps_matrix2D_m_proxy, eps_matrix1D_proxy, cb);
+        thisProxy.EpsilonFormed();
       }
-      when copyComplete() serial {
-        CkCallback cb(CkReductionTarget(Controller, verifyComplete), thisProxy);
-        matrixVerify(eps_matrix1D_proxy, "serial_output/Eps_0", cb);
-      }
-      when verifyComplete() serial { CkPrintf("[CONTROLLER] Matrix Verified\n"); }
-#endif
+    }
 
+    entry void invertEpsilon() {
       serial { eps_matrix2D_m_proxy.createTranspose(eps_matrix2D_mT_proxy, false); }
       when transpose_complete() serial {
         CkPrintf("[CONTROLLER] Created Transpose\n");
@@ -327,10 +543,9 @@ module controller {
       }
       when m_multiplied() serial{
         CkPrintf("[CONTROLLER] Multiply completed\n");
-        CkCallback cb(CkReductionTarget(Controller, created1d_complete), thisProxy);
-        matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, cb);
+        matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, copyCB);
       }
-      when created1d_complete() serial{
+      when copyComplete(bool success) serial{
         //find alpha
         CkPrintf("[CONTROLLER] Multiplied Matrices X = m*m^T\n");
         eps_matrix1D_proxy.findAlpha();
@@ -417,55 +632,16 @@ module controller {
             iteration = MAX_ITERATIONS;
           }
           prev_max = max;
-          CkCallback cb(CkReductionTarget(Controller, finished_copy), thisProxy);
-          matrixCopy(eps_matrix2D_X1_proxy, eps_matrix2D_X_proxy, cb);
+          matrixCopy(eps_matrix2D_X1_proxy, eps_matrix2D_X_proxy, copyCB);
         }
-        when finished_copy() serial {
+        when copyComplete(bool success) serial {
           thisProxy.transpose_complete();
         }
       } //end of for loop
 
       serial {
-	      PHASE_BOUNDARY(total_phase3, total_phase4, "PHASE 3 (Epsilon Matrix Inversion) COMPLETE");
+        thisProxy.EpsilonInverted();
       }
-
-#ifdef VERIFY_EPS_INV
-      serial {
-        CkCallback cb(CkReductionTarget(Controller, copyComplete), thisProxy);
-        matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, cb);
-      }
-      when copyComplete() serial {
-        CkCallback cb(CkReductionTarget(Controller, verifyComplete), thisProxy);
-        matrixVerify(eps_matrix1D_proxy, "serial_output/Eps_inv_0", cb);
-      }
-      when verifyComplete() serial { CkPrintf("[CONTROLLER] Matrix Verified\n"); }
-#endif
-
-      serial {
-        eps_matrix2D_X_proxy.createCopy(s_matrix2D_proxy, false);
-      }
-
-      when copy_complete() serial {
-        s_matrix2D_proxy.multiply_coulb();
-      }
-
-      when s_ready() serial {
-        eps_matrix2D_X_proxy.bareExchange();
-        s_matrix2D_proxy.screenedExchange();
-        s_matrix2D_proxy.coh();
-      }
-      overlap {
-        when bareExchangeComplete(complex x) serial {
-          CkPrintf("Bare Exchange complete: %11.8lf + %fi\n", x.re, x.im);
-        }
-        when screenedExchangeComplete(complex x) serial {
-          CkPrintf("Screened Exchange complete: %f + %fi\n", x.re, x.im);
-        }
-        when cohComplete(complex x) serial{
-          CkPrintf("COH complete: %lf + %lfi\n", x.re, x.im);
-        }
-      }
-      serial { CkExit(); }
     }
   };
 };

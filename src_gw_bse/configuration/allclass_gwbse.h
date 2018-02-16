@@ -15,6 +15,7 @@
 */
 #include "class_gwbseopts.h"
 #include "class_gw_epsilon.h"
+#include "class_gw_io.h"
 #include "class_gw_sigma.h"
 #include "class_gw_parallel.h"
 
@@ -35,6 +36,7 @@ class GWBSE {
     // classes that you defined in ../class_defs/GWBSE/xxx.h will be written here 
     GWBSEOPTS         gwbseopts; // GWBSE options. read from user input files
     GW_EPSILON        gw_epsilon; // variables for epsilon.
+    GW_IO             gw_io;      // variables for I/O and verification
     GW_SIGMA          gw_sigma;   // variables for sigma
     int num_pup;
 
@@ -59,6 +61,7 @@ class GWBSE {
    
       gwbseopts.state_class_out();
       gw_epsilon.state_class_out();
+      gw_io.state_class_out();
       gw_sigma.state_class_out();
       gw_parallel.state_class_out();
 
@@ -72,6 +75,7 @@ class GWBSE {
 
       gwbseopts.pup(p);
       gw_epsilon.pup(p);
+      gw_io.pup(p);
       gw_sigma.pup(p);
       gw_parallel.pup(p);
 

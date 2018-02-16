@@ -7,6 +7,7 @@
 #include "fft_controller.decl.h"
 #include "psi_cache.decl.h"
 #include "fvector_cache.decl.h"
+#include "class_gw_io.h"
 
 #include "controller.decl.h"
 #define ITERATION 10 //needs to be read from epsilon.in
@@ -36,7 +37,6 @@ class Controller : public CBase_Controller {
     Controller();
     void computeEpsDimensions();
     void calc_Geps();
-    void matrix_created();
     void got_geps(std::vector<int> accept, int epsilon_size);
     void got_vcoulb(std::vector<double> vcoulb_in);
   private:
@@ -63,6 +63,10 @@ class Controller : public CBase_Controller {
     double prev_max;
     std::vector<int> accept_result;
     Timers timers;
+
+    CkCallback copyCB, readCB, writeCB, verifyCB;
+
+    IOConfig p_config, eps_config, eps_inv_config;
 
     // Epsilon proxies and matrices
     CLA_Matrix_interface matA, matB, matC;

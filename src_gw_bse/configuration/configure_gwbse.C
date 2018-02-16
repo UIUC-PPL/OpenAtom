@@ -78,6 +78,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   int num_dict_GW_parallel;
   int num_dict_GW_file;
   int num_dict_GW_charm_input;
+  int num_dict_GW_io;
   DICT_WORD *dict_fun;
   DICT_WORD *dict_gen_GW;
   DICT_WORD *dict_GW_epsilon;
@@ -85,6 +86,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   DICT_WORD *dict_GW_parallel;
   DICT_WORD *dict_GW_file;
   DICT_WORD *dict_GW_charm_input;
+  DICT_WORD *dict_GW_io;
   DICT_WORD word;            
 
   int nline;
@@ -122,6 +124,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   set_config_dict_GW_epsilon( &num_dict_GW_epsilon, &dict_GW_epsilon );
   set_config_dict_GW_sigma( &num_dict_GW_sigma, &dict_GW_sigma );
   set_config_dict_GW_parallel( &num_dict_GW_parallel, &dict_GW_parallel );
+  set_config_dict_GW_io( &num_dict_GW_io, &dict_GW_io );
   //set_config_dict_GW_file( &num_dict_GW_file, &dict_GW_file );
 
   //===================================================================================
@@ -146,6 +149,8 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
                      nkey,nfun_key,input_name);break;
         case 5 : put_word_dict(&word,dict_GW_parallel,num_dict_GW_parallel,fun_key,nline,
                      nkey,nfun_key,input_name);break;
+        case 6 : put_word_dict(&word,dict_GW_io,num_dict_GW_io,fun_key,nline,
+                     nkey,nfun_key,input_name);break;
       }//end switch
     }// end while 
   }//end while
@@ -160,6 +165,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   set_config_params_GW_sigma    (dict_GW_sigma, dict_fun[3].keyword, input_name, gw_sigma);
   //  set_config_params_GW_file     (dict_GW_file, dict_fun[4].keyword, input_name, gwbseopts);
   set_config_params_GW_parallel   (dict_GW_parallel, dict_fun[5].keyword, input_name, gw_parallel);
+  set_config_params_GW_io  (dict_GW_io, dict_fun[6].keyword, input_name, gw_io);
 // my input values
 //  simpleRangeCheck_gwbse(); // redundant checking   need to write this
 
@@ -186,6 +192,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   write_cpaimd_config(fp, dict_GW_sigma, num_dict_GW_sigma, dict_fun[3].keyword);
   //  write_cpaimd_config(fp, dict_GW_file, num_dict_GW_file, dict_fun[4].keyword);
   write_cpaimd_config(fp,dict_GW_parallel,   num_dict_GW_parallel,   dict_fun[5].keyword);
+  write_cpaimd_config(fp, dict_GW_io, num_dict_GW_io, dict_fun[6].keyword);
   fclose(fp);
   //===================================================================================
   // Free memory : 
@@ -199,6 +206,7 @@ void Config::readConfig(char* input_name, GWBSE *gwbse)
   cfree(&dict_GW_sigma[1], "Config::readCconfig"); 
   //  cfree(&dict_GW_file[1]   ,"Config::readCconfig");
   cfree(&dict_GW_parallel[1]   ,"Config::readCconfig");
+  cfree(&dict_GW_io[1], "Config::readCconfig");
 
   //===================================================================================
   // Tell Everyone you are done
@@ -234,7 +242,7 @@ void Config::set_config_dict_fun  (int *num_dict  ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
 
-  num_dict[0] = 5;   // how many functional keywords you have
+  num_dict[0] = 6;   // how many functional keywords you have
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_config_dict_fun")-1;
 
   //=================================================================================
@@ -276,6 +284,12 @@ void Config::set_config_dict_fun  (int *num_dict  ,DICT_WORD **dict){
   ind = 5;
   strcpy((*dict)[ind].error_mes," ");
   strcpy((*dict)[ind].keyword,"GW_parallel");
+  strcpy((*dict)[ind].keyarg," ");
+  //------------------------------------------------------------------------------
+  //  6)~GW_epsilon[ ]
+  ind = 6;
+  strcpy((*dict)[ind].error_mes," ");
+  strcpy((*dict)[ind].keyword,"GW_io");
   strcpy((*dict)[ind].keyarg," ");
   //------------------------------------------------------------------------------
 }//end routine
@@ -619,6 +633,174 @@ void Config::set_config_dict_GW_parallel  (int *num_dict ,DICT_WORD **dict){
 
 
 
+//===================================================================================
+//ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//===================================================================================
+void Config::set_config_dict_GW_io  (int *num_dict ,DICT_WORD **dict){
+  //==================================================================================
+  //  I) Malloc the dictionary                                              
+
+  num_dict[0] = 18;
+  *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
+
+  //=================================================================================
+  //  II) Initialize the user set option(did the user set the key word      
+
+  for(int i=1;i<=num_dict[0];i++){(*dict)[i].iuset    = 0;}
+  for(int i=1;i<=num_dict[0];i++){(*dict)[i].iflag    = 0;}
+  for(int i=1;i<=num_dict[0];i++){(*dict)[i].key_type = 1;} //spec only once
+
+  //=================================================================================
+  // III) Set up the dictionary
+  int ind;
+  //-----------------------------------------------------------------------------
+  //  1)\p_matrix_read{}
+  ind =   1;
+  strcpy((*dict)[ind].keyword,"p_matrix_read");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  2)\p_matrix_read_prefix{}
+  ind =   2;   
+  strcpy((*dict)[ind].keyword,"p_matrix_read_prefix");
+  strcpy((*dict)[ind].keyarg,"PMatrixIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  3)\p_matrix_write{}
+  ind =   3;   
+  strcpy((*dict)[ind].keyword,"p_matrix_write");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  4)\p_matrix_write_prefix{}
+  ind =   4;   
+  strcpy((*dict)[ind].keyword,"p_matrix_write_prefix");
+  strcpy((*dict)[ind].keyarg,"PMatrixOut");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------  
+
+  //-----------------------------------------------------------------------------
+  //  5)\p_matrix_verify{}
+  ind =   5;
+  strcpy((*dict)[ind].keyword,"p_matrix_verify");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  6)\p_matrix_verify_prefix{}
+  ind =   6;
+  strcpy((*dict)[ind].keyword,"p_matrix_verify_prefix");
+  strcpy((*dict)[ind].keyarg,"PMatrixIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  7)\epsilon_read{}
+  ind =   7;
+  strcpy((*dict)[ind].keyword,"epsilon_read");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  8)\epsilon_read_prefix{}
+  ind =   8;   
+  strcpy((*dict)[ind].keyword,"epsilon_read_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  9)\epsilon_write{}
+  ind =   9;   
+  strcpy((*dict)[ind].keyword,"epsilon_write");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  10)\epsilon_write_prefix{}
+  ind =   10;   
+  strcpy((*dict)[ind].keyword,"epsilon_write_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsOut");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------  
+
+  //-----------------------------------------------------------------------------
+  //  11)\epsilon_verify{}
+  ind =   11;
+  strcpy((*dict)[ind].keyword,"epsilon_verify");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  12)\epsilon_verify_prefix{}
+  ind =   12;
+  strcpy((*dict)[ind].keyword,"epsilon_verify_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  13)\epsilon_inv_read{}
+  ind =   13;
+  strcpy((*dict)[ind].keyword,"epsilon_inv_read");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  14)\epsilon_inv_read_prefix{}
+  ind =   14;   
+  strcpy((*dict)[ind].keyword,"epsilon_inv_read_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsInvIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  15)\epsilon_inv_write{}
+  ind =   15;   
+  strcpy((*dict)[ind].keyword,"epsilon_inv_write");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  16)\epsilon_inv_write_prefix{}
+  ind =   16;   
+  strcpy((*dict)[ind].keyword,"epsilon_inv_write_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsInvOut");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //-----------------------------------------------------------------------------  
+
+  //-----------------------------------------------------------------------------
+  //  17)\epsilon_inv_verify{}
+  ind =   17;
+  strcpy((*dict)[ind].keyword,"epsilon_inv_verify");
+  strcpy((*dict)[ind].keyarg,"off");
+  strcpy((*dict)[ind].error_mes,"on or off");
+  //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  18)\epsilon_inv_verify_prefix{}
+  ind =   18;
+  strcpy((*dict)[ind].keyword,"epsilon_inv_verify_prefix");
+  strcpy((*dict)[ind].keyarg,"EpsInvIn");
+  strcpy((*dict)[ind].error_mes,"a string");
+  //----------------------------------------------------------------------------- 
+
+}//end routine
+//===================================================================================
+
+
 
 
 //===================================================================================
@@ -913,8 +1095,138 @@ void Config::set_config_params_GW_parallel  (DICT_WORD *dict, char *fun_key, cha
 }// end routine
 //================================================================================
 
+//===================================================================================
+//ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//===================================================================================
+void Config::set_config_params_GW_io  (DICT_WORD *dict, char *fun_key, char *input_name, GW_IO *gw_io){
+  //===================================================================================
+  double real_arg;
+  int int_arg;
 
+  int ind,ierr;
 
+  //===================================================================================
+  // Fill me with joy.
+
+  //-----------------------------------------------------------------------------
+  //  1)\p_matrix_read{}
+  ind =   1;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->p_matrix.read = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  2)\p_matrix_read_prefix{}
+  ind =   2;   
+  gw_io->p_matrix.read_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->p_matrix.read_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  3)\p_matrix_write{}
+  ind =   3;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->p_matrix.write = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  4)\p_matrix_write_prefix{}
+  ind =   4;   
+  gw_io->p_matrix.write_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->p_matrix.write_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  5)\p_matrix_verify{}
+  ind =   5;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->p_matrix.verify = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  6)\p_matrix_verify_prefix{}
+  ind =   6;   
+  gw_io->p_matrix.verify_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->p_matrix.verify_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  7)\epsilon_read{}
+  ind =   7;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon.read = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  8)\epsilon_read_prefix{}
+  ind =   8;   
+  gw_io->epsilon.read_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon.read_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  9)\epsilon_write{}
+  ind =   9;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon.write = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  10)\epsilon_write_prefix{}
+  ind =   10;   
+  gw_io->epsilon.write_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon.write_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  11)\epsilon_verify{}
+  ind =   11;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon.verify = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  12)\epsilon_verify_prefix{}
+  ind =   12;   
+  gw_io->epsilon.verify_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon.verify_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  13)\epsilon_inv_read{}
+  ind =   13;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon_inv.read = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  14)\epsilon_inv_read_prefix{}
+  ind =   14;   
+  gw_io->epsilon_inv.read_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon_inv.read_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  15)\epsilon_inv_write{}
+  ind =   15;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon_inv.write = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  16)\epsilon_inv_write_prefix{}
+  ind =   16;   
+  gw_io->epsilon_inv.write_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon_inv.write_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+  //-----------------------------------------------------------------------------
+  //  17)\epsilon_inv_verify{}
+  ind =   17;   
+  parse_on_off(dict[ind].keyarg,&int_arg,&ierr);
+  if (ierr==1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_io->epsilon_inv.verify = (int_arg==1?true:false);  //if int_arg ==1, then true 
+
+  //-----------------------------------------------------------------------------
+  //  18)\epsilon_inv_verify_prefix{}
+  ind =   18;   
+  gw_io->epsilon_inv.verify_prefix = dict[ind].keyarg;
+  if (strlen(gw_io->epsilon_inv.verify_prefix.c_str()) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
+
+}// end routine
+//================================================================================
 
 
 static void update_minmax(int pNo, int val, int &min, int &max) {

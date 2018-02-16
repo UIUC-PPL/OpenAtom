@@ -40,7 +40,7 @@ class Matrix : public CBase_Matrix {
     unsigned int start_row, start_col;
     complex* data;
 
-    bool busy;
+    bool busy, result;
     unsigned int data_received, total_data;
     void (Matrix::*dataHandler)(DataMessage*);
 

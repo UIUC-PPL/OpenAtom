@@ -46,12 +46,14 @@ class Config {
    void set_config_dict_GW_sigma          (int *, DICT_WORD **);
    void set_config_dict_GW_file        (int *, DICT_WORD **);
    void set_config_dict_GW_parallel        (int *, DICT_WORD **);
+   void set_config_dict_GW_io        (int *, DICT_WORD **);
 
    void set_config_params_gen_GW  (DICT_WORD *, char *, char *, GWBSEOPTS *);
    void set_config_params_GW_epsilon (DICT_WORD *, char *, char *, GW_EPSILON *);
    void set_config_params_GW_sigma (DICT_WORD *, char *, char *, GW_SIGMA *);
    void set_config_params_GW_file (DICT_WORD *, char *, char *, GWBSEOPTS *);
    void set_config_params_GW_parallel (DICT_WORD *, char *, char *, GW_PARALLEL *);
+   void set_config_params_GW_io (DICT_WORD *, char *, char *, GW_IO *);
    //   void guesstimateParmsConfig ( ); // need this
    void write_cpaimd_config    (FILE *, DICT_WORD *, int, char *);
 //   void load_cpaimd_config (DICT_WORD *, int, PINY_NAME *, PINY_NAME *, int, int *);

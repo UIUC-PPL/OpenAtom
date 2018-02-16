@@ -46,6 +46,15 @@ Controller::Controller() {
   global_inew = 0;
   max_local_inew = global_inew;
   global_jnew = 0;
+
+  copyCB = CkCallback(CkReductionTarget(Controller, copyComplete), thisProxy);
+  readCB = CkCallback(CkReductionTarget(Controller, readComplete), thisProxy);
+  writeCB = CkCallback(CkReductionTarget(Controller, writeComplete), thisProxy);
+  verifyCB = CkCallback(CkReductionTarget(Controller, verifyComplete), thisProxy);
+
+  p_config = gwbse->gw_io.p_matrix;
+  eps_config = gwbse->gw_io.epsilon;
+  eps_inv_config = gwbse->gw_io.epsilon_inv;
 }
 
 
@@ -100,14 +109,6 @@ void Controller::calc_Geps() {
 void Controller::got_vcoulb(std::vector<double> vcoulb_in){
   vcoulb = vcoulb_in;
   psi_cache_proxy.setVCoulb(vcoulb_in);
-}
-
-void Controller::matrix_created() {
-  msg_received++;
-  if (msg_received==6) {
-    msg_received = 0;
-    matricesReady();
-  }
 }
 
 PsiCache::PsiCache() {

@@ -55,8 +55,6 @@ EpsMatrix::EpsMatrix(MatrixConfig config) : CBase_EpsMatrix(config) {
 
   total_time = 0.0;
   data_received = 0;
-  CkCallback cb(CkReductionTarget(Controller, matrix_created), controller_proxy);
-  contribute(cb);
 }
 
 void EpsMatrix::setI(CLA_Matrix_interface mat, bool clean){

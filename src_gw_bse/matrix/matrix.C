@@ -85,62 +85,81 @@ void Matrix::read(string prefix, CkCallback cb) {
   if (config.chareCols() != 1) {
     CkAbort("Read/Write only supported for row decomposition\n");
   }
+  result = true;
   ifstream infile;
   string filename;
   for (int r = 0; r < config.tile_rows; r++) {
     filename = prefix + "_row" + std::to_string(start_row+r);
     infile.open(filename, ios::in);
+    if (infile.fail()) {
+      CkPrintf("Failed to read file %s\n", filename.c_str());
+      result = false;
+    }
     for (int c = 0; c < config.tile_cols; c++) {
       infile >> data[r * config.tile_cols + c].re;
       infile >> data[r * config.tile_cols + c].im;
     }
     infile.close();
   }
-  contribute(cb);
+  contribute(sizeof(bool), &result, CkReduction::logical_and_bool, cb);
 }
 
 void Matrix::write(string prefix, CkCallback cb) {
   if (config.chareCols() != 1) {
     CkAbort("Read/Write only supported for row decomposition\n");
   }
+  result = true;
   ofstream outfile;
   string filename;
   for (int r = 0; r < config.tile_rows; r++) {
     filename = prefix + "_row" + std::to_string(start_row+r);
     outfile.open(filename, ios::out);
+    if (outfile.fail()) result = false;
+    outfile.precision(10);
     for (int c = 0; c < config.tile_cols; c++) {
       outfile << data[r * config.tile_cols + c].re << " ";
       outfile << data[r * config.tile_cols + c].im << " ";
     }
     outfile.close();
   }
-  contribute(cb);
+  contribute(sizeof(bool), &result, CkReduction::logical_and_bool, cb);
 }
 
 void Matrix::verify(string prefix, CkCallback cb) {
   if (config.chareCols() != 1) {
     CkAbort("Read/Write only supported for row decomposition\n");
   }
+  result = true;
   ifstream infile;
+  ofstream outfile;
   string filename;
   complex tmp;
   for (int r = 0; r < config.tile_rows; r++) {
     filename = prefix + "_row" + std::to_string(start_row+r);
     infile.open(filename, ios::in);
+    if (infile.fail()) {
+      CkPrintf("Failed to read file %s\n", filename.c_str());
+      result = false;
+    }
     for (int c = 0; c < config.tile_cols; c++) {
       infile >> tmp.re;
       infile >> tmp.im;
       if (!withinTolerance(tmp, data[r * config.tile_cols + c])) {
-        CkPrintf("Verification Failure @ entry %i,%i: %g + %gi != %g + %gi\n",
-            start_row + r, start_col + c, tmp.re, tmp.im,
-            data[r * config.tile_cols + c].re,
-            data[r * config.tile_cols + c].im);
-        //CkAbort("Matrix verification failed!\n");
+        if (result) {
+          filename = prefix + "_row" + std::to_string(start_row+r) + ".diff";
+          outfile.open(filename, ios::out);
+        }
+        result = false;
+        complex diff = tmp - data[r * config.tile_cols + c];
+        outfile << "Column " << c << ": " << diff.re << " " << diff.im << "\n";
       }
+    }
+    if (!result) {
+      outfile.close();
     }
     infile.close();
   }
-  contribute(cb);
+  contribute(sizeof(bool), &result, CkReduction::logical_and_bool, cb);
 }
 
 void Matrix::sendData(CProxy_Matrix dest, int dest_rows, int dest_cols) {
@@ -194,12 +213,7 @@ void Matrix::compareMsg(DataMessage* msg) {
   for (int r = 0; r < msg->num_rows; r++) {
     for (int c = 0; c < msg->num_cols; c++) {
       if (!withinTolerance(data[local_idx+c],msg->data[msg_idx+c])) {
-        CkPrintf("Verification Failure @ entry %i,%i: %g + %gi != %g + %gi\n",
-            start_row + r, start_col + c,
-            msg->data[msg_idx+c].re, msg->data[msg_idx+c].im,
-            data[r * config.tile_cols + c].re,
-            data[r * config.tile_cols + c].im);
-        CkAbort("Matrices don't match\n");
+        result = false;
       }
     }
     msg_idx += msg->num_cols;
