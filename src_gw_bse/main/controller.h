@@ -9,6 +9,9 @@
 #include "fvector_cache.decl.h"
 #include "class_gw_io.h"
 
+#include <unordered_set>
+#include <unordered_map>
+
 #include "controller.decl.h"
 #define ITERATION 10 //needs to be read from epsilon.in
 
@@ -16,19 +19,54 @@
   int pad = eps_rows - (epsilon_size%eps_rows);\
   padded_epsilon_size = epsilon_size + pad;
 
-// Structure keeping track of all timers we report
-struct Timers {
-  // Setup timers
-  double total_setup, chare_creation, fft_states, caches_filled;
-  // Phase 1 timers
-  double total_phase1, form_p, get_times;
-  int fcomp_count, pcomp_count;
-  double max_fcomp, avg_fcomp, total_pcomp, avg_pcomp;
-  // Phase 2 timers
-  double total_phase2, to1D, to2D, fft1, fft2, trans1, trans2;
-  // Phase 3 timers
-  double total_phase3;
-	double total_phase4;
+class Stopwatch {
+  private:
+    struct Time {
+      double start, stop;
+      bool started, stopped;
+      Time() : start(0.0), stop(0.0), started(false), stopped(false) {}
+    };
+    std::unordered_map<std::string, Time> times;
+  public:
+    void startTimer(std::string key) {
+      if (times[key].started) {
+        CkPrintf("Warning: Timer already started for %s\n",key.c_str());
+      }
+      times[key].start = CmiWallTimer();
+      times[key].started = true;
+    }
+    void stopTimer(std::string key) {
+      if (!times[key].started) {
+        CkPrintf("Warning: Timer not started for %s\n", key.c_str());
+      }
+      if (times[key].stopped) {
+        CkPrintf("Warning: Timer already stopped for %s\n", key.c_str());
+      }
+      times[key].stop = CmiWallTimer();
+      times[key].stopped = true;
+    }
+    double getEnd(std::string key) {
+      if (!times[key].stopped) {
+        CkPrintf("Warning: Timer not stopped for %s\n", key.c_str());
+      }
+      return times[key].stop;
+    }
+    double getElapsed(std::string key) {
+      if (times[key].stopped) {
+        return times[key].stop - times[key].start;
+      } else if (times[key].started) {
+        return CmiWallTimer() - times[key].start;
+      } else {
+        CkPrintf("Warning: Timer not started or stopped for %s\n", key.c_str());
+        return 0.0;
+      }
+    }
+    bool isStopped(std::string key) {
+      return times[key].stopped;
+    }
+    bool isStarted(std::string key) {
+      return times[key].stopped;
+    }
 };
 
 class Controller : public CBase_Controller {
@@ -62,7 +100,7 @@ class Controller : public CBase_Controller {
     int padded_epsilon_size;
     double prev_max;
     std::vector<int> accept_result;
-    Timers timers;
+    Stopwatch stopwatch;
 
     CkCallback copyCB, readCB, writeCB, verifyCB;
 

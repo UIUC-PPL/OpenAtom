@@ -13,27 +13,18 @@ module controller {
 #define MAX_ITERATIONS 100
 #define REGISTER_REGIONS
 
-#define STEP_START(x)\
-  timers.x = CmiWallTimer();
+#define START_STEP(x)\
+  stopwatch.startTimer(x);
 
-#define STEP_END(x,s)\
-  double step_now = CmiWallTimer();\
-  timers.x = step_now - timers.x;\
-  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", s, step_now, timers.x);
+#define STOP_STEP(x)\
+  stopwatch.stopTimer(x);\
+  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));
 
-#define STEP_BOUNDARY(x,y,s)\
-  double step_now = CmiWallTimer();\
-  timers.x = step_now - timers.x;\
-  timers.y = step_now;\
-  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", s, step_now, timers.x);
-
-#define PHASE_BOUNDARY(x,y,s)\
-  double phase_now = CmiWallTimer();\
-  timers.x = phase_now - timers.x;\
-  timers.y = phase_now;\
+#define STOP_BIG_STEP(x)\
+  stopwatch.stopTimer(x);\
   CkPrintf("[CONTROLLER] ====================================================================\n");\
-  CkPrintf("[CONTROLLER] ==== %-35s @%.2fs (%.2fs elapsed)\n", s, phase_now, timers.x);\
-  CkPrintf("[CONTROLLER] ====================================================================\n");
+  CkPrintf("[CONTROLLER] ==== %-35s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));\
+  CkPrintf("[CONTROLLER] ====================================================================\n\n");
 
   // Describes and controls the main control flow of the entire computation, by
   // by coordinating communication between all other chares in the system.
@@ -120,7 +111,7 @@ module controller {
       }
       when fCacheReady(), cachesFilled(), registrationComplete() serial {
         psi_cache_proxy.reportInfo();
-        PHASE_BOUNDARY(total_setup, total_phase1, "SETUP COMPLETE");
+        STOP_BIG_STEP("SETUP COMPLETED");
       }
 
       /************************************************************************/
@@ -128,53 +119,56 @@ module controller {
       /************************************************************************/
       serial {
         if (!p_config.read) {
-          CkPrintf("[CONTROLLER] Computing P Matrix...\n");
           thisProxy.formPMatrix();
         } else {
           CkPrintf("[CONTROLLER] Reading P Matrix from files %s...\n",
               p_config.read_prefix.c_str());
           matrixRead(pmatrix1D_proxy, p_config.read_prefix, readCB);
+          START_STEP("P MATRIX READ FROM FILE");
         }
       }
       case {
         when PMatrixFormed() {
-          serial {
-            PHASE_BOUNDARY(total_phase1, total_phase2, "PHASE 1 (P in G Space) COMPLETE");
-          }
-          if (p_config.write) {
+          if (p_config.write || p_config.verify) {
             serial {
-              matrixWrite(pmatrix1D_proxy, p_config.write_prefix, writeCB);
+              START_STEP("P MATRIX IO COMPLETED");
             }
-            when writeComplete(bool success) serial {
-              if (success) {
-                CkPrintf("[CONTROLLER] P Matrix written out to %s\n",
-                    p_config.write_prefix.c_str());
-              } else {
-                CkPrintf("[CONTROLLER] Error writing P Matrix out to %s\n",
-                    p_config.write_prefix.c_str());
+            if (p_config.write) {
+              serial {
+                matrixWrite(pmatrix1D_proxy, p_config.write_prefix, writeCB);
+              }
+              when writeComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] P Matrix written out to %s\n",
+                      p_config.write_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] Error writing P Matrix out to %s\n",
+                      p_config.write_prefix.c_str());
+                }
               }
             }
-          }
-          if (p_config.verify) {
-            serial {
-              matrixVerify(pmatrix1D_proxy, p_config.verify_prefix, verifyCB);
-            }
-            when verifyComplete(bool success) serial {
-              if (success) {
-                CkPrintf("[CONTROLLER] P Matrix verification against %s success!\n",
-                    p_config.verify_prefix.c_str());
-              } else {
-                CkPrintf("[CONTROLLER] P Matrix verification against %s failed!\n",
-                    p_config.verify_prefix.c_str());
+            if (p_config.verify) {
+              serial {
+                matrixVerify(pmatrix1D_proxy, p_config.verify_prefix, verifyCB);
+              }
+              when verifyComplete(bool success) serial {
+                if (success) {
+                  CkPrintf("[CONTROLLER] P Matrix verification against %s success!\n",
+                      p_config.verify_prefix.c_str());
+                } else {
+                  CkPrintf("[CONTROLLER] P Matrix verification against %s failed!\n",
+                      p_config.verify_prefix.c_str());
+                }
               }
             }
+            serial { STOP_BIG_STEP("P MATRIX IO COMPLETED"); }
           }
         }
         when readComplete(bool success) serial {
           if (!success) {
             CkAbort("Failed to read in P Matrix from file!\n");
           } else {
-            PHASE_BOUNDARY(total_phase1, total_phase2, "PHASE 1 (P in G Space) COMPLETE");
+            STOP_BIG_STEP("P MATRIX READ FROM FILE");
           }
         }
       }
@@ -213,22 +207,20 @@ module controller {
             cfg1D, cfg1D.chareRows(), cfg1D.chareCols());
 
         if (!eps_config.read) {
-          CkPrintf("[CONTROLLER] Computing Epsilon Matrix...\n");
           thisProxy.formEpsilon();
         } else {
           CkPrintf("[CONTROLLER] Reading Epsilon Matrix from files %s...\n",
               eps_config.read_prefix.c_str());
           matrixRead(eps_matrix1D_proxy, eps_config.read_prefix, readCB);
+          START_STEP("EPSILON READ FROM FILE");
         }
       }
       case {
         when EpsilonFormed() {
-          serial {
-            PHASE_BOUNDARY(total_phase2, total_phase3, "PHASE 2 (Epsilon) COMPLETE");
-          }
           if (eps_config.write || eps_config.verify) {
             serial {
               matrixCopy(eps_matrix2D_m_proxy, eps_matrix1D_proxy, copyCB);
+              START_STEP("EPSILON IO COMPLETED");
             }
             when copyComplete(bool success) {}
 
@@ -260,6 +252,7 @@ module controller {
                 }
               }
             }
+            serial{ STOP_BIG_STEP("EPSILON IO COMPLETED"); }
           }
         }
         when readComplete(bool success) {
@@ -274,7 +267,7 @@ module controller {
             if (!success) {
               CkAbort("Failed to copy Epsilon Matrix to 2D decomposition!\n");
             } else {
-              PHASE_BOUNDARY(total_phase2, total_phase3, "PHASE 2 (Epsilon) COMPLETE");
+              STOP_BIG_STEP("EPSILON READ FROM FILE");
             }
           }
         }
@@ -285,22 +278,20 @@ module controller {
       /************************************************************************/
       serial {
         if (!eps_inv_config.read) {
-          CkPrintf("[CONTROLLER] Inverting Epsilon Matrix...\n");
           thisProxy.invertEpsilon();
         } else {
           CkPrintf("[CONTROLLER] Reading Inverted Epsilon Matrix from files %s...\n",
               eps_inv_config.read_prefix.c_str());
           matrixRead(eps_matrix1D_proxy, eps_inv_config.read_prefix, readCB);
+          START_STEP("EPSILON INVERSE READ FROM FILE");
         }
       }
       case {
         when EpsilonInverted() {
-          serial {
-	          PHASE_BOUNDARY(total_phase3, total_phase4, "PHASE 3 (Epsilon Matrix Inversion) COMPLETE");
-          }
           if (eps_inv_config.write || eps_inv_config.verify) {
             serial {
               matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, copyCB);
+              START_STEP("EPSILON INVERSE IO COMPLETED");
             }
             when copyComplete(bool success) {}
 
@@ -332,6 +323,7 @@ module controller {
                 }
               }
             }
+            serial { STOP_BIG_STEP("EPSILON INVERSE IO COMPLETED"); }
           }
         }
         when readComplete(bool success) {
@@ -346,7 +338,7 @@ module controller {
             if (!success) {
               CkAbort("Failed to copy Inverted Epsilon Matrix to 2D decomposition!\n");
             } else {
-	            PHASE_BOUNDARY(total_phase3, total_phase4, "PHASE 3 (Epsilon Matrix Inversion) COMPLETE");
+              STOP_BIG_STEP("EPSILON INVERSE READ FROM FILE");
             }
           }
         }
@@ -356,6 +348,7 @@ module controller {
       /** Phase 4 *************************************************************/
       /************************************************************************/
       serial {
+        START_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
         eps_matrix2D_X_proxy.createCopy(s_matrix2D_proxy, false);
       }
       when copy_complete() serial {
@@ -368,16 +361,19 @@ module controller {
       }
       overlap {
         when bareExchangeComplete(complex x) serial {
-          CkPrintf("Bare Exchange complete: %11.8lf + %fi\n", x.re, x.im);
+          CkPrintf("[CONTROLLER] Bare Exchange complete: %11.8lf + %fi\n", x.re, x.im);
         }
         when screenedExchangeComplete(complex x) serial {
-          CkPrintf("Screened Exchange complete: %f + %fi\n", x.re, x.im);
+          CkPrintf("[CONTROLLER] Screened Exchange complete: %f + %fi\n", x.re, x.im);
         }
         when cohComplete(complex x) serial{
-          CkPrintf("COH complete: %lf + %lfi\n", x.re, x.im);
+          CkPrintf("[CONTROLLER] COH complete: %lf + %lfi\n", x.re, x.im);
         }
       }
-      serial { CkExit(); }
+      serial {
+        STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
+        CkExit();
+      }
     }
 
     entry void formPMatrix() {
@@ -386,6 +382,10 @@ module controller {
       // uses its local copies of the occupied states to compute all the f
       // vectors for the unoccupied state it just received, which will then be
       // used to update the P matrix by adding the outer-product of each f.
+      serial {
+        START_STEP("P MATRIX FORMED");
+        START_STEP("P Matrix formed in real space");
+      }
       for (next_K = 0; next_K < K && total_sent < max_sends; next_K++) {
         for (next_state = L; next_state < L + M && total_sent < max_sends; next_state++) {
           serial {
@@ -421,7 +421,7 @@ module controller {
       // Phase 1 is complete, so get more detailed timing info from the P Matrix
       // chares and the PsiCache chares.
       serial {
-        STEP_BOUNDARY(form_p, get_times, "P formed in R Space");
+        STOP_STEP("P Matrix formed in real space");
         pmatrix2D_proxy.reportPTime();
         psi_cache_proxy.reportFTime();
       }
@@ -432,10 +432,20 @@ module controller {
           int num_reductions = 0;
           msg->toTuple(&results, &num_reductions);
 
-          timers.total_pcomp = *(double*)results[0].data;
+          double total_pcomp = *(double*)results[0].data;
           CkReduction::statisticsElement& stats_result = *(CkReduction::statisticsElement*)results[1].data;
-          timers.pcomp_count = stats_result.count;
-          timers.avg_pcomp = stats_result.mean;
+          int pcomp_count = stats_result.count;
+          double avg_pcomp = stats_result.mean;
+
+          CkPrintf("\n[CONTROLLER] --- DETAILED P FORMATION TIMING ---\n");
+          CkPrintf("[CONTROLLER] Aggregate P (total across %i chares):                 \t%.2fs\n",
+              pcomp_count, total_pcomp);
+          CkPrintf("[CONTROLLER] Aggregate P (avg across %i chares):                   \t%.2fs\n",
+              pcomp_count, avg_pcomp);
+          CkPrintf("[CONTROLLER] Aggregate P (avg per PE assuming %0.2f chares per PE):\t%.2fs\n",
+              ((double)pcomp_count/CkNumPes()),
+              avg_pcomp * ((double)pcomp_count/CkNumPes()));
+          CkPrintf("[CONTROLLER] -----------------------------------\n\n");
           delete msg;
         }
         when reportFTime(CkReductionMsg* msg) serial {
@@ -443,10 +453,16 @@ module controller {
           int num_reductions = 0;
           msg->toTuple(&results, &num_reductions);
 
-          timers.max_fcomp = *(double*)results[0].data;
+          double max_fcomp = *(double*)results[0].data;
           CkReduction::statisticsElement& stats_result = *(CkReduction::statisticsElement*)results[1].data;
-          timers.fcomp_count = stats_result.count;
-          timers.avg_fcomp = stats_result.mean;
+          int fcomp_count = stats_result.count;
+          double avg_fcomp = stats_result.mean;
+          CkPrintf("\n[CONTROLLER] --- DETAILED F FORMATION TIMING ---\n");
+          CkPrintf("[CONTROLLER] Compute fs (max across %i nodes):                     \t%.2fs\n",
+              fcomp_count, max_fcomp);
+          CkPrintf("[CONTROLLER] Compute fs (avg across %i nodes):                     \t%.2fs\n",
+              fcomp_count, avg_fcomp);
+          CkPrintf("[CONTROLLER] -----------------------------------\n\n");
           delete msg;
         }
       }
@@ -456,64 +472,59 @@ module controller {
       // we switch from a 2D decomposition to a 1D decomposition, so that FFT
       // calls can be done with fftw calls.
       serial {
-        STEP_BOUNDARY(get_times, to1D, "Detailed times received");
-
-        CkPrintf("[CONTROLLER] Compute fs (max across %i nodes):                     \t%.2fs\n",
-            timers.fcomp_count, timers.max_fcomp);
-        CkPrintf("[CONTROLLER] Compute fs (avg across %i nodes):                     \t%.2fs\n",
-            timers.fcomp_count, timers.avg_fcomp);
-
-        CkPrintf("[CONTROLLER] Aggregate P (total across %i chares):                 \t%.2fs\n",
-            timers.pcomp_count, timers.total_pcomp);
-        CkPrintf("[CONTROLLER] Aggregate P (avg across %i chares):                   \t%.2fs\n",
-            timers.pcomp_count, timers.avg_pcomp);
-        CkPrintf("[CONTROLLER] Aggregate P (avg per PE assuming %0.2f chares per PE):\t%.2fs\n",
-            ((double)timers.pcomp_count/CkNumPes()),
-            timers.avg_pcomp * ((double)timers.pcomp_count/CkNumPes()));
-
+        START_STEP("P Matrix formed in G space");
         matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, copyCB);
       }
 
       // When we receive this message, we know that P has switched to a 1D
       // decomposition, so tell it to FFT all of it's rows.
       when copyComplete(bool success) serial{
-        STEP_BOUNDARY(to1D, fft1, "Matrix decomposition changed to 1D");
+        START_STEP("1st FFT completed");
         pmatrix1D_proxy.fftRows(1);
       }
 
       // The FFT of the rows is complete, so now transpose the matrix.
       when fftComplete() serial{
-        STEP_BOUNDARY(fft1, trans1, "First FFT complete");
+        STOP_STEP("1st FFT completed");
+        START_STEP("1st Transpose completed");
         pmatrix1D_proxy.start_iteration();
         pmatrix1D_proxy.doTranspose();
       }
 
       // Transpose is complete, so FFT the rows again in the opposite direction.
       when transposeComplete() serial{
-        STEP_BOUNDARY(trans1, fft2, "First transpose complete");
+        STOP_STEP("1st Transpose completed");
+        START_STEP("2nd FFT completed");
         pmatrix1D_proxy.fftRows(-1);
       }
 
       // The second FFT is complete, so transpose back.
       when fftComplete() serial{
-        STEP_BOUNDARY(fft2, trans2, "Second fft complete");
+        STOP_STEP("2nd FFT completed");
+        START_STEP("2nd Transpose completed");
         pmatrix1D_proxy.start_iteration();
         pmatrix1D_proxy.doTranspose();
       }
 
       // The final transpose is complete so now switch back to the 2D decomp.
       when transposeComplete() serial{
-        STEP_BOUNDARY(trans2, to2D, "Second transpose complete");
+        STOP_STEP("2nd Transpose completed");
+        STOP_STEP("P Matrix formed in G space");
+        STOP_BIG_STEP("P MATRIX FORMED");
         thisProxy.PMatrixFormed();
       }
     }
 
     entry void formEpsilon() {
       serial {
+        START_STEP("EPSILON FORMED");
+        START_STEP("Epsilon computation prepared");
         calc_Geps();
       }
 
       when prepare_epsilon() serial{
+        STOP_STEP("Epsilon computation prepared");
+        START_STEP("Matrix multiply prepared");
 #if USE_CLA
         mat_mul_proxy.setup(matA, matB, matC,
             eps_matrix2D_m_proxy, eps_matrix2D_mT_proxy, eps_matrix2D_X_proxy,
@@ -522,36 +533,35 @@ module controller {
 
       when matrixReady() serial {
 #endif
-        CkPrintf("[CONTROLLER] 2D Matrices are ready\n");
+        STOP_STEP("Matrix multiply prepared");
+        START_STEP("Epsilon generated");
         pmatrix1D_proxy.generateEpsilon(eps_matrix2D_m_proxy, accept_result);
       }
       when epsilon_created() serial {
-        CkPrintf("[CONTROLLER] Created Epsilon Matrix\n");
-      }
-
-      serial {
+        STOP_STEP("Epsilon generated");
+        STOP_BIG_STEP("EPSILON FORMED");
         thisProxy.EpsilonFormed();
       }
     }
 
     entry void invertEpsilon() {
-      serial { eps_matrix2D_m_proxy.createTranspose(eps_matrix2D_mT_proxy, false); }
+      serial {
+        START_STEP("EPSILON INVERTED");
+        START_STEP("Matrix inversion prepared");
+        eps_matrix2D_m_proxy.createTranspose(eps_matrix2D_mT_proxy, false);
+      }
       when transpose_complete() serial {
-        CkPrintf("[CONTROLLER] Created Transpose\n");
         //X = m*m^T
         mat_mul_proxy.do_multiply(eps_matrix2D_m_proxy, eps_matrix2D_mT_proxy, eps_matrix2D_X_proxy, 1.0);
       }
       when m_multiplied() serial{
-        CkPrintf("[CONTROLLER] Multiply completed\n");
         matrixCopy(eps_matrix2D_X_proxy, eps_matrix1D_proxy, copyCB);
       }
       when copyComplete(bool success) serial{
         //find alpha
-        CkPrintf("[CONTROLLER] Multiplied Matrices X = m*m^T\n");
         eps_matrix1D_proxy.findAlpha();
       }
       when found_alpha(double alpha) serial{
-        CkPrintf("[CONTROLLER] Computed alpha\n");
         eps_matrix2D_m_proxy.scalar_multiply(1/alpha);
       }
 
@@ -561,6 +571,8 @@ module controller {
         eps_matrix2D_m_proxy.createConjugate(eps_matrix2D_X_proxy);
       }
       when conjugateComplete() serial{
+        STOP_STEP("Matrix inversion prepared");
+        START_STEP("Iterative inverse completed");
         resultInsert = true;
         eps_matrix2D_mT_proxy.createTranspose(eps_matrix2D_A_proxy, false);//Dummy call
         //Result A - eps_matrix2D_bproxy
@@ -581,7 +593,7 @@ module controller {
         when matrixReady() serial {
 #endif
           if(iteration%percent==0)
-          CkPrintf("[CONTROLLER] Matrix Setup done\n");
+            CkPrintf("[CONTROLLER] Matrix Setup done\n");
           mat_mul_proxy.do_multiply(
               eps_matrix2D_X_proxy,
               eps_matrix2D_A_proxy,
@@ -618,9 +630,9 @@ module controller {
         // X = X1
         when m_multiplied() serial {
           if(iteration%percent==0)
-            CkPrintf("\n[CONTROLLER] Multiplied Matrices - Step 2: X1 = X * M1");
+            CkPrintf("[CONTROLLER] Multiplied Matrices - Step 2: X1 = X * M1\n");
           if(iteration%percent==0)
-            CkPrintf("\n[CONTROLLER] Calling convergence\n");
+            CkPrintf("[CONTROLLER] Calling convergence\n");
           eps_matrix2D_X1_proxy.convergence_check(eps_matrix2D_X_proxy);
         }
 
@@ -628,7 +640,7 @@ module controller {
           double diff = (prev_max-max > 0) ? prev_max-max : (prev_max-max)*-1;
           if (diff < tol_iter_mtxinv) {
             // int(prev_max*100000) == (int)(max*100000))
-            CkPrintf("\nConverged at iteration %d\n", iteration);
+            CkPrintf("[CONTROLLER] Converged at iteration %d\n", iteration);
             iteration = MAX_ITERATIONS;
           }
           prev_max = max;
@@ -640,6 +652,8 @@ module controller {
       } //end of for loop
 
       serial {
+        STOP_STEP("Iterative inverse completed");
+        STOP_BIG_STEP("EPSILON INVERTED");
         thisProxy.EpsilonInverted();
       }
     }

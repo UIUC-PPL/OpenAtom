@@ -355,7 +355,7 @@ std::vector<double> PsiCache::getVCoulb() {
 // at the moment "#ifdef REGISTER REGIONS" doesn't work in controller.ci
 void PsiCache::reportInfo() {
   if(min_row != -1 && max_row != -1 && min_col != -1 && max_col != -1) {
-    CkPrintf("PsiCache: MyNode = %d\nminRow: %d, maxRow: %d, minCol: %d, maxCol: %d\n", CkMyNode(), min_row, max_row, min_col, max_col);
+    CkPrintf("[PSICACHE %i]: minRow: %d, maxRow: %d, minCol: %d, maxCol: %d\n", CkMyNode(), min_row, max_row, min_col, max_col);
   }
 }
 
