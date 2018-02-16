@@ -21,6 +21,7 @@ class GW_EPSILON{
     int nkpt;                    // Num: number of k points
     int nocc;                    // Num: number of occupied states
     int nunocc;                  // Num: number of unoccupied states
+    int max_iter;                // Num: maximum number of matrix inverse iterations
     double*** Eocc;              // Eigenvalues for occupied states
     double*** Eocc_shifted;      // Eigenvalues for shifted occupied states
     double*** Eunocc;            // Eigenvalues for unoccupied states

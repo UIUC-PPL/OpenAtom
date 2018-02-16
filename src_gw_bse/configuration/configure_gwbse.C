@@ -293,7 +293,7 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
 
-  num_dict[0] = 8;
+  num_dict[0] = 7;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
@@ -375,7 +375,7 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
 void Config::set_config_dict_GW_epsilon  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
-  num_dict[0] = 4;
+  num_dict[0] = 5;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
