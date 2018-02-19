@@ -138,13 +138,13 @@ void fetch_Int_xpow_uniform(int n, double * Int_xpow, double * Int_xpow_log, dou
 	for (int i=0; i<2*n+1; i++) {
 		if (i%2 == 0) {
 			double ai = (double) i;
-			Int_xpow[i] = 2.0/(1.0 + ai);
-			Int_xpow_log[i] = log(2.0) - log(1.0 + ai);
-			Int_xpow_sgn[i] = 1.0;
+			Int_xpow[i] = 2.0d/(1.0d + ai);
+			Int_xpow_log[i] = log(2.0d) - log(1.0d + ai);
+			Int_xpow_sgn[i] = 1.0d;
 			Int_xpow_zero[i] = 0;
 		} else {
-			Int_xpow[i] = 0.0;
-			Int_xpow_sgn[i] = 1.0;
+			Int_xpow[i] = 0.0d;
+			Int_xpow_sgn[i] = 1.0d;
 			Int_xpow_zero[i] = 1;
 		} // end if	
 	}// end for i
@@ -157,19 +157,19 @@ void fetch_Int_xpow_uniform(int n, double * Int_xpow, double * Int_xpow_log, dou
 //==========================================================================
 void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
 	Int_xpow[0] = sqrt(M_PI);
-	Int_xpow_log[0] = 0.5*log(M_PI);
-	Int_xpow_sgn[0] = 1.0;
+	Int_xpow_log[0] = 0.5d*log(M_PI);
+	Int_xpow_sgn[0] = 1.0d;
 	Int_xpow_zero[0] = 0;
 	for (int i=1; i<2*n+1; i++) {
 		if (i%2 == 1) {
-			Int_xpow[i] = 0.0;
-			Int_xpow_sgn[i] = 1.0;
+			Int_xpow[i] = 0.0d;
+			Int_xpow_sgn[i] = 1.0d;
 			Int_xpow_zero[i] = 1;
 		} else {
-			double tmp = 0.5*(((double) i)-1.0);
+			double tmp = 0.5d*(((double) i)-1.0d);
 			Int_xpow[i] = Int_xpow[i-2]*tmp;
 			Int_xpow_log[i] += log(tmp);
-			Int_xpow_sgn[i] = 1.0;
+			Int_xpow_sgn[i] = 1.0d;
 			Int_xpow_zero[i] = 0;
 		} // end if
 	}// end for i
@@ -181,21 +181,21 @@ void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow, double * Int_xpow_log, d
 // Integrals of powers of x over Gaussian weight on [0,inf]
 //==========================================================================
 void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
-	Int_xpow[0]     = 0.5*sqrt(M_PI);
-	Int_xpow_log[0] = 0.5*log(M_PI) + log(0.5);
-	Int_xpow_sgn[0] = 1.0;
+	Int_xpow[0]     = 0.5d*sqrt(M_PI);
+	Int_xpow_log[0] = 0.5d*log(M_PI) + log(0.5d);
+	Int_xpow_sgn[0] = 1.0d;
 	Int_xpow_zero[0] = 0;
 
-	Int_xpow[1]      = 0.5;
-	Int_xpow_log[1]  = log(0.5);
-	Int_xpow_sgn[1]  = 1.0;
+	Int_xpow[1]      = 0.5d;
+	Int_xpow_log[1]  = log(0.5d);
+	Int_xpow_sgn[1]  = 1.0d;
 	Int_xpow_zero[1] = 0;
 
 	for (int i=2; i<2*n+1; i++) {
-		double tmp = 0.5*(((double) i)-1.0);
+		double tmp = 0.5d*(((double) i)-1.0d);
 		Int_xpow[i]      = Int_xpow[i-2]*tmp;
 		Int_xpow_log[i]  = Int_xpow_log[i-2] + log(tmp);
-		Int_xpow_sgn[i]  = 1.0;
+		Int_xpow_sgn[i]  = 1.0d;
 		Int_xpow_zero[i] = 0;
 	}// end for i
 }//end routine
@@ -209,7 +209,7 @@ void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow, double * Int_xpow_log, d
 void check_nodes_uniform(int n, double * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] > 1.0 || x[i] < -1.0) {
+		if (x[i] > 1.0d || x[i] < -1.0d) {
 			ierr++;
 			PRINTF("x[%d] = %.10g out of range!\n",i,x[i]);
 		} // end if
@@ -232,7 +232,7 @@ void check_nodes_uniform(int n, double * x){
 void check_nodes_Gausshalf(int n, double * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] < 0.0) {
+		if (x[i] < 0.0d) {
 			ierr++;
 			PRINTF("x[%d] = %.10g out of range!\n",i,x[i]);
 		} // end if

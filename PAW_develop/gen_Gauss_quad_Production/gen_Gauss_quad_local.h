@@ -17,7 +17,7 @@ typedef struct POLY{
 		double   Norm;		 // N_ii
         double * c;          // c matrix (order+1)
         double * a;          // a matrix (order+1)
-        double * O;          // O integral (order+1)
+        double * O;          // O integral (n+1), its upper triangle, too lazy to do the pointers
 		double * p_at_nodes; // size n
 }POLY;
 
@@ -35,7 +35,7 @@ void testnodes(int, double * , double *,int);
 #endif
 
 extern "C" void DGGEV( char* JOBVL,  char* JOBVR,  int* N,
-                       double* AA,  int* LDA,  double* B,  int* LDB,
+                       double* A,  int* LDA,  double* B,  int* LDB,
                       double* ALPHAR, double* ALPHAI, double* BETA,
                       double* VL,  int* LDVL, double* VR,  int* LDVR,
                       double* WORK,  int* LWORK, int* INFO);

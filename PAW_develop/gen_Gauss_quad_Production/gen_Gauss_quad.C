@@ -36,67 +36,67 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 	POLY * poly = new POLY [n + 1];
 	for (int i=0; i<n+1; i++) {
 	    poly[i].order       = i;
-	    poly[i].Norm        = 0.0;
+	    poly[i].Norm        = 0.0d;
 	    poly[i].c	        = new double [i+1];
 	    poly[i].a	        = new double [i+1];
 	    poly[i].O	        = new double [n+1];  //upper triangular matrix so over allocating - not worth trouble to jazz up
-            poly[i].p_at_nodes  = new double [n];
+        poly[i].p_at_nodes  = new double [n];
 	}// end for i
 
 //------------------------------------------------------------
 // Set up 0th order poly and normalize it and its moments
-	poly[0].c[0] = 1.0;
-	poly[0].a[0] = 1.0;
+	poly[0].c[0] = 1.0d;
+	poly[0].a[0] = 1.0d;
 	for(int i=0;i<n+1;i++){poly[0].O[i] = Int_xpow[i];}
 
 	double normtmp  = Int_xpow[0];
-	double sgn_tmp  = ((normtmp >= 0 )? 1: -1);
+	double sgn_tmp  = ((normtmp >= 0.0d )? 1.0d: -1.0d);
 	double scale    = sgn_tmp/sqrt(fabs(normtmp));
 
 	poly[0].c[0] *= scale;
 	poly[0].a[0] *= scale;
 	for(int i=0;i<n+1;i++){poly[0].O[i] *=scale;}
-	poly[0].Norm = 1.0;
+	poly[0].Norm = 1.0d;
 
 //------------------------------------------------------------------------------------------
 // Set up orders 1 ...n
 	for (int k=1; k<n+1; k++) {
 	      //++++++++++++++++++++++++++++++++++++++++
-              // set the last coeff of kth order poly for stability then create the rest of the c^(0)
-	    	poly[k].c[k]   = poly[k-1].c[k-1];
+          // set the last coeff of kth order poly for stability then create the rest of the c^(0)
+    	poly[k].c[k]   = poly[k-1].c[k-1];
 		for (int j=0; j<k; j++) {
-		   poly[k].c[j] = -poly[j].O[k]*poly[k].c[k]/poly[j].Norm;
+   	    	poly[k].c[j] = -poly[j].O[k]*poly[k].c[k]/poly[j].Norm;
 		}//endfor
 	      //++++++++++++++++++++++++++++++++++++++++
-      	      // compute the moments O of the kth poly over w(x) starting at j=k (O is upper triable) O=\int x^j w(x) poly_k(x)
+      	  // compute the moments O of the kth poly over w(x) starting at j=k (O is upper triable) O=\int x^j w(x) poly_k(x)
 		for (int j=k; j<n+1; j++) {
-   	          poly[k].O[j] = poly[k].c[k]*Int_xpow[j+k];
- 		  for (int i=0; i<k; i++) {
-		    poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
-		  }//endfor
-  	        } //endfor
+   	    	poly[k].O[j] = poly[k].c[k]*Int_xpow[j+k];
+ 			for (int i=0; i<k; i++) {
+		    	poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
+		  	}//endfor
+		} //endfor
 	      //++++++++++++++++++++++++++++++++++++++++
 	      // Compute the current norm
 		double normtmp =  poly[k].c[k]*poly[k].c[k]*Int_xpow[2*k];
 		for (int j=0; j<k; j++) {
-         	    normtmp +=  poly[k].c[j]*(poly[k].c[j]*poly[j].Norm + 2.0*poly[j].O[k]*poly[k].c[k]);
+        	normtmp +=  poly[k].c[j]*(poly[k].c[j]*poly[j].Norm + 2.0d*poly[j].O[k]*poly[k].c[k]);
 		} // end for j
-		double sgn_tmp = ((normtmp >= 0 )? 1: -1);
+		double sgn_tmp = ((normtmp >= 0.0d )? 1.0d: -1.0d);
 		double scale   = sgn_tmp/sqrt(fabs(normtmp));
 		if (iopt == 1) {PRINTF("  k = %d scale =%.10g\n", k, scale);}
 	      //++++++++++++++++++++++++++++++++++++++++
 	      // Scale the O and the C's to generate unit norm for stability
  		for (int j=0; j<k+1; j++) {poly[k].c[j] *= scale;}
 		for (int j=k; j<n+1; j++) {poly[k].O[j] *= scale;}
-		poly[k].Norm = 1.0;
+		poly[k].Norm = 1.0d;
 	     //++++++++++++++++++++++++++++++++++++++++
-             // Compute the a-representation from the normalized c-rep
+         // Compute the a-representation from the normalized c-rep
  		poly[k].a[k] = poly[k].c[k];
 		for (int j=0; j<k; j++) {
-		    poly[k].a[j] = 0.0;
+		    poly[k].a[j] = 0.0d;
 		    for (int l=j; l < k; l++) {
-			poly[k].a[j] += poly[l].a[j]*poly[k].c[l];
-		     } // end for l
+				poly[k].a[j] += poly[l].a[j]*poly[k].c[l];
+		    } // end for l
 		} // end for j
 	} // end for k : iteration of GS to nth order
 	if (iopt == 1) {PRINTF("\n"); }
@@ -107,44 +107,44 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 
 //==========================================================================
 //	Construct the companion matrix, A, using the polynomial coefficients a with ann= 1.0
-//                nth order poly(x) = det(AA-Bx)  where B=I
+//         nth order poly(x) = det(A-Bx)  where B=I
 
-       double atmp = a[n];
-       for (int i=0; i <n+1; i++) {a[i] /= atmp;}
-       a[n] = 1.0;
+	double atmp = a[n];
+	for (int i=0; i <n+1; i++) {a[i] /= atmp;}
+	a[n] = 1.0d;
 
-      double* A = new double [n*n];
-      for (int i=0; i <n*n; i++) {A[i] 	  = 0.0;}
-      for (int i=0; i < n ; i++) {A[i*n + n - 1] = -a[i];}
-      for (int i=1; i < n ; i++) {A[i*n + i - 1] = 1.0;}
+    double* A = new double [n*n];
+    for (int i=0; i <n*n; i++) {A[i] 	       = 0.0d;}
+    for (int i=0; i < n ; i++) {A[i*n + n - 1] = -a[i];}
+    for (int i=1; i < n ; i++) {A[i*n + i - 1] = 1.0d;}
 
-      double* B  = new double [n*n]; 
-      for (int i=0; i<n*n; i++) {B[i] = 0.0;}
-      for (int i=0; i<n; i++) {
-	    int k = i*n + i;
-	    B[k] = 1.0;
-      }// end for i
+    double* B  = new double [n*n]; 
+    for (int i=0; i<n*n; i++) {B[i] = 0.0d;}
+    for (int i=0; i<n; i++) {
+		int k = i*n + i;
+		B[k] = 1.0d;
+    }// end for i
 
 //==========================================================================
 //    Find the zeros of the n-th orthogonal polynomial by diagonalizing its companion matrix	
 
-	int N 	 	 = n;
-	int LDA 	 = n; 
-	int LDB 	 = n;
-        double* ALPHAR 	 = new double [n]; 
+	int N 	 	 	 = n;
+	int LDA 	 	 = n; 
+	int LDB 	     = n;
+    double* ALPHAR 	 = new double [n]; 
 	double* ALPHAI	 = new double [n]; 
 	double* BETA	 = new double [n];
-        double* VL	 = new double [n]; 
-	int LDVL	 = 1; 
-	double* VR	 = new double [n]; 
-	int LDVR	 = 1;
-	int LWORK	 = -1; 
-        double* WORK     = NULL;	
-	int INFO	 = 1;
+    double* VL	     = new double [n]; 
+	int LDVL	     = 1; 
+	double* VR	     = new double [n]; 
+	int LDVR	     = 1;
+	int LWORK	     = -1; 
+    double* WORK     = NULL;	
+	int INFO	     = 1;
 	char NL[5]; 	 strcpy(NL,"N");
 	char NR[5];      strcpy(NR,"N");
 
-	double tmp = 1.0;
+	double tmp = 1.0d;
  	DGGEV(NL,NR, &N, A, &LDA, B, &LDB, ALPHAR, ALPHAI, BETA,
        		VL, &LDVL, VR, &LDVR, &tmp, &LWORK, &INFO);
 	
@@ -162,12 +162,12 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 	} // end if
 
 	int iii = 0;
-        for (int i=0; i<n; i++) {
-	   if (ALPHAI[i]*ALPHAI[i] > 1.0e-16) {
+    for (int i=0; i<n; i++) {
+		if (ALPHAI[i]*ALPHAI[i] > 1.0e-16) {
 		   iii++;
-           	   PRINTF("  Bad root: (%g,%g)\n",ALPHAR[i],ALPHAI[i]);
-	   }// end if
-       }// end for i
+           PRINTF("  Bad root: (%g,%g)\n",ALPHAR[i],ALPHAI[i]);
+	    }// end if
+    }// end for i
 
 	if (iii != 0) {
 		PRINTF("  @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
@@ -177,8 +177,8 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 		for (int i=1; i<n+1; i++) {
 			cmax = MAX(cmax,fabs(c[i]));
 			amax = MAX(amax,fabs(a[i]));
-			if (fabs(c[i]) > 0.0) { cmin = MIN(cmin,fabs(c[i]));}
-			if (fabs(a[i]) > 0.0) { amin = MIN(amin,fabs(a[i]));}
+			if (fabs(c[i]) > 0.0d) { cmin = MIN(cmin,fabs(c[i]));}
+			if (fabs(a[i]) > 0.0d) { amin = MIN(amin,fabs(a[i]));}
 		} // end for
 		PRINTF("  a range = [%.10g, %.10g], c range = [%.10g, %.10g],\n",amin, amax, cmin, cmax);
 		PRINTF("  @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
@@ -212,20 +212,20 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 
 //  n-1st order poly
 	double *pn1       = poly[n-1].a;
-	double an1	  = poly[n-1].a[n-1];
+	double an1	      = poly[n-1].a[n-1];
 	double Normn1     = poly[n-1].Norm; 
 
 //  derivative of nth order poly in the a-representation
 	double *pnp = new double [n];
 	for (int i=0; i<n; i++) {
-		double tmp = ((double)i)+1.0;
+		double tmp = ((double)i)+1.0d;
 		pnp[i] = tmp*a[i+1];
 	} // end for
 
 //  the wghts are set using the above functions evaluated at the nodes
 	for (int i=0; i<n; i++) {
-   	        double pn1v = 0.0;  horner(n, pn1, node[i], &pn1v);
-		double pnpv = 0.0;  horner(n, pnp, node[i], &pnpv);
+   	    double pn1v = 0.0d;  horner(n, pn1, node[i], &pn1v);
+		double pnpv = 0.0d;  horner(n, pnp, node[i], &pnpv);
 		wght[i] = Normn1/(pn1v*pnpv*an1);
 	}// end for
 	delete [] pnp;
@@ -237,8 +237,8 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 		PRINTF("  =================================================\n");
 		PRINTF("  Generalized Gaussian quadrature weights and nodes:\n");
 		PRINTF("  -------------------------------------------------\n");
-         	for (int i=0; i<n; i++) {
-		  PRINTF("  node[%d] %.10g   wght[%d] %.10g\n",i, node[i], i, wght[i]);
+        for (int i=0; i<n; i++) {
+			PRINTF("  node[%d] %.10g   wght[%d] %.10g\n",i, node[i], i, wght[i]);
 		}// end for i
 		PRINTF("  =================================================\n\n");
 
@@ -266,10 +266,10 @@ void gen_Gauss_quad(int n, double * Int_xpow, double * Int_xpow_log, double * In
 // lapack function DDGEV memory
 	delete [] A;
 	delete [] B; 
-        delete [] ALPHAR; 
+    delete [] ALPHAR; 
 	delete [] ALPHAI; 
 	delete [] BETA;
-        delete [] VL; 
+    delete [] VL; 
 	delete [] VR; 
 	delete [] WORK;
 
@@ -299,10 +299,11 @@ void horner(int n, double *a, double x, double *value){
 //==========================================================================
 void testnodes(int n, double * x, double * a, int iopt) {
 	int ierr = 0;
-	double err = 0.0;
+	double err = 0.0d;
 	for (int i=0; i<n; i++) {
-		double zero = 0.0;
+		double zero = 0.0d;
 		horner(n+1, a, x[i], &zero);
+		if (fabs(x[i]) > 1.0e-2) { zero /= fabs(x[i]);}
 		err = MAX(err,fabs(zero));
 		if (fabs(zero) > 1.0e-5) {
 		  ierr++;
@@ -336,17 +337,17 @@ void testgrid(int n, double * w, POLY * poly, int iopt) {
 //---------------------------------------------------------------------------
 
 	int ierr = 0;
-	double errmax = 0.0;
+	double errmax = 0.0d;
 	for (int k=0; k<n+1; k++) {
 		int iup = ((k != n)? k+1: n); 
 		double * p_k = poly[k].p_at_nodes;
 		for (int kp=0; kp<iup; kp++) {
 			double * p_kp = poly[kp].p_at_nodes;
-			double result = 0.0;
+			double result = 0.0d;
 			for (int i=0; i<n; i++) {
 				result += w[i]*p_k[i]*p_kp[i];
 			} //end for i
-			double ans = ((k == kp )? 1.0:0.0);
+			double ans = ((k == kp )? 1.0d : 0.0d);
 			double err = fabs(result - ans);
 			errmax = MAX(err,errmax);
 			if (iopt == 1) {
