@@ -68,10 +68,10 @@ int main (int argc, char *argv[]){
 //	Fetch the integrals of powers of x over the desired weight 
 //  Hard coding a for now
 
-	double * Int_xpow = new double [2*n + 1]; 
+	double * Int_xpow     = new double [2*n + 1]; 
 	double * Int_xpow_log = new double [2*n + 1]; 
 	double * Int_xpow_sgn = new double [2*n + 1]; 
-	int * Int_xpow_zero = new int [2*n + 1]; 
+	int * Int_xpow_zero   = new int [2*n + 1]; 
 	switch(type) {
 		case 0: // w(x) = 1; [-1, 1] 
 			fetch_Int_xpow_uniform(n, Int_xpow, Int_xpow_log, Int_xpow_sgn, Int_xpow_zero); break;
@@ -119,7 +119,10 @@ int main (int argc, char *argv[]){
 	PRINT_LINE_DASH;
 	PRINTF("Completed generalized Gaussian quadrature for weight type = %d and order n = %d\n", type, n);
 	PRINT_LINE_STAR;
+
 //==========================================================================
+	delete [] x;
+	delete [] w;
 	return 1;
 } // end routine
 //==========================================================================
@@ -178,19 +181,21 @@ void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow, double * Int_xpow_log, d
 // Integrals of powers of x over Gaussian weight on [0,inf]
 //==========================================================================
 void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
-	Int_xpow[0] = 0.5*sqrt(M_PI);
-	Int_xpow[1] = 0.5;
+	Int_xpow[0]     = 0.5*sqrt(M_PI);
 	Int_xpow_log[0] = 0.5*log(M_PI) + log(0.5);
-	Int_xpow_log[1] = log(0.5);
 	Int_xpow_sgn[0] = 1.0;
 	Int_xpow_zero[0] = 0;
-	Int_xpow_sgn[1] = 1.0;
+
+	Int_xpow[1]      = 0.5;
+	Int_xpow_log[1]  = log(0.5);
+	Int_xpow_sgn[1]  = 1.0;
 	Int_xpow_zero[1] = 0;
+
 	for (int i=2; i<2*n+1; i++) {
 		double tmp = 0.5*(((double) i)-1.0);
-		Int_xpow[i] = Int_xpow[i-2]*tmp;
-		Int_xpow_log[i] += log(tmp);
-		Int_xpow_sgn[i] = 1.0;
+		Int_xpow[i]      = Int_xpow[i-2]*tmp;
+		Int_xpow_log[i]  = Int_xpow_log[i-2] + log(tmp);
+		Int_xpow_sgn[i]  = 1.0;
 		Int_xpow_zero[i] = 0;
 	}// end for i
 }//end routine

@@ -26,8 +26,15 @@ typedef struct POLY{
 
 void horner(int, double *, double, double *);
 void testgrid(int, double *, POLY *, int);
-void testnodes(int, double * , double *);
-extern "C" void dggev( char* JOBVL,  char* JOBVR,  int* N,
+void testnodes(int, double * , double *,int);
+
+#ifdef FORT_UNDER
+#define DGGEV dggev_
+#else
+#define DGGEV dggev
+#endif
+
+extern "C" void DGGEV( char* JOBVL,  char* JOBVR,  int* N,
                        double* AA,  int* LDA,  double* B,  int* LDB,
                       double* ALPHAR, double* ALPHAI, double* BETA,
                       double* VL,  int* LDVL, double* VR,  int* LDVR,
