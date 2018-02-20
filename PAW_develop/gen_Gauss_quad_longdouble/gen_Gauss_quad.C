@@ -305,7 +305,7 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 		PRINTF("  Generalized Gaussian quadrature weights and nodes:\n");
 		PRINTF("  -------------------------------------------------\n");
                 for (int i=0; i<n; i++) {
-			PRINTF("  node[%d] %.22Lg   wght[%d] %.22Lg\n",i, node[i], i, wght[i]);
+			PRINTF("     node[%d] %.22Lg   wght[%d] %.22Lg\n",i, node[i], i, wght[i]);
 		}// end for i
                 PRINTF("  =================================================\n\n");
 	}//endif
@@ -394,14 +394,14 @@ void testnodes(int n, long double * x, long double * zero_vec, int iopt, int * i
 	}//end for
 	err_avg /= ((long double) n);
 
-	if(ierr>0){PRINTF("\n");}
+	if(ierr>0 && iopt==1){PRINTF("\n");}
         PRINTF("    The max and average err in your zeros are (%Lg, %Lg)\n", err,err_avg);
 	if (ierr > 0) {
 		if (iopt == 1) {PRINTF("\n");}
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
-	  	PRINTF("    Max err in zeros %.10Lg > tolerance\n", err);
-		PRINTF("    for %d cases. Try root refinement\n", ierr);
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
+		PRINTF("     $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
+	  	PRINTF("       Max err in zeros %.10Lg > tolerance\n", err);
+		PRINTF("       for %d cases. Try root refinement\n", ierr);
+		PRINTF("     $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 		FFLUSH(stdout);
 		if (err > 1.0L) {EXIT(1);}
 	}//endif
@@ -461,7 +461,7 @@ void testgrid(int n, long double * w, POLY * poly, int iopt, int * ierrout) {
 	if (ierr > 0) {
 		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 		PRINTF("       You have %d ortho pairs out of error range!\n", ierr);
-		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n\n");
+		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 		FFLUSH(stdout);
 //		EXIT(1);
 	} // end if
