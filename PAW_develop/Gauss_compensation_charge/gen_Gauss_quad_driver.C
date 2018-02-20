@@ -12,7 +12,8 @@
 
 #include "standard_include.h"
 
-#include "gen_Gauss_quad_driver.h"
+#include "gen_Gauss_quad_driver_entry.h"
+#include "gen_Gauss_quad_driver_local.h"
 #include "gen_Gauss_quad_entry.h"
 
 #define _LOG_METHOD_
@@ -23,12 +24,21 @@
 //  Main Program : Controller for generalized Gaussian quadrature using 
 //				   companion matrix 
 //==========================================================================
-void gen_Gauss_quad_driver (int type, int n, double alpha, int iopt, double * nodes_dbl, double * wghts_dbl){
+void gen_Gauss_quad_driver (int type, int n, int iopt, double * nodes_dbl, double * wghts_dbl, int * ierr_zero_out, int * ierr_ortho_out){
 //==========================================================================
-// Local variables
-	int ierr_zero; // bad nodes
-	int ierr_ortho; // bad orthogonality
+//  Local variables
+	int ierr_zero;
+	int ierr_ortho;
 
+//==========================================================================
+//  Tell the user what you are doing 
+
+    PRINTF("\n");
+    PRINT_LINE_STAR;
+    PRINTF("Generating generalized Gaussian quadrature for weight type = %d and order n = %d\n", type, n);
+    PRINT_LINE_DASH;
+    PRINTF("\n");
+	
 //==========================================================================
 //	Fetch the integrals of powers of x over the desired weight 
 //  Hard coding a for now
@@ -52,26 +62,35 @@ void gen_Gauss_quad_driver (int type, int n, double alpha, int iopt, double * no
 			EXIT(1);
 	}//end switch
 
-	long double * w = new long double [n]; // Gauss quad weight
-	long double * x = new long double [n]; // Gauss quad node
-
 #ifdef _LOG_METHOD_
 	for (int i=0; i<2*n+1; i++) {
 		if (Int_xpow_zero[i] == 0) {Int_xpow[i] = Int_xpow_sgn[i]*exp(Int_xpow_log[i]);}
 	} // end for i
 #endif
 
+//==========================================================================
+//	Fetch the weights and nodes 
+
+	long double * w = new long double [n]; // Gauss quad weight
+	long double * x = new long double [n]; // Gauss quad node
+
 	gen_Gauss_quad(n, Int_xpow, Int_xpow_log, Int_xpow_sgn, Int_xpow_zero, w, x, iopt, &ierr_zero, &ierr_ortho);
 
+	ierr_zero_out[0] = ierr_zero; 
+	ierr_ortho_out[0] = ierr_ortho; 
+
 	for (int i=0; i<n; i++) {
-		nodes_dbl[i] = ((double) x[i])/alpha;
-		wghts_dbl[i] = ((double) w[i])/alpha;
+		nodes_dbl[i] = ((double) x[i]);
+		wghts_dbl[i] = ((double) w[i]);
 	}// end for i
 
 	delete [] Int_xpow;
 	delete [] Int_xpow_log;
 	delete [] Int_xpow_sgn;
 	delete [] Int_xpow_zero;
+
+//==========================================================================
+//	Check the weights and nodes 
 
 	switch(type) {
 		case 0: // w(x) = 1; [-1, 1] 
@@ -86,7 +105,7 @@ void gen_Gauss_quad_driver (int type, int n, double alpha, int iopt, double * no
 			PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
 			FFLUSH(stdout);
 			EXIT(1);
-	}//end switch
+	}//end switch	
 
 //==========================================================================
 //	Tell the user we are done
