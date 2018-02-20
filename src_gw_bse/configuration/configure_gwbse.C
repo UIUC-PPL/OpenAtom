@@ -286,7 +286,7 @@ void Config::set_config_dict_fun  (int *num_dict  ,DICT_WORD **dict){
   strcpy((*dict)[ind].keyword,"GW_parallel");
   strcpy((*dict)[ind].keyarg," ");
   //------------------------------------------------------------------------------
-  //  6)~GW_epsilon[ ]
+  //  6)~GW_io[ ]
   ind = 6;
   strcpy((*dict)[ind].error_mes," ");
   strcpy((*dict)[ind].keyword,"GW_io");
