@@ -1,2 +1,2 @@
-rm -rf driver.x *.o
+rm -rf main.x *.o
 rm -rf *dSYM 
