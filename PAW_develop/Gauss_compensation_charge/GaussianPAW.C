@@ -421,9 +421,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 //==============================================================================
 //eN and Har self term
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
-		double *xf		  = fgrid[jtyp].xf;
-		double *yf		  = fgrid[jtyp].yf;
-		double *zf		  = fgrid[jtyp].zf;
         double *wf        = fgrid[jtyp].wf;
         double *rf        = fgrid[jtyp].rf;
 		double *xcostheta = fgrid[jtyp].xcostheta;
@@ -590,11 +587,10 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 						double rmax = MAX(rf[f1],rf[f2]);
 						double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 						complex temp = pref*(2.0*M_PI_QI)/(2*l+1)*pow(rmin,l)/pow(rmax,l+1)*(Ylmf[f1]*Ylmf[f2].conj());
-						double dx = xf[f1] - xf[f2];
-                        double dy = yf[f1] - yf[f2];
-                        double dz = zf[f1] - zf[f2];
-                        double r2 = dx*dx + dy*dy + dz*dz;
-                        double r = sqrt(r2);
+//						double dx = xf[f1] - xf[f2];
+//                      double dy = yf[f1] - yf[f2];
+//                      double dz = zf[f1] - zf[f2];
+//                      double r2 = dx*dx + dy*dy + dz*dz;
 						EHarshortselfGrid += temp.re*wght;
 					} //end for f2
 				} //end for f1

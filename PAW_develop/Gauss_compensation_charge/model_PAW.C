@@ -13,6 +13,7 @@
 	#include "standard_include.h"
 	#include "GaussianPAW.h"
 	#include "grid.h"
+	#include "gen_Gauss_quad_driver_entry.h"
 
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -43,7 +44,9 @@ int main (int argc, char *argv[]){
   double hmati[10];				  // inverse simulation box
   double volume;				  // simulation box volume
 
-  int rorder = 14, thetaorder = 6, phiorder = 10;    // grid sizes
+  int rorder;
+  int thetaorder; 
+  int phiorder;    // grid sizes
   int lmax = 3;									// maximum angular momentum
   double delta = 1e-6;
 
@@ -84,9 +87,9 @@ int main (int argc, char *argv[]){
     //=========================================================================
     //             Check for input file                                 
 
-    if(argc < 2) {
+    if(argc < 5) {
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-      PRINTF("No input file specified\n");
+      PRINTF("No input file specified: model_PAW.x PAW.in rorder thetaorder phiorder\n");
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       FFLUSH(stdout);
       EXIT(1);
@@ -96,6 +99,9 @@ int main (int argc, char *argv[]){
   // Read the user specified input file: atoms, Ewald parameters, core density parameters and box
   // store the information
 
+  rorder = atoi(argv[2]);
+  thetaorder = atoi(argv[3]);
+  phiorder = atoi(argv[4]);
   strcpy(fnameIn, argv[1]);
   PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
   fp = fopen(fnameIn,"r");
@@ -242,6 +248,30 @@ int main (int argc, char *argv[]){
   // compute the grids 
   int nf = rorder*thetaorder*phiorder;
   FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
+
+  //---------------------------------------------------------------------
+  // get the master Gauss-Legendre, Gauss_Hermite_half, and phi grids
+
+  double * xr_master = new double [rorder]; double * wr_master = new double [rorder];
+  double * xphi_master = new double [phiorder]; double * wphi_master = new double [phiorder];
+  double * xtheta_master = new double [thetaorder]; double * wtheta_master = new double [thetaorder];
+ 
+  int kind = 1; double aaa = -1; double bbb = 1;
+  int type = 2; int iopt = 0;
+  control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
+
+  int ierr_zero; int ierr_ortho;
+  gen_Gauss_quad_driver(type, rorder, iopt, xr_master, wr_master, &ierr_zero, &ierr_ortho);
+
+  genphigrid(phiorder,wphi_master,xphi_master); // Fourier (equal space)
+
+ 
+  //---------------------------------------------------------------------
+  // use the master quadratures to create the full fgrid
+
+  double * wr = new double [rorder];
+  double * xr = new double [rorder];
+
   for (int i=0; i<natm_typ; i++) {
   	fgrid[i].nf = nf;
   	fgrid[i].nr = rorder;
@@ -256,7 +286,38 @@ int main (int argc, char *argv[]){
   	fgrid[i].xphi = new double [phiorder];
 	fgrid[i].Ylmf = new complex [nf];
 	int J = list_atm_by_typ[i][0];
-  	gen_fgrid (rorder, thetaorder, phiorder, lmax, alp[J], &fgrid[i]);
+	double alp_tmp = alp[J];
+	fgrid[i].alp = alp_tmp;
+
+    double *wf = fgrid[i].wf;
+    double *xf = fgrid[i].xf;
+    double *yf = fgrid[i].yf;
+    double *zf = fgrid[i].zf;
+    double *rf = fgrid[i].rf;
+	double *xcostheta = fgrid[i].xcostheta;
+	double *xphi = fgrid[i].xphi;
+	
+	for (int ir=0; ir<rorder; ir++) {
+		xr[ir] = xr_master[ir]/alp_tmp;
+		wr[ir] = wr_master[ir]/alp_tmp;
+	} // end for ir
+	for (int itheta=0; itheta<thetaorder; itheta++) { xcostheta[itheta] = xtheta_master[itheta];}
+	for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
+
+    int f = 0;
+    for (int ir=0; ir<rorder; ir++) {
+        for (int itheta=0; itheta<thetaorder; itheta++) {
+            for (int iphi=0; iphi<phiorder; iphi++) {
+                double xsintheta = sqrt(1.0-(xtheta_master[itheta])*(xtheta_master[itheta]));
+                wf[f] = wr[ir]*xr[ir]*xr[ir]*wtheta_master[itheta]*wphi_master[iphi];
+                xf[f] = xr[ir]*xsintheta*cos(xphi_master[iphi]);
+                yf[f] = xr[ir]*xsintheta*sin(xphi_master[iphi]);
+                zf[f] = xr[ir]*xtheta_master[itheta];
+                rf[f] = xr[ir];
+                f++;
+            } // end for iphi
+        } // end for itheta
+    } // end for ir
   } // end for
 
   //========================================================================
@@ -335,7 +396,7 @@ int main (int argc, char *argv[]){
   PRINT_LINE_DASH
   PRINTF("\n");
 
-//#ifdef _FORCECHECK_
+#ifdef _FORCECHECK_
   
   PRINTF("Enter the atom you want me to check:\n");
   int iii;
@@ -377,7 +438,7 @@ int main (int argc, char *argv[]){
   }
   PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
 
-//#endif // _FORCECHECK_
+#endif // _FORCECHECK_
 
   //========================================================================
   // Print out the forces

@@ -65,7 +65,9 @@ void gen_fgrid (int rorder, int thetaorder, int phiorder, int lmax, double expal
 	control_quad_rule(kind, thetaorder, aaa, bbb, wcostheta, fgrid->xcostheta); // Legendre
 //	control_quad_rule(kindr, rorderfull, aar, expalpha*expalpha, wrfull, xrfull); // Hermite
 //	gen_Gauss_quad(type, rorder, expalpha, wr, xr, 0);
-	gen_Gauss_quad_driver(type, rorder, iopt, xr, wr, );
+	int ierr_zero; int ierr_ortho;
+	gen_Gauss_quad_driver(type, rorder, iopt, xr_master, wr_master, &ierr_zero, &ierr_ortho);
+
 	wphi = new double [phiorder];
 	genphigrid(phiorder,wphi,fgrid->xphi); // Fourier (equal space)
 	

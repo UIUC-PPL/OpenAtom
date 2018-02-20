@@ -91,6 +91,7 @@ typedef struct FGRID{
 	int ntheta;			// number of theta grid points
 	int nphi;			// number of phi grid points
 	int nrfull;			// number of r grid points*2
+	double alp;			// Gaussian parameter
 	double *wf;			// weight including the Jacobian
 	double *xf;			// x coordinate
 	double *yf;			// y
