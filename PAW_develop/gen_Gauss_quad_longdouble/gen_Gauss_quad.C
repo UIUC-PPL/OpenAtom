@@ -212,7 +212,7 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
            PRINTF("  Calcuation method\n");
            PRINTF("  ---------------------------\n");
         }//ednfi
-	int method = 1;
+	int method = 0;
  	for (int j=0; j<n; j++) {poly[0].p_at_nodes[j] = poly[0].a[0];}
 
 	switch (method){
