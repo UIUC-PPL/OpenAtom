@@ -40,7 +40,7 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 	    poly[i].c	        = new long double [i+1];
 	    poly[i].a	        = new long double [i+1];
 	    poly[i].O	        = new long double [n+1];  //upper triangular matrix so over allocating - not worth trouble to jazz up
-        poly[i].p_at_nodes  = new long double [n];
+            poly[i].p_at_nodes  = new long double [n];
 	}// end for i
 
 //------------------------------------------------------------
@@ -60,36 +60,43 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 
 //------------------------------------------------------------------------------------------
 // Set up orders 1 ...n
+        if(iopt==1){
+           PRINTF("  ===========================\n");
+           PRINTF("  Reporing scaling factor:\n");
+           PRINTF("  ---------------------------\n");
+        }//ednfi
 	for (int k=1; k<n+1; k++) {
-	      //++++++++++++++++++++++++++++++++++++++++
+	  //++++++++++++++++++++++++++++++++++++++++
           // set the last coeff of kth order poly for stability then create the rest of the c^(0)
-    	poly[k].c[k]   = poly[k-1].c[k-1];
+    	        poly[k].c[k]   = poly[k-1].c[k-1];
 		for (int j=0; j<k; j++) {
-   	    	poly[k].c[j] = -poly[j].O[k]*poly[k].c[k]/poly[j].Norm;
+   	    	   poly[k].c[j] = -poly[j].O[k]*poly[k].c[k]/poly[j].Norm;
 		}//endfor
-	      //++++++++++++++++++++++++++++++++++++++++
+	  //++++++++++++++++++++++++++++++++++++++++
       	  // compute the moments O of the kth poly over w(x) starting at j=k (O is upper triable) O=\int x^j w(x) poly_k(x)
 		for (int j=k; j<n+1; j++) {
-   	    	poly[k].O[j] = poly[k].c[k]*Int_xpow[j+k];
- 			for (int i=0; i<k; i++) {
-		    	poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
-		  	}//endfor
+     	    	    poly[k].O[j] = poly[k].c[k]*Int_xpow[j+k];
+ 		    for (int i=0; i<k; i++) {
+		     	 poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
+		    }//endfor
 		} //endfor
-	      //++++++++++++++++++++++++++++++++++++++++
-	      // Compute the current norm
-		long double normtmp =  poly[k].c[k]*poly[k].c[k]*Int_xpow[2*k];
+	  //++++++++++++++++++++++++++++++++++++++++
+	  // Compute the current norm
+		long double normtmp = poly[k].c[k]*poly[k].c[k]*Int_xpow[2*k];
 		for (int j=0; j<k; j++) {
-        	normtmp +=  poly[k].c[j]*(poly[k].c[j]*poly[j].Norm + 2.0L*poly[j].O[k]*poly[k].c[k]);
+        	   normtmp +=  poly[k].c[j]*(poly[k].c[j]*poly[j].Norm + 2.0L*poly[j].O[k]*poly[k].c[k]);
 		} // end for j
 		long double sgn_tmp = ((normtmp >= 0.0L )? 1.0L: -1.0L);
 		long double scale   = sgn_tmp/sqrt(fabsl(normtmp));
-		if (iopt == 1) {PRINTF("  k = %d scale =%.10Lg\n", k, scale);}
-	      //++++++++++++++++++++++++++++++++++++++++
-	      // Scale the O and the C's to generate unit norm for stability
+		if (iopt == 1) {
+		  PRINTF("    k = %d scale =%.10Lg\n", k, scale);
+		}//endif
+	  //++++++++++++++++++++++++++++++++++++++++
+	  // Scale the O and the C's to generate unit norm for stability
  		for (int j=0; j<k+1; j++) {poly[k].c[j] *= scale;}
 		for (int j=k; j<n+1; j++) {poly[k].O[j] *= scale;}
 		poly[k].Norm = 1.0L;
-	     //++++++++++++++++++++++++++++++++++++++++
+	 //++++++++++++++++++++++++++++++++++++++++
          // Compute the a-representation from the normalized c-rep
  		poly[k].a[k] = poly[k].c[k];
 		for (int j=0; j<k; j++) {
@@ -99,7 +106,10 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 		    } // end for l
 		} // end for j
 	} // end for k : iteration of GS to nth order
-	if (iopt == 1) {PRINTF("\n"); }
+        if(iopt==1){
+           PRINTF("  ===========================\n");
+	   PRINTF("\n");
+        }//ednfi
 
 	// local pointer to the nth polynomial whose roots we want
 	long double *a = poly[n].a;
@@ -109,9 +119,9 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 //	Construct the companion matrix, A, using the polynomial coefficients a with ann= 1.0
 //         nth order poly(x) = det(A-Bx)  where B=I
 
-	long double atmp = a[n];
-	for (int i=0; i <n+1; i++) {a[i] /= atmp;}
-	a[n] = 1.0L;
+     long double atmp = a[n];
+     for (int i=0; i <n+1; i++) {a[i] /= atmp;}
+     a[n] = 1.0L;
 
     double* A = new double [n*n];
     for (int i=0; i <n*n; i++) {A[i] 	       = 0.0d;}
@@ -121,26 +131,26 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
     double* B  = new double [n*n]; 
     for (int i=0; i<n*n; i++) {B[i] = 0.0d;}
     for (int i=0; i<n; i++) {
-		int k = i*n + i;
-		B[k] = 1.0d;
+	int k = i*n + i;
+	B[k] = 1.0d;
     }// end for i
 
 //==========================================================================
 //    Find the zeros of the n-th orthogonal polynomial by diagonalizing its companion matrix	
 
-	int N 	 	 	 = n;
-	int LDA 	 	 = n; 
-	int LDB 	     = n;
-    double* ALPHAR 	 = new double [n]; 
+	int N 	 	 = n;
+	int LDA 	 = n; 
+	int LDB 	 = n;
+        double* ALPHAR 	 = new double [n]; 
 	double* ALPHAI	 = new double [n]; 
 	double* BETA	 = new double [n];
-    double* VL	     = new double [n]; 
-	int LDVL	     = 1; 
-	double* VR	     = new double [n]; 
-	int LDVR	     = 1;
-	int LWORK	     = -1; 
-    double* WORK     = NULL;	
-	int INFO	     = 1;
+        double* VL       = new double [n]; 
+	int LDVL         = 1; 
+	double* VR       = new double [n]; 
+	int LDVR         = 1;
+	int LWORK        = -1; 
+        double* WORK     = NULL;	
+	int INFO	 = 1;
 	char NL[5]; 	 strcpy(NL,"N");
 	char NR[5];      strcpy(NR,"N");
 
@@ -162,12 +172,12 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 	} // end if
 
 	int iii = 0;
-    for (int i=0; i<n; i++) {
-		if (ALPHAI[i]*ALPHAI[i] > 1.0e-16) {
-		   iii++;
-           PRINTF("  Bad root: (%g,%g)\n",ALPHAR[i],ALPHAI[i]);
+        for (int i=0; i<n; i++) {
+	    if (ALPHAI[i]*ALPHAI[i] > 1.0e-16) {
+                iii++;
+                PRINTF("  Bad root: (%g,%g)\n",ALPHAR[i],ALPHAI[i]);
 	    }// end if
-    }// end for i
+        }// end for i
 
 	if (iii != 0) {
 		PRINTF("  @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
@@ -190,30 +200,73 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 //  Copy out, sort the nodes and make sure they are good zeros of the polynomial
 
 	for (int i=0; i<n; i++) {node[i] = ((long double) ALPHAR[i]);}
+	// Is sort long double
 	sort(node, node + n);
-
-	testnodes(n, node, a, iopt, ierr_zero);
 
 //==========================================================================
 //  Evaluate all the polynomials at the nodes for testing later
+//     use horner for a-rep and just sumnming for c-rep							   
 
-	for (int j=0; j<n; j++) {poly[0].p_at_nodes[j] = poly[0].a[0];}
-	for (int i=1; i<n+1; i++) {
-	    long double * a_tmp = poly[i].a;
-	    for (int j=0; j<n; j++) {
-		long double p_tmp;
-		horner(i+1, a_tmp, node[j], &p_tmp);
-		poly[i].p_at_nodes[j] = p_tmp;
-	    } // end for j
-	} // end for i
+        if(iopt==1){
+           PRINTF("  ===========================\n");
+           PRINTF("  Calcuation method\n");
+           PRINTF("  ---------------------------\n");
+        }//ednfi
+	int method = 1;
+ 	for (int j=0; j<n; j++) {poly[0].p_at_nodes[j] = poly[0].a[0];}
+
+	switch (method){
+	  //++++++++++++++
+	  // a-rep
+	   case 0:
+	     PRINTF("  Using a-rep ...\n");
+	     for (int k=1; k<n+1; k++) { // all polynomials
+	       long double * a_tmp = poly[k].a;
+	       for (int j=0; j<n; j++) { // al nodes
+		 long double p_tmp;
+		 horner(k+1, a_tmp, node[j], &p_tmp);
+		 poly[k].p_at_nodes[j] = p_tmp;
+	       } // end for j
+	     } // end for k
+	   break;
+	  //++++++++++++++
+	  // c-rep
+ 	   case 1:
+     	     PRINTF("   Using c-rep ...\n");
+	     for (int k=1; k<n+1; k++) {// all polynomials
+	       long double * c_k  = poly[k].c;
+	       long double ak     = ((long double) k);
+	       long double ck_sgn = ((c_k[k] >= 0.0L ) ? 1.0L : -1.0L);
+	       long double ck_log = log(fabsl(c_k[k]));
+	       for (int j=0; j<n; j++) {// all nodes
+		  long double node_sgn = ((node[j] >= 0.0L ) ? 1.0L : -1.0L);
+		  long double node_log = log(fabsl(node[j]));
+		  long double p_tmp    = 0.0L;
+ 	          for (int i=0; i<k; i++) { // all lower polynomials
+		    p_tmp += c_k[i]*poly[i].p_at_nodes[j];
+		  }//endfor
+		  if(k%2==0){
+		    p_tmp += ck_sgn*exp(ck_log+ak*node_log);
+		  }else{
+    		    p_tmp += ck_sgn*node_sgn*exp(ck_log+ak*node_log);
+		  }//endif
+ 		  poly[k].p_at_nodes[j] = p_tmp;	  
+	       }//endfor
+	     }//endfor
+          break;
+	}//switch : c rep or a-rep
+
+	if(iopt==0){PRINTF("\n");}
+	if(iopt==1){PRINTF("  ========================\n\n");}
+
+	testnodes(n, node, poly[n].p_at_nodes, iopt, ierr_zero);
 
 //==========================================================================
 //  Construct the weights using the zeros, derivatinves of the nth poly and the n-1 poly
 
 //  n-1st order poly
-	long double *pn1       = poly[n-1].a;
 	long double an1	      = poly[n-1].a[n-1];
-	long double Normn1     = poly[n-1].Norm; 
+	long double Normn1    = poly[n-1].Norm; 
 
 //  derivative of nth order poly in the a-representation
 	long double *pnp = new long double [n];
@@ -224,40 +277,56 @@ void gen_Gauss_quad(int n, long double * Int_xpow, long double * Int_xpow_log, l
 
 //  the wghts are set using the above functions evaluated at the nodes
 	for (int i=0; i<n; i++) {
-   	    long double pn1v = 0.0L;  horner(n, pn1, node[i], &pn1v);
-		long double pnpv = 0.0L;  horner(n, pnp, node[i], &pnpv);
-		wght[i] = Normn1/(pn1v*pnpv*an1);
+   	    long double pn1v = poly[n-1].p_at_nodes[i];  
+	    long double pnpv = 0.0L;  horner(n, pnp, node[i], &pnpv);
+	    wght[i] = Normn1/(pn1v*pnpv*an1);
 	}// end for
 	delete [] pnp;
 
 //==========================================================================
 //  Test the weights and nodes  using the overlap of the ortho polynomials
 
-	if (iopt == 1) {
-		PRINTF("  =================================================\n");
-		PRINTF("  Generalized Gaussian quadrature weights and nodes:\n");
-		PRINTF("  -------------------------------------------------\n");
-        for (int i=0; i<n; i++) {
-			PRINTF("  node[%d] %.22Lg   wght[%d] %.22Lg\n",i, node[i], i, wght[i]);
-		}// end for i
-		PRINTF("  =================================================\n\n");
-
+ 	if (iopt == 1) {
 		PRINTF("  =================================================\n");
 		PRINTF("  Test integrals of 2n-1 moments using the quadrature:\n");
-		PRINTF("-  ------------------------------------------------\n");
+		PRINTF("  ------------------------------------------------\n");
 		testgrid(n, wght, poly, iopt, ierr_ortho);
-		PRINTF("  =================================================\n\n");
-	} else {
+		PRINTF("  =================================================\n");
+        } else {
 		testgrid(n, wght, poly, iopt, ierr_ortho);
 	}// end if
 	
+//==========================================================================
+// Ourput the results if verbose
+
+ 	if (iopt == 1) {
+	        PRINTF("\n");
+		PRINTF("  =================================================\n");
+		PRINTF("  Generalized Gaussian quadrature weights and nodes:\n");
+		PRINTF("  -------------------------------------------------\n");
+                for (int i=0; i<n; i++) {
+			PRINTF("  node[%d] %.22Lg   wght[%d] %.22Lg\n",i, node[i], i, wght[i]);
+		}// end for i
+                PRINTF("  =================================================\n\n");
+	}//endif
+
+//==========================================================================
+//  Error Summary
+
+ 	if (iopt == 1) {PRINTF("  =================================================\n");}
+        PRINTF("   Error summary:\n");
+ 	if (iopt == 1) {PRINTF("  ------------------------------------------------\n");}
 	if (ierr_zero[0] > 0 || ierr_ortho[0] > 0) {
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
-		PRINTF("  You have %d nodes out of error range!\n", ierr_zero[0]);
-		PRINTF("  You have %d ortho pairs out of error range!\n", ierr_ortho[0]);
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
+		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
+		PRINTF("      You have %d nodes out of error range!\n", ierr_zero[0]);
+		PRINTF("      You have %d ortho pairs out of error range!\n", ierr_ortho[0]);
+		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 		FFLUSH(stdout);
+	}else{
+	  PRINTF("     No errors detected\n");
 	} // end if
+ 	if (iopt == 1) {PRINTF("  =================================================\n");}
+
 //==========================================================================
 //  Clean up the memory
 	
@@ -304,30 +373,42 @@ void horner(int n, long double *a, long double x, long double *value){
 //==========================================================================
 // Test the nodes
 //==========================================================================
-void testnodes(int n, long double * x, long double * a, int iopt, int * ierrout) {
-	int ierr = 0;
-	long double err = 0.0L;
+void testnodes(int n, long double * x, long double * zero_vec, int iopt, int * ierrout) {
+ 	if (iopt == 1) {
+   	   PRINTF("  =================================================\n");
+	   PRINTF("  Test zeros obtained from companion matrix\n");
+	   PRINTF("  -------------------------------------------------\n");
+	}//endif
+        int ierr = 0;
+	long double err     = 0.0L;
+	long double err_avg = 0.0L;
 	for (int i=0; i<n; i++) {
-		long double zero = 0.0L;
-		horner(n+1, a, x[i], &zero);
-		if (fabsl(x[i]) > 1.0e-2) { zero /= fabsl(x[i]);}
-		err = MAX(err,fabsl(zero));
-		if (fabsl(zero) > 1.0e-5) {
-		  ierr++;
-		  if(iopt==1){PRINTF("  The %dth zero, %.10Lg, has eror %.10Lg\n", i,x[i],err);}
-		}//endif
+  	    long double zero = zero_vec[i];
+	    if (fabsl(x[i]) > 1.0e-2) { zero /= fabsl(x[i]);}
+	    err = MAX(err,fabsl(zero));
+	    err_avg += fabsl(zero);
+	    if (fabsl(zero) > 1.0e-5) {
+	      ierr++;
+	      if(iopt==1){PRINTF("  The %dth zero, %.10Lg, has eror %.10Lg\n", i,x[i],err);}
+	    }//endif
 	}//end for
+	err_avg /= ((long double) n);
+
+	if(ierr>0){PRINTF("\n");}
+        PRINTF("    The max and average err in your zeros are (%Lg, %Lg)\n", err,err_avg);
 	if (ierr > 0) {
 		if (iopt == 1) {PRINTF("\n");}
 		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 	  	PRINTF("    Max err in zeros %.10Lg > tolerance\n", err);
 		PRINTF("    for %d cases. Try root refinement\n", ierr);
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n\n");
+		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
 		FFLUSH(stdout);
 		if (err > 1.0L) {EXIT(1);}
-	}else{
-	  	PRINTF("  The maximum err in your zeros is %Lg\n\n", err);
-	} // end if
+	}//endif
+
+ 	if (iopt == 1) {PRINTF("  =================================================\n");}
+	PRINTF("\n");
+
 	ierrout[0] = ierr;
 //------------------------------------------------------------------
   } // end routine
@@ -346,6 +427,8 @@ void testgrid(int n, long double * w, POLY * poly, int iopt, int * ierrout) {
 
 	int ierr = 0;
 	long double errmax = 0.0L;
+	long double err_avg = 0.0L;
+	long double count   = 0.0L;
 	for (int k=0; k<n+1; k++) {
 		int iup = ((k != n)? k+1: n); 
 		long double * p_k = poly[k].p_at_nodes;
@@ -358,27 +441,32 @@ void testgrid(int n, long double * w, POLY * poly, int iopt, int * ierrout) {
 			long double ans = ((k == kp )? 1.0L : 0.0L);
 			long double err = fabsl(result - ans);
 			errmax = MAX(err,errmax);
+			err_avg += err;
+			count += 1.0L;
 			if (iopt == 1) {
-				PRINTF("  Ortho test %d, %d) = %.10Lg with error %.10Lg\n", k, kp, result, err);
+				PRINTF("      Ortho test %d, %d) = %.10Lg with error %.10Lg\n", k, kp, result, err);
 			} // end if
 			if (fabsl(err) > 1.0e-5 && iopt == 0) {
 				ierr++;
-				PRINTF("  Error out of range %.10Lg for ortho (%d, %d)\n", err, k, kp);
+				if(ierr==1){PRINTF("   Ortho test tolerence errors\n");}
+				PRINTF("      Ortho pair (%d, %d) error out of range %.10Lg \n", k, kp,err);
 			} // end if
 		}// end for kp
 	} //end for k
+	err_avg /= count;
 
-        if (iopt == 1) {PRINTF("\n");}
-	PRINTF("  The maximum err in your orthogonality test is %Lg\n", errmax);
-        if (iopt == 0) {PRINTF("\n");}
+        if (iopt == 1 || ierr>0) {PRINTF("\n");}
+	PRINTF("    The max and avg err in your orthogonality test are (%Lg , %Lg)\n", errmax,err_avg);
 
 	if (ierr > 0) {
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
-		PRINTF("  You have %d ortho pairs out of error range!\n", ierr);
-		PRINTF("  $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n\n");
+		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n");
+		PRINTF("       You have %d ortho pairs out of error range!\n", ierr);
+		PRINTF("    $$$$$$$$$$$$$$$$$$$$_warning_$$$$$$$$$$$$$$$$$$$$\n\n");
 		FFLUSH(stdout);
 //		EXIT(1);
 	} // end if
+        if (iopt == 0) {PRINTF("\n");}
+
 	ierrout[0] = ierr;
 //------------------------------------------------------------------
   } //end routine
