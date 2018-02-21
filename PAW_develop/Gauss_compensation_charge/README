@@ -1,2 +1,7 @@
 Run it like: ./model_PAW.x PAW.in n_r n_theta n_phi
 Currently: n_r <= 14
+
+For force checker: 
+./compile $1 _FORCECHECK_
+where $1 is FORT_UNDER_OFF for mac
+			FORT_UNDER     for other platforms 

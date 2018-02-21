@@ -612,12 +612,11 @@ void fTildeWorkUnit(int first, int last, void* result, int count, void* params) 
 
   FComputePacket* f_packet = (FComputePacket*)params;
   complex* fs = f_packet->fs;
-  int psi_size = f_packet->size;
   GWBSE *gwbse = GWBSE::get();
   int* nfft;
   nfft = gwbse->gw_parallel.fft_nelems;
-  int vector_count = 1;
-  int direction = -1;
+  int psi_size = nfft[0]*nfft[1]*nfft[2];
+  int direction = 1;
   int L = gwbse->gw_parallel.L;
   FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
 
@@ -627,11 +626,10 @@ void fTildeWorkUnit(int first, int last, void* result, int count, void* params) 
     fft_controller->setup_fftw_3d(nfft, direction);
     fftw_complex* in_pointer = fft_controller->get_in_pointer();
     fftw_complex* out_pointer = fft_controller->get_out_pointer();
-
     // Pack our data, do the fft, then get the output
     put_into_fftbox(nfft, &fs[i*psi_size], in_pointer);
     fft_controller->do_fftw();
-    fftbox_to_array(psi_size, out_pointer, &fs[i*psi_size], direction); //Now cached on the same partitions
+    fftbox_to_array(psi_size, out_pointer, &fs[i*psi_size], 1.0); //Now cached on the same partitions
     // replace f_vector to f_tilde_vector
   }
 }
