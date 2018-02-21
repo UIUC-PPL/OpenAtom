@@ -256,7 +256,8 @@ int main (int argc, char *argv[]){
   double * xphi_master = new double [phiorder]; double * wphi_master = new double [phiorder];
   double * xtheta_master = new double [thetaorder]; double * wtheta_master = new double [thetaorder];
  
-  int kind = 1; double aaa = -1; double bbb = 1;
+  int kind = 0; 
+//double aaa = -1; double bbb = 1;
   int type = 2; int iopt = 0;
 // control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
   int ierr_zero1; int ierr_ortho1;

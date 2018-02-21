@@ -1,6 +1,6 @@
 #!/bin/bash
 rm res.dat
-echo "rorder E3D E0D f3D f0D" > res.dat
+echo "rorder E3D   E0D  E3D_A  E0D_A   f3D   f0D  f3D_A   f0D_A" > res.dat
 #for i in `seq 2 2 20`
 # do i2=`echo $i*2-2|bc -l`
 #	./model_PAW.x PAW.in 14 $i $i2 > tmp.txt
