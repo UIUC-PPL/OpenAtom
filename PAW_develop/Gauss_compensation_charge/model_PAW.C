@@ -89,7 +89,8 @@ int main (int argc, char *argv[]){
 
     if(argc < 5) {
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-      PRINTF("No input file specified: model_PAW.x PAW.in rorder thetaorder phiorder\n");
+      PRINTF("No input file specified!\n");
+      PRINTF("Run it like: ./model_PAW.x PAW.in rorder thetaorder phiorder\n");
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       FFLUSH(stdout);
       EXIT(1);

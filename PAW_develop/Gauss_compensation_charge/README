@@ -1,0 +1,2 @@
+Run it like: ./model_PAW.x PAW.in n_r n_theta n_phi
+Currently: n_r <= 14
