@@ -258,7 +258,9 @@ int main (int argc, char *argv[]){
  
   int kind = 1; double aaa = -1; double bbb = 1;
   int type = 2; int iopt = 0;
-  control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
+// control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
+  int ierr_zero1; int ierr_ortho1;
+  gen_Gauss_quad_driver(kind, thetaorder, iopt, xtheta_master, wtheta_master, &ierr_zero1, &ierr_ortho1);
 
   int ierr_zero; int ierr_ortho;
   gen_Gauss_quad_driver(type, rorder, iopt, xr_master, wr_master, &ierr_zero, &ierr_ortho);
