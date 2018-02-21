@@ -47,7 +47,7 @@ int main (int argc, char *argv[]){
   int rorder;
   int thetaorder; 
   int phiorder;    // grid sizes
-  int lmax = 3;									// maximum angular momentum
+  int lmax;									// maximum angular momentum
   double delta = 1e-6;
 
   ESTRUCT energy;		// compensation charge energy terms stored nicely
@@ -100,9 +100,10 @@ int main (int argc, char *argv[]){
   // Read the user specified input file: atoms, Ewald parameters, core density parameters and box
   // store the information
 
-  rorder = atoi(argv[2]);
+  rorder 	 = atoi(argv[2]);
   thetaorder = atoi(argv[3]);
-  phiorder = atoi(argv[4]);
+  phiorder   = atoi(argv[4]);
+  lmax 	 	 = atoi(argv[5]);
   strcpy(fnameIn, argv[1]);
   PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
   fp = fopen(fnameIn,"r");
