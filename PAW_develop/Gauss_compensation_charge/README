@@ -1,4 +1,4 @@
-Run it like: ./model_PAW.x PAW.in n_r n_theta n_phi
+Run it like: ./model_PAW.x PAW.in n_r n_theta n_phi l_max
 Currently: n_r <= 14
 
 For force checker: 
