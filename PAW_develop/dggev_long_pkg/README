@@ -1,9 +1,7 @@
 We go through all these routines, and change any routine that has a double precision number in the call
-	or in the body to the same name_long 
-Next, we make sure we call the _long rountines where needed by dggev
-We delete any routine we did not rename
-We make a little compile script for the renaming routines which we will package into a library called "dggev_long"
-When we try this, we link dggev_long and lapack
+	or in the body to the same name just replacing d with q (dggev goes to qggev)
+We also change the file name from d to q (dggev.f goes to qggev)
+Next, we make sure we call the q rountines where needed and update external statements
 
 Command to wrap .o into a library
 ar rvs libacme.a file1.o file2.o file3.o 
