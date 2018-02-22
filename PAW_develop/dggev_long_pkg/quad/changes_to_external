@@ -1,86 +1,43 @@
-qgeqr2.f:*     .. External Subroutines ..
 qgeqr2.f:      EXTERNAL           DLARF, DLARFG, XERBLA
-qgeqrf.f:*     .. External Subroutines ..
 qgeqrf.f:      EXTERNAL           DGEQR2, DLARFB, DLARFT, XERBLA
-qgeqrf.f:*     .. External Functions ..
 qgeqrf.f:      EXTERNAL           ILAENV
-qggbak.f:*     .. External Functions ..
 qggbak.f:      EXTERNAL           LSAME
-qggbak.f:*     .. External Subroutines ..
 qggbak.f:      EXTERNAL           DSCAL, DSWAP, XERBLA
-qggbal.f:*     .. External Functions ..
 qggbal.f:      EXTERNAL           LSAME, IDAMAX, DDOT, DLAMCH
-qggbal.f:*     .. External Subroutines ..
 qggbal.f:      EXTERNAL           DAXPY, DSCAL, DSWAP, XERBLA
-qggev.f:*     .. External Subroutines ..
 qggev.f:      EXTERNAL           DGEQRF, DGGBAK, DGGBAL, DGGHRD, DHGEQZ, DLABAD,
-qggev.f:*     .. External Functions ..
 qggev.f:      EXTERNAL           LSAME, ILAENV, DLAMCH, DLANGE
-qgghrd.f:*     .. External Functions ..
 qgghrd.f:      EXTERNAL           LSAME
-qgghrd.f:*     .. External Subroutines ..
 qgghrd.f:      EXTERNAL           DLARTG, DLASET, DROT, XERBLA
-qhgeqz.f:*     .. External Functions ..
 qhgeqz.f:      EXTERNAL           LSAME, DLAMCH, DLANHS, DLAPY2, DLAPY3
-qhgeqz.f:*     .. External Subroutines ..
 qhgeqz.f:      EXTERNAL           DLAG2, DLARFG, DLARTG, DLASET, DLASV2, DROT,
-qisnan.f:*  .. External Functions ..
 qisnan.f:      EXTERNAL DLAISNAN
-qlacpy.f:*     .. External Functions ..
 qlacpy.f:      EXTERNAL           LSAME
-qlaln2.f:*     .. External Functions ..
 qlaln2.f:      EXTERNAL           DLAMCH
-qlaln2.f:*     .. External Subroutines ..
 qlaln2.f:      EXTERNAL           DLADIV
-qlange.f:*     .. External Subroutines ..
 qlange.f:      EXTERNAL           DLASSQ
-qlange.f:*     .. External Functions ..
 qlange.f:      EXTERNAL           LSAME
-qlanhs.f:*     .. External Subroutines ..
 qlanhs.f:      EXTERNAL           DLASSQ
-qlanhs.f:*     .. External Functions ..
 qlanhs.f:      EXTERNAL           LSAME
-qlarfb.f:*     .. External Functions ..
 qlarfb.f:      EXTERNAL           LSAME, ILADLR, ILADLC
-qlarfb.f:*     .. External Subroutines ..
 qlarfb.f:      EXTERNAL           DCOPY, DGEMM, DTRMM
-qlarf.f:*     .. External Subroutines ..
 qlarf.f:      EXTERNAL           DGEMV, DGER
-qlarf.f:*     .. External Functions ..
 qlarf.f:      EXTERNAL           LSAME, ILADLR, ILADLC
-qlarfg.f:*     .. External Functions ..
 qlarfg.f:      EXTERNAL           DLAMCH, DLAPY2, DNRM2
-qlarfg.f:*     .. External Subroutines ..
 qlarfg.f:      EXTERNAL           DSCAL
-qlarft.f:*     .. External Subroutines ..
 qlarft.f:      EXTERNAL           DGEMV, DTRMV
-qlarft.f:*     .. External Functions ..
 qlarft.f:      EXTERNAL           LSAME
-qlartg.f:*     .. External Functions ..
 qlartg.f:      EXTERNAL           DLAMCH
-qlascl.f:*     .. External Functions ..
 qlascl.f:      EXTERNAL           LSAME, DLAMCH, DISNAN
-qlascl.f:*     .. External Subroutines ..
 qlascl.f:      EXTERNAL           XERBLA
-qlaset.f:*     .. External Functions ..
 qlaset.f:      EXTERNAL           LSAME
-qlasv2.f:*     .. External Functions ..
 qlasv2.f:      EXTERNAL           DLAMCH
-qorg2r.f:*     .. External Subroutines ..
 qorg2r.f:      EXTERNAL           DLARF, DSCAL, XERBLA
-qorgqr.f:*     .. External Subroutines ..
 qorgqr.f:      EXTERNAL           DLARFB, DLARFT, DORG2R, XERBLA
-qorgqr.f:*     .. External Functions ..
 qorgqr.f:      EXTERNAL           ILAENV
-qorm2r.f:*     .. External Functions ..
 qorm2r.f:      EXTERNAL           LSAME
-qorm2r.f:*     .. External Subroutines ..
 qorm2r.f:      EXTERNAL           DLARF, XERBLA
-qormqr.f:*     .. External Functions ..
 qormqr.f:      EXTERNAL           LSAME, ILAENV
-qormqr.f:*     .. External Subroutines ..
 qormqr.f:      EXTERNAL           DLARFB, DLARFT, DORM2R, XERBLA
-qtgevc.f:*     .. External Functions ..
 qtgevc.f:      EXTERNAL           LSAME, DLAMCH
-qtgevc.f:*     .. External Subroutines ..
 qtgevc.f:      EXTERNAL           DGEMV, DLABAD, DLACPY, DLAG2, DLALN2, XERBLA
