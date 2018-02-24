@@ -1,10 +1,10 @@
-      SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
+      SUBROUTINE QAXPY(N,DA,DX,INCX,DY,INCY)
 *     .. Scalar Arguments ..
-      DOUBLE PRECISION DA
+      REAL*16 DA
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      REAL*16 DX(*),DY(*)
 *     ..
 *
 *  Purpose
@@ -28,7 +28,7 @@
       INTRINSIC MOD
 *     ..
       IF (N.LE.0) RETURN
-      IF (DA.EQ.0.0d0) RETURN
+      IF (DA.EQ.0.0q0) RETURN
       IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
 *
 *        code for both increments equal to 1

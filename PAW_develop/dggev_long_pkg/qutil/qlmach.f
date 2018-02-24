@@ -1,9 +1,9 @@
-      DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
+      REAL*16 FUNCTION QLAMCH( CMACH )
 *
 *  -- LAPACK auxiliary routine (version 3.3.0) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     Based on LAPACK DLAMCH but with Fortran 95 query functions
+*     Based on LAPACK QLAMCH but with Fortran 95 query functions
 *     See: http://www.cs.utk.edu/~luszczek/lapack/lamch.html
 *     and  http://www.netlib.org/lapack-dev/lapack-coding/program-style.html#id2537289
 *     July 2010
@@ -15,23 +15,23 @@
 *  Purpose
 *  =======
 *
-*  DLAMCH determines double precision machine parameters.
+*  QLAMCH determines real*16 machine parameters.
 *
 *  Arguments
 *  =========
 *
 *  CMACH   (input) CHARACTER*1
-*          Specifies the value to be returned by DLAMCH:
-*          = 'E' or 'e',   DLAMCH := eps
-*          = 'S' or 's ,   DLAMCH := sfmin
-*          = 'B' or 'b',   DLAMCH := base
-*          = 'P' or 'p',   DLAMCH := eps*base
-*          = 'N' or 'n',   DLAMCH := t
-*          = 'R' or 'r',   DLAMCH := rnd
-*          = 'M' or 'm',   DLAMCH := emin
-*          = 'U' or 'u',   DLAMCH := rmin
-*          = 'L' or 'l',   DLAMCH := emax
-*          = 'O' or 'o',   DLAMCH := rmax
+*          Specifies the value to be returned by QLAMCH:
+*          = 'E' or 'e',   QLAMCH := eps
+*          = 'S' or 's ,   QLAMCH := sfmin
+*          = 'B' or 'b',   QLAMCH := base
+*          = 'P' or 'p',   QLAMCH := eps*base
+*          = 'N' or 'n',   QLAMCH := t
+*          = 'R' or 'r',   QLAMCH := rnd
+*          = 'M' or 'm',   QLAMCH := emin
+*          = 'U' or 'u',   QLAMCH := rmin
+*          = 'L' or 'l',   QLAMCH := emax
+*          = 'O' or 'o',   QLAMCH := rmax
 *
 *          where
 *
@@ -49,11 +49,11 @@
 * =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION   ONE, ZERO
-      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      REAL*16   ONE, ZERO
+      PARAMETER          ( ONE = 1.0Q+0, ZERO = 0.0Q+0 )
 *     ..
 *     .. Local Scalars ..
-      DOUBLE PRECISION   RND, EPS, SFMIN, SMALL, RMACH
+      REAL*16   RND, EPS, SFMIN, SMALL, RMACH
 *     ..
 *     .. External Functions ..
       LOGICAL            LSAME
@@ -109,22 +109,22 @@
          RMACH = ZERO
       END IF
 *
-      DLAMCH = RMACH
+      QLAMCH = RMACH
       RETURN
 *
-*     End of DLAMCH
+*     End of QLAMCH
 *
       END
 ************************************************************************
 *
-      DOUBLE PRECISION FUNCTION DLAMC3( A, B )
+      REAL*16 FUNCTION DLAMC3( A, B )
 *
 *  -- LAPACK auxiliary routine (version 3.3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
 *     November 2010
 *
 *     .. Scalar Arguments ..
-      DOUBLE PRECISION   A, B
+      REAL*16   A, B
 *     ..
 *
 *  Purpose
@@ -137,8 +137,8 @@
 *  Arguments
 *  =========
 *
-*  A       (input) DOUBLE PRECISION
-*  B       (input) DOUBLE PRECISION
+*  A       (input) REAL*16
+*  B       (input) REAL*16
 *          The values A and B.
 *
 * =====================================================================

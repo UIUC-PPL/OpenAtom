@@ -1,4 +1,4 @@
-      INTEGER FUNCTION ILADLR( M, N, A, LDA )
+      INTEGER FUNCTION ILAQLR( M, N, A, LDA )
       IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine (version 3.3.1)                        --
@@ -10,13 +10,13 @@
       INTEGER            M, N, LDA
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION   A( LDA, * )
+      REAL*16   A( LDA, * )
 *     ..
 *
 *  Purpose
 *  =======
 *
-*  ILADLR scans A for its last non-zero row.
+*  ILAQLR scans A for its last non-zero row.
 *
 *  Arguments
 *  =========
@@ -27,7 +27,7 @@
 *  N       (input) INTEGER
 *          The number of columns of the matrix A.
 *
-*  A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+*  A       (input) REAL*16 array, dimension (LDA,N)
 *          The m by n matrix A.
 *
 *  LDA     (input) INTEGER
@@ -36,8 +36,8 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION ZERO
-      PARAMETER ( ZERO = 0.0D+0 )
+      REAL*16 ZERO
+      PARAMETER ( ZERO = 0.0Q+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER I, J
@@ -46,18 +46,18 @@
 *
 *     Quick test for the common case where one corner is non-zero.
       IF( M.EQ.0 ) THEN
-         ILADLR = M
+         ILAQLR = M
       ELSE IF( A(M, 1).NE.ZERO .OR. A(M, N).NE.ZERO ) THEN
-         ILADLR = M
+         ILAQLR = M
       ELSE
 *     Scan up each column tracking the last zero row seen.
-         ILADLR = 0
+         ILAQLR = 0
          DO J = 1, N
             I=M
             DO WHILE ((A(I,J).NE.ZERO).AND.(I.GE.1))
               I=I-1
             ENDDO
-            ILADLR = MAX( ILADLR, I )
+            ILAQLR = MAX( ILAQLR, I )
          END DO
       END IF
       RETURN

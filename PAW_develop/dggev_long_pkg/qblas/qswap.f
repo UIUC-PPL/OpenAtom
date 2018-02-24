@@ -1,9 +1,9 @@
-      SUBROUTINE DSWAP(N,DX,INCX,DY,INCY)
+      SUBROUTINE QSWAP(N,DX,INCX,DY,INCY)
 *     .. Scalar Arguments ..
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      REAL*16 DX(*),DY(*)
 *     ..
 *
 *  Purpose
@@ -21,7 +21,7 @@
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      DOUBLE PRECISION DTEMP
+      REAL*16 DTEMP
       INTEGER I,IX,IY,M,MP1
 *     ..
 *     .. Intrinsic Functions ..

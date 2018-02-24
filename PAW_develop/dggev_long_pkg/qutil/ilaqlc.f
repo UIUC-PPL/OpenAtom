@@ -1,4 +1,4 @@
-      INTEGER FUNCTION ILADLC( M, N, A, LDA )
+      INTEGER FUNCTION ILAQLC( M, N, A, LDA )
       IMPLICIT NONE
 *
 *  -- LAPACK auxiliary routine (version 3.2.2)                        --
@@ -12,13 +12,13 @@
       INTEGER            M, N, LDA
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION   A( LDA, * )
+      REAL*16  A( LDA, * )
 *     ..
 *
 *  Purpose
 *  =======
 *
-*  ILADLC scans A for its last non-zero column.
+*  ILAQLC scans A for its last non-zero column.
 *
 *  Arguments
 *  =========
@@ -29,7 +29,7 @@
 *  N       (input) INTEGER
 *          The number of columns of the matrix A.
 *
-*  A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+*  A       (input) REAL*16 array, dimension (LDA,N)
 *          The m by n matrix A.
 *
 *  LDA     (input) INTEGER
@@ -38,8 +38,8 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION ZERO
-      PARAMETER ( ZERO = 0.0D+0 )
+      REAL*16 ZERO
+      PARAMETER ( ZERO = 0.0Q+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER I
@@ -48,14 +48,14 @@
 *
 *     Quick test for the common case where one corner is non-zero.
       IF( N.EQ.0 ) THEN
-         ILADLC = N
+         ILAQLC = N
       ELSE IF( A(1, N).NE.ZERO .OR. A(M, N).NE.ZERO ) THEN
-         ILADLC = N
+         ILAQLC = N
       ELSE
 *     Now scan each column from the end, returning with the first non-zero.
-         DO ILADLC = N, 1, -1
+         DO ILAQLC = N, 1, -1
             DO I = 1, M
-               IF( A(I, ILADLC).NE.ZERO ) RETURN
+               IF( A(I, ILAQLC).NE.ZERO ) RETURN
             END DO
          END DO
       END IF

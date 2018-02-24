@@ -1,10 +1,10 @@
-      SUBROUTINE DSCAL(N,DA,DX,INCX)
+      SUBROUTINE QSCAL(N,DA,DX,INCX)
 *     .. Scalar Arguments ..
-      DOUBLE PRECISION DA
+      REAL*16 DA
       INTEGER INCX,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*)
+      REAL*16 DX(*)
 *     ..
 *
 *  Purpose

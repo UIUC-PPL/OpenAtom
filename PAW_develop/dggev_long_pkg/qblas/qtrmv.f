@@ -1,10 +1,10 @@
-      SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
+      SUBROUTINE QTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 *     .. Scalar Arguments ..
       INTEGER INCX,LDA,N
       CHARACTER DIAG,TRANS,UPLO
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION A(LDA,*),X(*)
+      REAL*16 A(LDA,*),X(*)
 *     ..
 *
 *  Purpose
@@ -58,7 +58,7 @@
 *           N must be at least zero.
 *           Unchanged on exit.
 *
-*  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+*  A      - REAL*16 array of DIMENSION ( LDA, n ).
 *           Before entry with  UPLO = 'U' or 'u', the leading n by n
 *           upper triangular part of the array A must contain the upper
 *           triangular matrix and the strictly lower triangular part of
@@ -77,7 +77,7 @@
 *           max( 1, n ).
 *           Unchanged on exit.
 *
-*  X      - DOUBLE PRECISION array of dimension at least
+*  X      - REAL*16 array of dimension at least
 *           ( 1 + ( n - 1 )*abs( INCX ) ).
 *           Before entry, the incremented array X must contain the n
 *           element vector x. On exit, X is overwritten with the
@@ -103,11 +103,11 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION ZERO
-      PARAMETER (ZERO=0.0D+0)
+      REAL*16 ZERO
+      PARAMETER (ZERO=0.0Q+0)
 *     ..
 *     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
+      REAL*16 TEMP
       INTEGER I,INFO,IX,J,JX,KX
       LOGICAL NOUNIT
 *     ..

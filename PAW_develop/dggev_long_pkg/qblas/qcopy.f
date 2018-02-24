@@ -1,9 +1,9 @@
-      SUBROUTINE DCOPY(N,DX,INCX,DY,INCY)
+      SUBROUTINE QCOPY(N,DX,INCX,DY,INCY)
 *     .. Scalar Arguments ..
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      REAL*16 DX(*),DY(*)
 *     ..
 *
 *  Purpose

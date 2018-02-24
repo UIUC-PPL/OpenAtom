@@ -1,10 +1,10 @@
       SUBROUTINE DROT(N,DX,INCX,DY,INCY,C,S)
 *     .. Scalar Arguments ..
-      DOUBLE PRECISION C,S
+      REAL*16 C,S
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      REAL*16 DX(*),DY(*)
 *     ..
 *
 *  Purpose
@@ -21,7 +21,7 @@
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      DOUBLE PRECISION DTEMP
+      REAL*16 DTEMP
       INTEGER I,IX,IY
 *     ..
       IF (N.LE.0) RETURN

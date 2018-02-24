@@ -1,9 +1,9 @@
-      DOUBLE PRECISION FUNCTION DNRM2(N,X,INCX)
+      REAL*16 FUNCTION QNRM2(N,X,INCX)
 *     .. Scalar Arguments ..
       INTEGER INCX,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION X(*)
+      REAL*16 X(*)
 *     ..
 *
 *  Purpose
@@ -24,11 +24,11 @@
 *  =====================================================================
 *
 *     .. Parameters ..
-      DOUBLE PRECISION ONE,ZERO
-      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+      REAL*16 ONE,ZERO
+      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
 *     ..
 *     .. Local Scalars ..
-      DOUBLE PRECISION ABSXI,NORM,SCALE,SSQ
+      REAL*16 ABSXI,NORM,SCALE,SSQ
       INTEGER IX
 *     ..
 *     .. Intrinsic Functions ..

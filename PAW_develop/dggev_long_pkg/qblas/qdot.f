@@ -1,9 +1,9 @@
-      DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
+      REAL*16 FUNCTION QDOT(N,DX,INCX,DY,INCY)
 *     .. Scalar Arguments ..
       INTEGER INCX,INCY,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      REAL*16 DX(*),DY(*)
 *     ..
 *
 *  Purpose
@@ -21,14 +21,14 @@
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      DOUBLE PRECISION DTEMP
+      REAL*16 DTEMP
       INTEGER I,IX,IY,M,MP1
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC MOD
 *     ..
-      DDOT = 0.0d0
-      DTEMP = 0.0d0
+      DDOT = 0.0q0
+      DTEMP = 0.0q0
       IF (N.LE.0) RETURN
       IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
 *
