@@ -105,7 +105,7 @@
 *
 *     .. Parameters ..
       REAL*16 ONE,ZERO
-      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
+*      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
 *     ..
 *     .. Local Scalars ..
       REAL*16 TEMP
@@ -124,6 +124,8 @@
 *
 *     Test the input parameters.
 *
+      ONE=1.0Q+0
+      ZERO=0.0Q+0
       INFO = 0
       IF (.NOT.LSAME(TRANS,'N') .AND. .NOT.LSAME(TRANS,'T') .AND.
      +    .NOT.LSAME(TRANS,'C')) THEN

@@ -37,7 +37,7 @@
 *
 *     .. Parameters ..
       REAL*16 ZERO
-      PARAMETER ( ZERO = 0.0Q+0 )
+*      PARAMETER ( ZERO = 0.0Q+0 )
 *     ..
 *     .. Local Scalars ..
       INTEGER I, J
@@ -45,6 +45,7 @@
 *     .. Executable Statements ..
 *
 *     Quick test for the common case where one corner is non-zero.
+      ZERO = 0.0Q+0
       IF( M.EQ.0 ) THEN
          ILAQLR = M
       ELSE IF( A(M, 1).NE.ZERO .OR. A(M, N).NE.ZERO ) THEN

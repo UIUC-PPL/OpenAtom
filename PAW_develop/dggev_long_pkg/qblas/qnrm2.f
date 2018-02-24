@@ -25,7 +25,7 @@
 *
 *     .. Parameters ..
       REAL*16 ONE,ZERO
-      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
+*      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
 *     ..
 *     .. Local Scalars ..
       REAL*16 ABSXI,NORM,SCALE,SSQ
@@ -34,6 +34,8 @@
 *     .. Intrinsic Functions ..
       INTRINSIC ABS,SQRT
 *     ..
+      ONE=1.0Q+0
+      ZERO=0.0Q+0
       IF (N.LT.1 .OR. INCX.LT.1) THEN
           NORM = ZERO
       ELSE IF (N.EQ.1) THEN

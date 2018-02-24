@@ -148,13 +148,15 @@
 *     ..
 *     .. Parameters ..
       REAL*16 ONE,ZERO
-      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
+*      PARAMETER (ONE=1.0Q+0,ZERO=0.0Q+0)
 *     ..
 *
 *     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not
 *     transposed and set  NROWA, NCOLA and  NROWB  as the number of rows
 *     and  columns of  A  and the  number of  rows  of  B  respectively.
 *
+      ONE=1.0Q+0
+      ZERO=0.0Q+0
       NOTA = LSAME(TRANSA,'N')
       NOTB = LSAME(TRANSB,'N')
       IF (NOTA) THEN

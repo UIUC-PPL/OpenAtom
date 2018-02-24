@@ -50,7 +50,7 @@
 *
 *     .. Parameters ..
       REAL*16   ONE, ZERO
-      PARAMETER          ( ONE = 1.0Q+0, ZERO = 0.0Q+0 )
+*      PARAMETER          ( ONE = 1.0Q+0, ZERO = 0.0Q+0 )
 *     ..
 *     .. Local Scalars ..
       REAL*16   RND, EPS, SFMIN, SMALL, RMACH
@@ -68,6 +68,8 @@
 *
 *     Assume rounding, not chopping. Always.
 *
+      ONE = 1.0Q+0
+      ZERO = 0.0Q+0
       RND = ONE
 *
       IF( ONE.EQ.RND ) THEN

@@ -104,7 +104,7 @@
 *
 *     .. Parameters ..
       REAL*16 ZERO
-      PARAMETER (ZERO=0.0Q+0)
+*      PARAMETER (ZERO=0.0Q+0)
 *     ..
 *     .. Local Scalars ..
       REAL*16 TEMP
@@ -124,6 +124,7 @@
 *
 *     Test the input parameters.
 *
+      ZERO=0.0Q+0
       INFO = 0
       IF (.NOT.LSAME(UPLO,'U') .AND. .NOT.LSAME(UPLO,'L')) THEN
           INFO = 1
