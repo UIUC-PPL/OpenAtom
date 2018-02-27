@@ -642,7 +642,7 @@ void FVectorCache::computeFTilde(complex *fs_in){
   f_packet.fs = fs_in;
   
   
-#ifdef USE_CKLOOP
+#if 0//ifdef USE_CKLOOP
   CkLoop_Parallelize(fTildeWorkUnit, 1, &f_packet, n_list_size, 0, n_list_size - 1);
 #else
     fTildeWorkUnit(0,0,NULL,1,&f_packet);
