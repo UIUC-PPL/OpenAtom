@@ -12,65 +12,40 @@
 
 #include "standard_include.h"
 
-#include "driver.h"
+#include "gen_Gauss_quad_driver_entry.h"
+#include "gen_Gauss_quad_driver_local.h"
 #include "gen_Gauss_quad_entry.h"
 
-int main(int, char **);
+#define _LOG_METHOD_
+
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //==========================================================================
 //  Main Program : Controller for generalized Gaussian quadrature using 
 //				   companion matrix 
 //==========================================================================
-int main (int argc, char *argv[]){
+void gen_Gauss_quad_driver (int type, int n, int iopt, double * nodes_dbl, double * wghts_dbl, int * ierr_zero_out, int * ierr_ortho_out){
 //==========================================================================
-// Local variables
-	int type;    // type of weighting function
-	int n;       // power = order of Gauss quadrature
-	int iopt;    // output option
+//  Local variables
+	int ierr_zero;
+	int ierr_ortho;
+
+//==========================================================================
+//  Tell the user what you are doing 
+
+    PRINTF("\n");
+    PRINT_LINE_STAR;
+    PRINTF("Generating generalized Gaussian quadrature for weight type = %d and order n = %d\n", type, n);
+    PRINT_LINE_DASH;
+    PRINTF("\n");
 	
-//==========================================================================
-// read in the power and the type of weighting function
-// 	 type 0: uniform on -1 to 1
-//	 type 1: Gaussian on -infty to infty
-//	 type 2: Gaussian on 0 to infty
-//	 power n: > 0
-//	 iopt = 0 is quiet, and iopt = 1 is verbose
-//=========================================================================
-
-	if(argc < 4) {
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		PRINTF("Insufficient parameters specified\n");
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		FFLUSH(stdout);
-		EXIT(1);
-	}/*endif*/
-
-	sscanf(argv[1],"%d", &type);
-	sscanf(argv[2],"%d", &n);
-	sscanf(argv[3],"%d", &iopt);
-
-	if (n < 1 || type < 0 || type > 2 || iopt < 0 || iopt > 1) {
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		PRINTF("Parameters out of range\n");
-		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
-		FFLUSH(stdout);
-		EXIT(1);
-	}/*endif*/
-		
-	PRINTF("\n");
-	PRINT_LINE_STAR;
-	PRINTF("Generating generalized Gaussian quadrature for weight type = %d and order n = %d\n", type, n);
-	PRINT_LINE_DASH;
-	PRINTF("\n");
-
 //==========================================================================
 //	Fetch the integrals of powers of x over the desired weight 
 //  Hard coding a for now
 
-	double * Int_xpow     = new double [2*n + 1]; 
-	double * Int_xpow_log = new double [2*n + 1]; 
-	double * Int_xpow_sgn = new double [2*n + 1]; 
+	long double * Int_xpow     = new long double [2*n + 1]; 
+	long double * Int_xpow_log = new long double [2*n + 1]; 
+	long double * Int_xpow_sgn = new long double [2*n + 1]; 
 	int * Int_xpow_zero   = new int [2*n + 1]; 
 	switch(type) {
 		case 0: // w(x) = 1; [-1, 1] 
@@ -87,15 +62,35 @@ int main (int argc, char *argv[]){
 			EXIT(1);
 	}//end switch
 
-	double * w = new double [n]; // Gauss quad weight
-	double * x = new double [n]; // Gauss quad node
+#ifdef _LOG_METHOD_
+	for (int i=0; i<2*n+1; i++) {
+		if (Int_xpow_zero[i] == 0) {Int_xpow[i] = Int_xpow_sgn[i]*exp(Int_xpow_log[i]);}
+	} // end for i
+#endif
 
-	gen_Gauss_quad(n, Int_xpow, Int_xpow_log, Int_xpow_sgn, Int_xpow_zero, w, x, iopt);
+//==========================================================================
+//	Fetch the weights and nodes 
+
+	long double * w = new long double [n]; // Gauss quad weight
+	long double * x = new long double [n]; // Gauss quad node
+
+	gen_Gauss_quad(n, Int_xpow, Int_xpow_log, Int_xpow_sgn, Int_xpow_zero, w, x, iopt, &ierr_zero, &ierr_ortho);
+
+	ierr_zero_out[0] = ierr_zero; 
+	ierr_ortho_out[0] = ierr_ortho; 
+
+	for (int i=0; i<n; i++) {
+		nodes_dbl[i] = ((double) x[i]);
+		wghts_dbl[i] = ((double) w[i]);
+	}// end for i
 
 	delete [] Int_xpow;
 	delete [] Int_xpow_log;
 	delete [] Int_xpow_sgn;
 	delete [] Int_xpow_zero;
+
+//==========================================================================
+//	Check the weights and nodes 
 
 	switch(type) {
 		case 0: // w(x) = 1; [-1, 1] 
@@ -110,7 +105,7 @@ int main (int argc, char *argv[]){
 			PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
 			FFLUSH(stdout);
 			EXIT(1);
-	}//end switch
+	}//end switch	
 
 //==========================================================================
 //	Tell the user we are done
@@ -123,7 +118,6 @@ int main (int argc, char *argv[]){
 //==========================================================================
 	delete [] x;
 	delete [] w;
-	return 1;
 } // end routine
 //==========================================================================
 
@@ -134,17 +128,17 @@ int main (int argc, char *argv[]){
 //==========================================================================
 // Integrals of powers of x over uniform weight on [-1,1]
 //==========================================================================
-void fetch_Int_xpow_uniform(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
+void fetch_Int_xpow_uniform(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
 	for (int i=0; i<2*n+1; i++) {
 		if (i%2 == 0) {
-			double ai = (double) i;
-			Int_xpow[i] = 2.0d/(1.0d + ai);
-			Int_xpow_log[i] = log(2.0d) - log(1.0d + ai);
-			Int_xpow_sgn[i] = 1.0d;
+			long double ai = (long double) i;
+			Int_xpow[i] = 2.0L/(1.0L + ai);
+			Int_xpow_log[i] = log(2.0L) - log(1.0L + ai);
+			Int_xpow_sgn[i] = 1.0L;
 			Int_xpow_zero[i] = 0;
 		} else {
-			Int_xpow[i] = 0.0d;
-			Int_xpow_sgn[i] = 1.0d;
+			Int_xpow[i] = 0.0L;
+			Int_xpow_sgn[i] = 1.0L;
 			Int_xpow_zero[i] = 1;
 		} // end if	
 	}// end for i
@@ -155,21 +149,21 @@ void fetch_Int_xpow_uniform(int n, double * Int_xpow, double * Int_xpow_log, dou
 //==========================================================================
 // Integrals of powers of x over Gaussian weight on [-inf,inf]
 //==========================================================================
-void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
-	Int_xpow[0] = sqrt(M_PI);
-	Int_xpow_log[0] = 0.5d*log(M_PI);
-	Int_xpow_sgn[0] = 1.0d;
+void fetch_Int_xpow_Gaussfull(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
+	Int_xpow[0] = sqrt(M_PI_QI);
+	Int_xpow_log[0] = 0.5L*log(M_PI_QI);
+	Int_xpow_sgn[0] = 1.0L;
 	Int_xpow_zero[0] = 0;
 	for (int i=1; i<2*n+1; i++) {
 		if (i%2 == 1) {
-			Int_xpow[i] = 0.0d;
-			Int_xpow_sgn[i] = 1.0d;
+			Int_xpow[i] = 0.0L;
+			Int_xpow_sgn[i] = 1.0L;
 			Int_xpow_zero[i] = 1;
 		} else {
-			double tmp = 0.5d*(((double) i)-1.0d);
+			long double tmp = 0.5L*(((long double) i)-1.0L);
 			Int_xpow[i] = Int_xpow[i-2]*tmp;
-			Int_xpow_log[i] += log(tmp);
-			Int_xpow_sgn[i] = 1.0d;
+			Int_xpow_log[i] = Int_xpow_log[i-2] + log(tmp);
+			Int_xpow_sgn[i] = 1.0L;
 			Int_xpow_zero[i] = 0;
 		} // end if
 	}// end for i
@@ -180,22 +174,22 @@ void fetch_Int_xpow_Gaussfull(int n, double * Int_xpow, double * Int_xpow_log, d
 //==========================================================================
 // Integrals of powers of x over Gaussian weight on [0,inf]
 //==========================================================================
-void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow, double * Int_xpow_log, double * Int_xpow_sgn, int * Int_xpow_zero){
-	Int_xpow[0]     = 0.5d*sqrt(M_PI);
-	Int_xpow_log[0] = 0.5d*log(M_PI) + log(0.5d);
-	Int_xpow_sgn[0] = 1.0d;
+void fetch_Int_xpow_Gausshalf(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
+	Int_xpow[0]     = 0.5L*sqrt(M_PI_QI);
+	Int_xpow_log[0] = 0.5L*log(M_PI_QI) + log(0.5L);
+	Int_xpow_sgn[0] = 1.0L;
 	Int_xpow_zero[0] = 0;
 
-	Int_xpow[1]      = 0.5d;
-	Int_xpow_log[1]  = log(0.5d);
-	Int_xpow_sgn[1]  = 1.0d;
+	Int_xpow[1]      = 0.5L;
+	Int_xpow_log[1]  = log(0.5L);
+	Int_xpow_sgn[1]  = 1.0L;
 	Int_xpow_zero[1] = 0;
 
 	for (int i=2; i<2*n+1; i++) {
-		double tmp = 0.5d*(((double) i)-1.0d);
+		long double tmp = 0.5L*(((long double) i)-1.0L);
 		Int_xpow[i]      = Int_xpow[i-2]*tmp;
 		Int_xpow_log[i]  = Int_xpow_log[i-2] + log(tmp);
-		Int_xpow_sgn[i]  = 1.0d;
+		Int_xpow_sgn[i]  = 1.0L;
 		Int_xpow_zero[i] = 0;
 	}// end for i
 }//end routine
@@ -206,12 +200,12 @@ void fetch_Int_xpow_Gausshalf(int n, double * Int_xpow, double * Int_xpow_log, d
 // Check the Legrendre nodes, although there is a theorem that the nodes lie
 //   on [-1,1], make sure they do.
 //==========================================================================
-void check_nodes_uniform(int n, double * x){
+void check_nodes_uniform(int n, long double * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] > 1.0d || x[i] < -1.0d) {
+		if (x[i] > 1.0L || x[i] < -1.0L) {
 			ierr++;
-			PRINTF("x[%d] = %.10g out of range!\n",i,x[i]);
+			PRINTF("x[%d] = %.10Lg out of range!\n",i,x[i]);
 		} // end if
 	}// end for
 	if (ierr > 0) {
@@ -229,12 +223,12 @@ void check_nodes_uniform(int n, double * x){
 // Check the Half space Gaussian nodes, although there is a theorem that the
 //    nodes lie on [0,\infty], check!
 //==========================================================================
-void check_nodes_Gausshalf(int n, double * x){
+void check_nodes_Gausshalf(int n, long double * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] < 0.0d) {
+		if (x[i] < 0.0L) {
 			ierr++;
-			PRINTF("x[%d] = %.10g out of range!\n",i,x[i]);
+			PRINTF("x[%d] = %.10Lg out of range!\n",i,x[i]);
 		} // end if
 	}// end for
 	if (ierr > 0) {

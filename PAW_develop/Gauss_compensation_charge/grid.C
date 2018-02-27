@@ -58,7 +58,7 @@ void SphericalHarmonicOnGrid(int l, int m, int thetaorder, double *xcostheta, in
 		case 0: {
 			for (int i=0; i<thetaorder; i++) {
 				for (int j=0; j<phiorder; j++) {
-					Ylm[i][j] = complex (1.0/2.0/sqrt(M_PI),0.0);
+					Ylm[i][j] = complex (1.0/2.0/sqrt(M_PI_QI),0.0);
 				}
 			}
 			break;
@@ -67,21 +67,21 @@ void SphericalHarmonicOnGrid(int l, int m, int thetaorder, double *xcostheta, in
 			if (m == -1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/2.0*sqrt(3.0/(2.0*M_PI))*xsintheta[i]*CkExpIm(-xphi[j]);
+						Ylm[i][j] = 1.0/2.0*sqrt(3.0/(2.0*M_PI_QI))*xsintheta[i]*CkExpIm(-xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 0) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/2.0*sqrt(3.0/(M_PI))*xcostheta[i];
+						Ylm[i][j] = 1.0/2.0*sqrt(3.0/(M_PI_QI))*xcostheta[i];
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -1.0/2.0*sqrt(3.0/(2.0*M_PI))*xsintheta[i]*CkExpIm(xphi[j]);
+						Ylm[i][j] = -1.0/2.0*sqrt(3.0/(2.0*M_PI_QI))*xsintheta[i]*CkExpIm(xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
@@ -91,35 +91,35 @@ void SphericalHarmonicOnGrid(int l, int m, int thetaorder, double *xcostheta, in
 			if (m == -2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(15.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*CkExpIm(-2.0*xphi[j]);
+						Ylm[i][j] = 1.0/4.0*sqrt(15.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*CkExpIm(-2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/2.0*sqrt(15.0/(2.0*M_PI))*xsintheta[i]*xcostheta[i]*CkExpIm(-1.0*xphi[j]);
+						Ylm[i][j] = 1.0/2.0*sqrt(15.0/(2.0*M_PI_QI))*xsintheta[i]*xcostheta[i]*CkExpIm(-1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 0) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(5.0/(1.0*M_PI))*(3.0*xcostheta[i]*xcostheta[i]-1.0);
+						Ylm[i][j] = 1.0/4.0*sqrt(5.0/(1.0*M_PI_QI))*(3.0*xcostheta[i]*xcostheta[i]-1.0);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -1.0/2.0*sqrt(15.0/(2.0*M_PI))*xsintheta[i]*xcostheta[i]*CkExpIm(1.0*xphi[j]);
+						Ylm[i][j] = -1.0/2.0*sqrt(15.0/(2.0*M_PI_QI))*xsintheta[i]*xcostheta[i]*CkExpIm(1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(15.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*CkExpIm(2.0*xphi[j]);
+						Ylm[i][j] = 1.0/4.0*sqrt(15.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*CkExpIm(2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
@@ -129,49 +129,49 @@ void SphericalHarmonicOnGrid(int l, int m, int thetaorder, double *xcostheta, in
 			if (m == -3) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/8.0*sqrt(35.0/(1.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(-3.0*xphi[j]);
+						Ylm[i][j] = 1.0/8.0*sqrt(35.0/(1.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(-3.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(105.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(-2.0*xphi[j]);
+						Ylm[i][j] = 1.0/4.0*sqrt(105.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(-2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/8.0*sqrt(21.0/(1.0*M_PI))*xsintheta[i]*(5*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(-1.0*xphi[j]);
+						Ylm[i][j] = 1.0/8.0*sqrt(21.0/(1.0*M_PI_QI))*xsintheta[i]*(5*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(-1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 0) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(7.0/(1.0*M_PI))*xcostheta[i]*(5*xcostheta[i]*xcostheta[i]-3.0);
+						Ylm[i][j] = 1.0/4.0*sqrt(7.0/(1.0*M_PI_QI))*xcostheta[i]*(5*xcostheta[i]*xcostheta[i]-3.0);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -1.0/8.0*sqrt(21.0/(1.0*M_PI))*xsintheta[i]*(5*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(1.0*xphi[j]);
+						Ylm[i][j] = -1.0/8.0*sqrt(21.0/(1.0*M_PI_QI))*xsintheta[i]*(5*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 1.0/4.0*sqrt(105.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(2.0*xphi[j]);
+						Ylm[i][j] = 1.0/4.0*sqrt(105.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 3) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -1.0/8.0*sqrt(35.0/(1.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(3.0*xphi[j]);
+						Ylm[i][j] = -1.0/8.0*sqrt(35.0/(1.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(3.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
@@ -181,63 +181,63 @@ void SphericalHarmonicOnGrid(int l, int m, int thetaorder, double *xcostheta, in
 			if (m == -4) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/16.0*sqrt(35.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(-4.0*xphi[j]);
+						Ylm[i][j] = 3.0/16.0*sqrt(35.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(-4.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -3) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/8.0*sqrt(35.0/(1.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(-3.0*xphi[j]);
+						Ylm[i][j] = 3.0/8.0*sqrt(35.0/(1.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(-3.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(-2.0*xphi[j]);
+						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(-2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == -1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(1.0*M_PI))*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]*xcostheta[i]-1.0*xcostheta[i])*CkExpIm(-1.0*xphi[j]);
+						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(1.0*M_PI_QI))*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]*xcostheta[i]-1.0*xcostheta[i])*CkExpIm(-1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 0) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/16.0*sqrt(1.0/(1.0*M_PI))*(35*pow(xcostheta[i],4) - 30*pow(xcostheta[i],2) + 3);
+						Ylm[i][j] = 3.0/16.0*sqrt(1.0/(1.0*M_PI_QI))*(35*pow(xcostheta[i],4) - 30*pow(xcostheta[i],2) + 3);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 1) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -3.0/8.0*sqrt(5.0/(1.0*M_PI))*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]*xcostheta[i]-1.0*xcostheta[i])*CkExpIm(1.0*xphi[j]);
+						Ylm[i][j] = -3.0/8.0*sqrt(5.0/(1.0*M_PI_QI))*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]*xcostheta[i]-1.0*xcostheta[i])*CkExpIm(1.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 2) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(2.0*xphi[j]);
+						Ylm[i][j] = 3.0/8.0*sqrt(5.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*(7*xcostheta[i]*xcostheta[i]-1.0)*CkExpIm(2.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 3) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = -3.0/8.0*sqrt(35.0/(1.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(3.0*xphi[j]);
+						Ylm[i][j] = -3.0/8.0*sqrt(35.0/(1.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xcostheta[i]*CkExpIm(3.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
 			if (m == 4) {
 				for (int i=0; i<thetaorder; i++) {
 					for (int j=0; j<phiorder; j++) {
-						Ylm[i][j] = 3.0/16.0*sqrt(35.0/(2.0*M_PI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(4.0*xphi[j]);
+						Ylm[i][j] = 3.0/16.0*sqrt(35.0/(2.0*M_PI_QI))*xsintheta[i]*xsintheta[i]*xsintheta[i]*xsintheta[i]*CkExpIm(4.0*xphi[j]);
 					} // end for i
 				} //end for j
 			}// end if
@@ -309,8 +309,8 @@ void genphigrid(int phiorder, double *w, double *x) {
 	double aorder = (double) phiorder;
 	for (int i=0; i<phiorder; i++) {
 		double ai = (double) i;
-		w[i] = (2.0*M_PI)/aorder;
-		x[i] = (2.0*M_PI)/aorder*ai;
+		w[i] = (2.0*M_PI_QI)/aorder;
+		x[i] = (2.0*M_PI_QI)/aorder*ai;
 	} //endfor
 } //end routine
 

@@ -1,0 +1,43 @@
+qgeqr2.f:      EXTERNAL           DLARF, DLARFG, XERBLA
+qgeqrf.f:      EXTERNAL           DGEQR2, DLARFB, DLARFT, XERBLA
+qgeqrf.f:      EXTERNAL           ILAENV
+qggbak.f:      EXTERNAL           LSAME
+qggbak.f:      EXTERNAL           DSCAL, DSWAP, XERBLA
+qggbal.f:      EXTERNAL           LSAME, IDAMAX, DDOT, DLAMCH
+qggbal.f:      EXTERNAL           DAXPY, DSCAL, DSWAP, XERBLA
+qggev.f:      EXTERNAL           DGEQRF, DGGBAK, DGGBAL, DGGHRD, DHGEQZ, DLABAD,
+qggev.f:      EXTERNAL           LSAME, ILAENV, DLAMCH, DLANGE
+qgghrd.f:      EXTERNAL           LSAME
+qgghrd.f:      EXTERNAL           DLARTG, DLASET, DROT, XERBLA
+qhgeqz.f:      EXTERNAL           LSAME, DLAMCH, DLANHS, DLAPY2, DLAPY3
+qhgeqz.f:      EXTERNAL           DLAG2, DLARFG, DLARTG, DLASET, DLASV2, DROT,
+qisnan.f:      EXTERNAL DLAISNAN
+qlacpy.f:      EXTERNAL           LSAME
+qlaln2.f:      EXTERNAL           DLAMCH
+qlaln2.f:      EXTERNAL           DLADIV
+qlange.f:      EXTERNAL           DLASSQ
+qlange.f:      EXTERNAL           LSAME
+qlanhs.f:      EXTERNAL           DLASSQ
+qlanhs.f:      EXTERNAL           LSAME
+qlarfb.f:      EXTERNAL           LSAME, ILADLR, ILADLC
+qlarfb.f:      EXTERNAL           DCOPY, DGEMM, DTRMM
+qlarf.f:      EXTERNAL           DGEMV, DGER
+qlarf.f:      EXTERNAL           LSAME, ILADLR, ILADLC
+qlarfg.f:      EXTERNAL           DLAMCH, DLAPY2, DNRM2
+qlarfg.f:      EXTERNAL           DSCAL
+qlarft.f:      EXTERNAL           DGEMV, DTRMV
+qlarft.f:      EXTERNAL           LSAME
+qlartg.f:      EXTERNAL           DLAMCH
+qlascl.f:      EXTERNAL           LSAME, DLAMCH, DISNAN
+qlascl.f:      EXTERNAL           XERBLA
+qlaset.f:      EXTERNAL           LSAME
+qlasv2.f:      EXTERNAL           DLAMCH
+qorg2r.f:      EXTERNAL           DLARF, DSCAL, XERBLA
+qorgqr.f:      EXTERNAL           DLARFB, DLARFT, DORG2R, XERBLA
+qorgqr.f:      EXTERNAL           ILAENV
+qorm2r.f:      EXTERNAL           LSAME
+qorm2r.f:      EXTERNAL           DLARF, XERBLA
+qormqr.f:      EXTERNAL           LSAME, ILAENV
+qormqr.f:      EXTERNAL           DLARFB, DLARFT, DORM2R, XERBLA
+qtgevc.f:      EXTERNAL           LSAME, DLAMCH
+qtgevc.f:      EXTERNAL           DGEMV, DLABAD, DLACPY, DLAG2, DLALN2, XERBLA

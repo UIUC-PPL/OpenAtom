@@ -1,0 +1,3 @@
+qaxpy.f:      IF (DA.EQ.0.0d0) RETURN
+qdot.f:      DDOT = 0.0d0
+qdot.f:      DTEMP = 0.0d0

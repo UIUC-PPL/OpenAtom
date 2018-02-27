@@ -28,6 +28,7 @@ using namespace std;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+#define M_PI_QI 3.14159265358979323846264338327950288419716939937510
 
 #define MAXWORD   80         // length of a string in OA
 #define MAXLINE  100         // length of a line in OA
@@ -90,6 +91,7 @@ typedef struct FGRID{
 	int ntheta;			// number of theta grid points
 	int nphi;			// number of phi grid points
 	int nrfull;			// number of r grid points*2
+	double alp;			// Gaussian parameter
 	double *wf;			// weight including the Jacobian
 	double *xf;			// x coordinate
 	double *yf;			// y

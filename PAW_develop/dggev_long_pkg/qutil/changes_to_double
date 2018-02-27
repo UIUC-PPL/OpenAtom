@@ -1,0 +1,15 @@
+ilaqlc.f:      DOUBLE PRECISION   A( LDA, * )
+ilaqlc.f:*  A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+ilaqlc.f:      DOUBLE PRECISION ZERO
+ilaqlr.f:      DOUBLE PRECISION   A( LDA, * )
+ilaqlr.f:*  A       (input) DOUBLE PRECISION array, dimension (LDA,N)
+ilaqlr.f:      DOUBLE PRECISION ZERO
+qlmach.f:      DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
+qlmach.f:*  DLAMCH determines double precision machine parameters.
+qlmach.f:*          eps   = relative machine precision
+qlmach.f:      DOUBLE PRECISION   ONE, ZERO
+qlmach.f:      DOUBLE PRECISION   RND, EPS, SFMIN, SMALL, RMACH
+qlmach.f:      DOUBLE PRECISION FUNCTION DLAMC3( A, B )
+qlmach.f:      DOUBLE PRECISION   A, B
+qlmach.f:*  A       (input) DOUBLE PRECISION
+qlmach.f:*  B       (input) DOUBLE PRECISION

@@ -24,9 +24,11 @@ using namespace std;
 
 #define BOLTZ 315777.0       // 1/k_b in atomic units
 #define BOHR  0.529177       // bohr to angstrom
+
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
+#define M_PI_QI 3.14159265358979323846264338327950288419716939937510
 
 #define MAXWORD   80         // length of a string in OA
 #define MAXLINE  100         // length of a line in OA

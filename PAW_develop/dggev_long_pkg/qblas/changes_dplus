@@ -1,0 +1,6 @@
+qgemm.f:      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+qgemv.f:      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+qger.f:      PARAMETER (ZERO=0.0D+0)
+qnrm2.f:      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+qtrmm.f:      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+qtrmv.f:      PARAMETER (ZERO=0.0D+0)
