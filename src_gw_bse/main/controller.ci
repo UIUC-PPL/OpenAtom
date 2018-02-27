@@ -578,7 +578,7 @@ module controller {
         //Result A - eps_matrix2D_bproxy
       }
 
-      for(iteration=0; iteration<MAX_ITERATIONS; iteration++) {
+      for(iteration=0; iteration<maxiter; iteration++) {
         // Step 1: M1 = 2I - A * X
 
         when transpose_complete() serial {
