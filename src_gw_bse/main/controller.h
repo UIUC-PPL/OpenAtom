@@ -89,9 +89,10 @@ class Controller : public CBase_Controller {
     double tol_iter_mtxinv;
     double alat;
     double vol;
+    complex bare_x, screen_x, coh;
     std::vector<double> vcoulb;
     double shift[3];
-    unsigned K, L, M, pipeline_stages;
+    unsigned K, L, M, Bands, pipeline_stages;
     unsigned next_K, next_state, total_sent, total_complete;
     unsigned max_sends, next_report_threshold;
     unsigned p_matrix_dimension, num_p_rows;
@@ -99,6 +100,7 @@ class Controller : public CBase_Controller {
     int max_local_inew;
     int padded_epsilon_size;
     double prev_max;
+    int *n_list, *np_list;
     std::vector<int> accept_result;
     Stopwatch stopwatch;
 

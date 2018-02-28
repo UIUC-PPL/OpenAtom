@@ -355,20 +355,47 @@ module controller {
         s_matrix2D_proxy.multiply_coulb();
       }
       when s_ready() serial {
-        eps_matrix2D_X_proxy.bareExchange();
-        s_matrix2D_proxy.screenedExchange();
-        s_matrix2D_proxy.coh();
+        CkPrintf("[CONTROLLER] Phase-4 Bare Exchange, Screen Exchange and COH computation\n");
+        CkPrintf("| Type               | K | n | n' |     Sigma       \n");
+        bare_x = screen_x = coh = (0.0,0.0);
       }
-      overlap {
-        when bareExchangeComplete(complex x) serial {
-          CkPrintf("[CONTROLLER] Bare Exchange complete: %11.8lf + %fi\n", x.re, x.im);
+      for (next_K = 0; next_K < K; next_K++) {
+        for (next_state = 0; next_state < Bands; next_state++) {
+          serial{
+            eps_matrix2D_X_proxy.bareExchange(next_K, next_state);
+            s_matrix2D_proxy.screenedExchange(next_K, next_state);
+            s_matrix2D_proxy.coh(next_K, next_state);
+          }
+
+          when bareExchangeComplete(complex x) serial {
+            bare_x += x;
+            CkPrintf("-----------------------------------------------------------------\n");
+            CkPrintf("| Bare Exchange     | %d | %d | %d | %11.8lf + %fi\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
+            CkPrintf("|                   |   |   |   |                         \n");
+          }
+          when screenedExchangeComplete(complex x) serial {
+            screen_x += x;
+            CkPrintf("| Screened Exchange | %d | %d | %d | %11.8f + %fi\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
+            CkPrintf("|                   |   |   |   |                         \n");
+          }
+          when cohComplete(complex x) serial{
+            coh += x;
+            CkPrintf("| COH               | %d | %d | %d | %e + %ei\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
+            CkPrintf("|                   |   |   |   |                         \n");
+            CkPrintf("-----------------------------------------------------------------\n");
+          }
         }
-        when screenedExchangeComplete(complex x) serial {
-          CkPrintf("[CONTROLLER] Screened Exchange complete: %f + %fi\n", x.re, x.im);
-        }
-        when cohComplete(complex x) serial{
-          CkPrintf("[CONTROLLER] COH complete: %lf + %lfi\n", x.re, x.im);
-        }
+      }
+      serial {
+        CkPrintf("                    Accummulated values                            \n");
+        CkPrintf("-----------------------------------------------------------------\n");
+        CkPrintf("| Bare Exchange     |   |   |   | %11.8lf + %fi\t|\n", bare_x.re, bare_x.im);
+        CkPrintf("|                   |   |   |   |                         \n");
+        CkPrintf("| Screened Exchange |   |   |   | %11.8f + %fi\t|\n", screen_x.re, screen_x.im);
+        CkPrintf("|                   |   |   |   |                         \n");
+        CkPrintf("| COH               |   |   |   | %e + %ei\t|\n", coh.re, coh.im);
+        CkPrintf("|                   |   |   |   |                         \n");
+        CkPrintf("-----------------------------------------------------------------\n");
       }
       serial {
         STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
