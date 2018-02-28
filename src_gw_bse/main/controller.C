@@ -20,11 +20,14 @@ void init_plan_lock();
 
 Controller::Controller() {
   GWBSE *gwbse = GWBSE::get();
-
+  GW_SIGMA *gw_sigma = &(gwbse->gw_sigma);
   // Set our class variables
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   M = gwbse->gw_parallel.M;
+  Bands = gw_sigma->num_sig_matels;
+  n_list = gw_sigma->n_list_sig_matels;
+  np_list = gw_sigma->np_list_sig_matels;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
 
   next_K = next_state = total_sent = total_complete = next_report_threshold = 0;
