@@ -13,7 +13,7 @@
 #include <unordered_map>
 
 #include "controller.decl.h"
-#define ITERATION 10 //needs to be read from epsilon.in
+#define MAX_ITERATIONS 100
 
 #define PAD(size)\
   int pad = eps_rows - (epsilon_size%eps_rows);\

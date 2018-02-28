@@ -41,7 +41,7 @@ Controller::Controller() {
   shift[0] = 0;
   shift[1] = 0;
   shift[2] = 0.001;
-  maxiter = gwbse->gw_epsilon.max_iter;
+  maxiter = gwbse->gw_epsilon.max_iter?gwbse->gw_epsilon.max_iter:MAX_ITERATIONS;
   // TODO: Make these config options
   do_output = true;
   max_sends = M*K;  // For debugging this can be changed to a smaller number

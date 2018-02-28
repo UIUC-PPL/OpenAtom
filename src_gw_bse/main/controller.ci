@@ -10,7 +10,6 @@ module controller {
   readonly CProxy_Controller controller_proxy;
 
 #define percent 25
-#define MAX_ITERATIONS 100
 #define REGISTER_REGIONS
 
 #define START_STEP(x)\
@@ -668,7 +667,11 @@ module controller {
           if (diff < tol_iter_mtxinv) {
             // int(prev_max*100000) == (int)(max*100000))
             CkPrintf("[CONTROLLER] Converged at iteration %d\n", iteration);
-            iteration = MAX_ITERATIONS;
+            iteration = maxiter;
+          } else {
+            if(iteration == maxiter-1)
+              CkPrintf("\n[CONTROLLER] Maximum iterations (%d) used.\
+              \n\t\tEpsilon matrix inversion was not converged at diff = %lf\n\n", maxiter, diff);
           }
           prev_max = max;
           matrixCopy(eps_matrix2D_X1_proxy, eps_matrix2D_X_proxy, copyCB);
