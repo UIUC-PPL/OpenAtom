@@ -1,3 +1,0 @@
-ilaqlc.f:      PARAMETER ( ZERO = 0.0D+0 )
-ilaqlr.f:      PARAMETER ( ZERO = 0.0D+0 )
-qlmach.f:      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
