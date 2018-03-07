@@ -1,1 +1,0 @@
-qlag2.f:      PARAMETER          ( FUZZY1 = ONE+1.0D-5 )

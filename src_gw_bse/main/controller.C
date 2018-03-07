@@ -20,11 +20,14 @@ void init_plan_lock();
 
 Controller::Controller() {
   GWBSE *gwbse = GWBSE::get();
-
+  GW_SIGMA *gw_sigma = &(gwbse->gw_sigma);
   // Set our class variables
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   M = gwbse->gw_parallel.M;
+  Bands = gw_sigma->num_sig_matels;
+  n_list = gw_sigma->n_list_sig_matels;
+  np_list = gw_sigma->np_list_sig_matels;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
 
   next_K = next_state = total_sent = total_complete = next_report_threshold = 0;
@@ -38,10 +41,11 @@ Controller::Controller() {
   shift[0] = 0;
   shift[1] = 0;
   shift[2] = 0.001;
+  maxiter = gwbse->gw_epsilon.max_iter?gwbse->gw_epsilon.max_iter:MAX_ITERATIONS;
   // TODO: Make these config options
   do_output = true;
   max_sends = M*K;  // For debugging this can be changed to a smaller number
-  maxiter = 1;
+  //maxiter = 1;
   msg_received = 0;
   global_inew = 0;
   max_local_inew = global_inew;
@@ -642,7 +646,7 @@ void FVectorCache::computeFTilde(complex *fs_in){
   f_packet.fs = fs_in;
   
   
-#ifdef USE_CKLOOP
+#if 0//ifdef USE_CKLOOP
   CkLoop_Parallelize(fTildeWorkUnit, 1, &f_packet, n_list_size, 0, n_list_size - 1);
 #else
     fTildeWorkUnit(0,0,NULL,1,&f_packet);

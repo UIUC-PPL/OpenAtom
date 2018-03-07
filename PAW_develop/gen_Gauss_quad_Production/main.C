@@ -14,8 +14,6 @@
 
 #include "gen_Gauss_quad_driver_entry.h"
 
-#define _LOG_METHOD_
-
 int main(int, char **);
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
