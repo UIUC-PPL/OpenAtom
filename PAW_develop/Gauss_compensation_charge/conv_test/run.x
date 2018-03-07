@@ -4,7 +4,7 @@ echo "rorder E3D   E0D  E3D_A  E0D_A   f3D   f0D  f3D_A   f0D_A" > res.dat
 #for i in `seq 2 2 20`
 # do i2=`echo $i*2-2|bc -l`
 #	./model_PAW.x PAW.in 14 $i $i2 > tmp.txt
-for i in `seq 2 2 16`
+for i in `seq 2 2 14`
  do ./model_PAW.x PAW.in $i 18 36 3 > tmp.txt
 # for i in `seq 0 1 10`
 #  do ./model_PAW.x PAW.in 14 10 20 $i > tmp.txt
