@@ -51,4 +51,3 @@ void QGGEV(char* JOBVL,  char* JOBVR,  int* N,
            __float128* VL,  int* LDVL, __float128* VR,  int* LDVR,
 	   __float128* WORK,  int* LWORK, int* INFO);
 }
-

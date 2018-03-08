@@ -43,6 +43,10 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 //
 // 4) Test
 //
+//==========================================================================
+// Set the calculation method - a-rep (method=0) or c-rep (method=1)
+
+    int method = 0; // use c or a-rep for overlap computation
 //==========================================================================    
 //  1) Construct Ortho polys
 //-------------------------------------------------------------------------
@@ -88,12 +92,14 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 		}//endfor
 	  //++++++++++++++++++++++++++++++++++++++++
       	  // compute the moments O of the kth poly over w(x) starting at j=k (upper triable) O=\int x^j w(x) poly_k(x)
-		for (int j=k; j<n+1; j++) {
-    	    	  poly[k].O[j]      = poly[k].c[k]*Int_xpow[j+k];
- 		  for (int i=0; i<k; i++) {
-		     	 poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
-		  }//endfor
-		} //endfor
+		if(method==1){
+		  for (int j=k; j<n+1; j++) {
+		    poly[k].O[j]      = poly[k].c[k]*Int_xpow[j+k];
+		    for (int i=0; i<k; i++) {
+		      poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
+		    }//endfor
+		  } //endfor
+		}//endif
 	  //++++++++++++++++++++++++++++++++++++++++
 	  // Compute the current norm
 		__float128 normtmp = poly[k].c[k]*poly[k].c[k]*Int_xpow[2*k];
@@ -108,7 +114,9 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 	  //++++++++++++++++++++++++++++++++++++++++
 	  // Scale the O and the C's to generate unit norm for stability
  		for (int j=0; j<k+1; j++) {poly[k].c[j] *= scale;}
-		for (int j=k; j<n+1; j++) {poly[k].O[j] *= scale;}
+		if(method==1){
+		  for (int j=k; j<n+1; j++) {poly[k].O[j] *= scale;}
+		}//enbdif
 		poly[k].Norm = 1.q;
 	 //++++++++++++++++++++++++++++++++++++++++
          // Compute the a-representation from the normalized c-rep
@@ -116,9 +124,19 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 		for (int j=0; j<k; j++) {
 		    poly[k].a[j] = 0.q;
 		    for (int l=j; l < k; l++) {
-				poly[k].a[j] += poly[l].a[j]*poly[k].c[l];
+		      poly[k].a[j] += poly[l].a[j]*poly[k].c[l];
 		    } // end for l
 		} // end for j
+	  //++++++++++++++++++++++++++++++++++++++++
+      	  // compute the moments O of the kth poly over w(x) starting at j=k (upper triable) O=\int x^j w(x) poly_k(x)
+		if(method==0){
+		  for (int j=k; j<n+1; j++) {
+    		    poly[k].O[j] = 0.q;
+		    for (int i=0; i<=k; i++) {
+		      poly[k].O[j] += poly[k].a[i]*Int_xpow[j+i];
+		    }//endfor
+		  } //endfor
+		}//endif
 	} // end for k : iteration of GS to nth order
         if(iopt==1){
            PRINTF("  ===========================\n");
@@ -261,12 +279,12 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 // 2.C Evaluate all the polynomials at the nodes for testing later
 //     use horner for a-rep and just sumnming for c-rep							   
 
+        method = 0; // seems a-rep is better here.
         if(iopt==1){
            PRINTF("  ===========================\n");
            PRINTF("  Calcuation method\n");
            PRINTF("  ---------------------------\n");
         }//ednfi
-	int method = 0;
  	for (int j=0; j<n; j++) {poly[0].p_at_nodes[j] = poly[0].a[0];}
 
 	switch (method){
