@@ -90,13 +90,6 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
       	  // compute the moments O of the kth poly over w(x) starting at j=k (upper triable) O=\int x^j w(x) poly_k(x)
 		for (int j=k; j<n+1; j++) {
     	    	  poly[k].O[j]      = poly[k].c[k]*Int_xpow[j+k];
-#ifdef _JUNK_
-		  if(Int_xpow_zero[j+k]==0){
-		    __float128 log_ckk  = log(fabs(poly[k].c[k]));
-		    __float128 sgn_ckk  = ((poly[k].c[k] >= 0.q ) ? 1.q: -1.q);
-		    poly[k].O[j] = sgn_ckk*Int_xpow_sgn[j+k]*exp(log_ckk+Int_xpow_log[j+k]);
-		  }//endif
-#endif
  		  for (int i=0; i<k; i++) {
 		     	 poly[k].O[j] += poly[k].c[i]*poly[i].O[j];
 		  }//endfor

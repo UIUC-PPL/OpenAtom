@@ -17,7 +17,9 @@
 #include <iomanip>
 #include <stdio.h>
 #include <algorithm>
+extern "C" {
 #include <quadmath.h>
+}
 
 using namespace std;
 //==========================================================================
