@@ -28,7 +28,13 @@ void horner(int, __float128 *, __float128, __float128 *);
 void testgrid(int, __float128 *, POLY *, int, int *);
 void testnodes(int, __float128 * , __float128 *,int, int *);
 
+#ifdef FORT_UNDER
+#define DGGEV dggev_
+#else
 #define DGGEV dggev
+#endif
+
+// this guys is different because of use_iso_c and bind(c) in the fortan source
 #define QGGEV qggev
 
 extern "C" {
