@@ -14,7 +14,7 @@ cd -
 /bin/cp ./../ggev_quad_pkg/compile/libqggev.a .
 #=============================================
 #        Quad precision gen gauss quad 
-g++ -c -Wall -g -O2 -D$1 gen_Gauss_quad.C
+g++ -c -Wall -g -O2 gen_Gauss_quad.C
 g++ -c -Wall -g -O2 gen_Gauss_quad_driver.C
 #=============================================
 #        Link

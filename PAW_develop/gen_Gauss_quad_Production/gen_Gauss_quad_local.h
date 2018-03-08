@@ -28,13 +28,8 @@ void horner(int, __float128 *, __float128, __float128 *);
 void testgrid(int, __float128 *, POLY *, int, int *);
 void testnodes(int, __float128 * , __float128 *,int, int *);
 
-#ifdef FORT_UNDER
-#define DGGEV dggev_
-#define QGGEV qggev_
-#else
 #define DGGEV dggev
 #define QGGEV qggev
-#endif
 
 extern "C" {
 void DGGEV(char* JOBVL,  char* JOBVR,  int* N,
