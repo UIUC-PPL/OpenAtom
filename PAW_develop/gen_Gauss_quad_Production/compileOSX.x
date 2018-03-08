@@ -14,11 +14,11 @@ cd -
 /bin/cp ./../ggev_quad_pkg/compile/libqggev.a .
 #=============================================
 #        Quad precision gen gauss quad 
-g++ -c -Wall -g -std=c++11 -O2 gen_Gauss_quad.C
-g++ -c -Wall -g -std=c++11 -O2 gen_Gauss_quad_driver.C
+g++-5 -c -Wall -g -O2 gen_Gauss_quad.C
+g++-5 -c -Wall -g -O2 gen_Gauss_quad_driver.C
 #=============================================
 #        Link
-g++ -Wall -g -std=c++11 -O2 -o main.x main.C \
+g++-5 -Wall -g -O2 -o main.x main.C \
         gen_Gauss_quad.o gen_Gauss_quad_driver.o \
         libqggev.a -lblas -llapack -lm -lgfortran -lquadmath
 #=============================================
