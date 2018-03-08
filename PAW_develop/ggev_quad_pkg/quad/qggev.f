@@ -1,6 +1,6 @@
       SUBROUTINE QGGEV( JOBVL, JOBVR, N, A, LDA, B, LDB, ALPHAR, ALPHAI,
-     $                  BETA, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
-*
+     $     BETA, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
+      USE ISO_C_BINDING 
 *  -- LAPACK driver routine (version 3.2) --
 *  -- LAPACK is a software package provided by Univ. of Tennessee,    --
 *  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--

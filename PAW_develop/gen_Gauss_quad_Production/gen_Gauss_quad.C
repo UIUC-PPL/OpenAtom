@@ -46,7 +46,7 @@ void gen_Gauss_quad(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __f
 //==========================================================================
 // Set the calculation method - a-rep (method=0) or c-rep (method=1)
 
-    int method = 0; // use c or a-rep for overlap computation
+    int method = 1; // use c or a-rep for overlap computation
 //==========================================================================    
 //  1) Construct Ortho polys
 //-------------------------------------------------------------------------
