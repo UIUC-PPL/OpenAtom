@@ -14,6 +14,7 @@
 #include "gen_Gauss_quad_local.h"
 
 #define _QGGEV_ON_
+//#define _QGGEV_OFF_
 
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
