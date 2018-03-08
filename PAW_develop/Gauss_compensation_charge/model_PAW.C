@@ -302,10 +302,17 @@ int main (int argc, char *argv[]){
 	double *xcostheta = fgrid[i].xcostheta;
 	double *xphi = fgrid[i].xphi;
 	
+	double result = 0.0;
+	double result2 = 0.0;
+
 	for (int ir=0; ir<rorder; ir++) {
 		xr[ir] = xr_master[ir]/alp_tmp;
 		wr[ir] = wr_master[ir]/alp_tmp;
+		result += wr[ir];
+		result2 += wr[ir]*xr[ir]*xr[ir];
 	} // end for ir
+	PRINTF("test %g %g %g %g %g\n", result, result2, sqrt(M_PI_QI)*0.5, sqrt(M_PI_QI)*0.25, alp_tmp);
+	
 	for (int itheta=0; itheta<thetaorder; itheta++) { xcostheta[itheta] = xtheta_master[itheta];}
 	for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
 
@@ -319,6 +326,8 @@ int main (int argc, char *argv[]){
                 yf[f] = xr[ir]*xsintheta*sin(xphi_master[iphi]);
                 zf[f] = xr[ir]*xtheta_master[itheta];
                 rf[f] = xr[ir];
+//				double tmp = xf[f]*xf[f] + yf[f]*yf[f] + zf[f]*zf[f] - rf[f]*rf[f];
+//				PRINTF("\ntest square relation: %g\n", tmp);
                 f++;
             } // end for iphi
         } // end for itheta
@@ -342,8 +351,10 @@ int main (int argc, char *argv[]){
 
   energy.Etot0D.E     = energy.ENN.E + energy.EeN.E + energy.EHar.E;
   energy.Etot0D.EGrid = energy.ENN.EGrid + energy.EeN.EGrid + energy.EHar.EGrid;
-  energy.Etot3D.E     = energy.ENNshort.E + energy.EeNshort.E + energy.EHarshort.E + energy.Elong.E - energy.ENNselflong.E;
-  energy.Etot3D.EGrid = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.EHarshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
+// energy.Etot3D.E     = energy.ENNshort.E + energy.EeNshort.E + energy.EHarshort.E + energy.Elong.E - energy.ENNselflong.E;
+// energy.Etot3D.EGrid = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.EHarshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
+  energy.Etot3D.E     = energy.ENNshort.E + energy.EeNshort.E + energy.Elong.E - energy.ENNselflong.E;
+  energy.Etot3D.EGrid = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
 
   //========================================================================
   // Print out the energy

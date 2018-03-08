@@ -424,6 +424,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
         double *wf        = fgrid[jtyp].wf;
         double *rf        = fgrid[jtyp].rf;
+        double *xf        = fgrid[jtyp].xf;
+        double *yf        = fgrid[jtyp].yf;
+        double *zf        = fgrid[jtyp].zf;
 		double *xcostheta = fgrid[jtyp].xcostheta;
 		double *xphi      = fgrid[jtyp].xphi;
 		complex *Ylmf     = fgrid[jtyp].Ylmf;
@@ -439,23 +442,28 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 #ifdef _FGRIDTEST_		
 		complex *Ylmf_test       = new complex [nf];
 		complex *Ylpmpf_test     = new complex [nf];
-		PRINTF("lmax = %d\n", lmax);
+		double atmp			 = fgrid[jtyp].alp;
 		for (int l=0; l <= lmax; l++) {
-			PRINTF("lmax = %d, l = %d\n", lmax, l);
-			for (int lp = 0; lp <= lmax; l++) {
-				PRINTF("lmax = %d, lp = %d\n", lmax, lp);
+			for (int lp = 0; lp <= lmax; lp++) {
 				for (int m=-l; m<= l; m++) {
-					PRINTF("l = %d, m = %d\n", l, m);
 					for (int mp = -lp; mp <= lp ; mp++) {
-						PRINTF("lp = %d, mp = %d\n", lp, mp);
 						complex result  	= complex(0.0,0.0);
+						double  result2x  	= 0.0;
+						double  result2y  	= 0.0;
+						double  result2z  	= 0.0;
 						gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, l, m, Ylmf_test);
 						gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, lp, mp, Ylpmpf_test);
 						for (int f=0; f < nf; f++) {
-							result += wf[f]*Ylmf_test[f]*Ylpmpf_test[f].conj()*(4.0/sqrt(M_PI));
+							result   += wf[f]*Ylmf_test[f]*Ylpmpf_test[f].conj()*(4.0/sqrt(M_PI))*atmp*atmp*atmp;
+							result2x += wf[f]*xf[f]*xf[f];
+							result2y += wf[f]*yf[f]*yf[f];
+							result2z += wf[f]*zf[f]*zf[f];
 						} // end for f
 						PRINTF("\nfgrid test result:\n");
-						PRINTF("int Y(%d %d), Y(%d %d) exp(-r^2)r^2 = (%lf, %lf) !\n",l,m,lp,mp,result.re, result.im);
+						PRINTF("int Y(%d %d), Y(%d %d) exp(-a^2*r^2)r^2 = (%lf, %lf) !\n",l,m,lp,mp,result.re, result.im);
+						PRINTF("int x^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2x);
+						PRINTF("int y^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2y);
+						PRINTF("int z^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2z);
 					} // end for mp
 				}// end for m
 			} // end for lp
