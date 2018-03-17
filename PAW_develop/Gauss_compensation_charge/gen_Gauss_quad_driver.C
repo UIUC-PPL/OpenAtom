@@ -11,7 +11,9 @@
 // include files
 
 #include "standard_include.h"
-
+extern "C" {
+#include <quadmath.h>
+}
 #include "gen_Gauss_quad_driver_entry.h"
 #include "gen_Gauss_quad_driver_local.h"
 #include "gen_Gauss_quad_entry.h"
@@ -43,9 +45,9 @@ void gen_Gauss_quad_driver (int type, int n, int iopt, double * nodes_dbl, doubl
 //	Fetch the integrals of powers of x over the desired weight 
 //  Hard coding a for now
 
-	long double * Int_xpow     = new long double [2*n + 1]; 
-	long double * Int_xpow_log = new long double [2*n + 1]; 
-	long double * Int_xpow_sgn = new long double [2*n + 1]; 
+	__float128 * Int_xpow     = new __float128 [2*n + 1]; 
+	__float128 * Int_xpow_log = new __float128 [2*n + 1]; 
+	__float128 * Int_xpow_sgn = new __float128 [2*n + 1]; 
 	int * Int_xpow_zero   = new int [2*n + 1]; 
 	switch(type) {
 		case 0: // w(x) = 1; [-1, 1] 
@@ -71,8 +73,8 @@ void gen_Gauss_quad_driver (int type, int n, int iopt, double * nodes_dbl, doubl
 //==========================================================================
 //	Fetch the weights and nodes 
 
-	long double * w = new long double [n]; // Gauss quad weight
-	long double * x = new long double [n]; // Gauss quad node
+	__float128 * w = new __float128 [n]; // Gauss quad weight
+	__float128 * x = new __float128 [n]; // Gauss quad node
 
 	gen_Gauss_quad(n, Int_xpow, Int_xpow_log, Int_xpow_sgn, Int_xpow_zero, w, x, iopt, &ierr_zero, &ierr_ortho);
 
@@ -128,17 +130,17 @@ void gen_Gauss_quad_driver (int type, int n, int iopt, double * nodes_dbl, doubl
 //==========================================================================
 // Integrals of powers of x over uniform weight on [-1,1]
 //==========================================================================
-void fetch_Int_xpow_uniform(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
+void fetch_Int_xpow_uniform(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __float128 * Int_xpow_sgn, int * Int_xpow_zero){
 	for (int i=0; i<2*n+1; i++) {
 		if (i%2 == 0) {
-			long double ai = (long double) i;
-			Int_xpow[i] = 2.0L/(1.0L + ai);
-			Int_xpow_log[i] = log(2.0L) - log(1.0L + ai);
-			Int_xpow_sgn[i] = 1.0L;
+			__float128 ai = (__float128) i;
+			Int_xpow[i] = 2.q/(1.q + ai);
+			Int_xpow_log[i] = log(2.q) - log(1.q + ai);
+			Int_xpow_sgn[i] = 1.q;
 			Int_xpow_zero[i] = 0;
 		} else {
-			Int_xpow[i] = 0.0L;
-			Int_xpow_sgn[i] = 1.0L;
+			Int_xpow[i] = 0.q;
+			Int_xpow_sgn[i] = 1.q;
 			Int_xpow_zero[i] = 1;
 		} // end if	
 	}// end for i
@@ -149,21 +151,21 @@ void fetch_Int_xpow_uniform(int n, long double * Int_xpow, long double * Int_xpo
 //==========================================================================
 // Integrals of powers of x over Gaussian weight on [-inf,inf]
 //==========================================================================
-void fetch_Int_xpow_Gaussfull(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
+void fetch_Int_xpow_Gaussfull(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __float128 * Int_xpow_sgn, int * Int_xpow_zero){
 	Int_xpow[0] = sqrt(M_PI_QI);
-	Int_xpow_log[0] = 0.5L*log(M_PI_QI);
-	Int_xpow_sgn[0] = 1.0L;
+	Int_xpow_log[0] = 0.5q*log(M_PI_QI);
+	Int_xpow_sgn[0] = 1.q;
 	Int_xpow_zero[0] = 0;
 	for (int i=1; i<2*n+1; i++) {
 		if (i%2 == 1) {
-			Int_xpow[i] = 0.0L;
-			Int_xpow_sgn[i] = 1.0L;
+			Int_xpow[i] = 0.q;
+			Int_xpow_sgn[i] = 1.q;
 			Int_xpow_zero[i] = 1;
 		} else {
-			long double tmp = 0.5L*(((long double) i)-1.0L);
+			__float128 tmp = 0.5q*(((__float128) i)-1.q);
 			Int_xpow[i] = Int_xpow[i-2]*tmp;
 			Int_xpow_log[i] = Int_xpow_log[i-2] + log(tmp);
-			Int_xpow_sgn[i] = 1.0L;
+			Int_xpow_sgn[i] = 1.q;
 			Int_xpow_zero[i] = 0;
 		} // end if
 	}// end for i
@@ -174,22 +176,22 @@ void fetch_Int_xpow_Gaussfull(int n, long double * Int_xpow, long double * Int_x
 //==========================================================================
 // Integrals of powers of x over Gaussian weight on [0,inf]
 //==========================================================================
-void fetch_Int_xpow_Gausshalf(int n, long double * Int_xpow, long double * Int_xpow_log, long double * Int_xpow_sgn, int * Int_xpow_zero){
-	Int_xpow[0]     = 0.5L*sqrt(M_PI_QI);
-	Int_xpow_log[0] = 0.5L*log(M_PI_QI) + log(0.5L);
-	Int_xpow_sgn[0] = 1.0L;
+void fetch_Int_xpow_Gausshalf(int n, __float128 * Int_xpow, __float128 * Int_xpow_log, __float128 * Int_xpow_sgn, int * Int_xpow_zero){
+	Int_xpow[0]     = 0.5q*sqrt(M_PI_QI);
+	Int_xpow_log[0] = 0.5q*log(M_PI_QI) + log(0.5q);
+	Int_xpow_sgn[0] = 1.q;
 	Int_xpow_zero[0] = 0;
 
-	Int_xpow[1]      = 0.5L;
-	Int_xpow_log[1]  = log(0.5L);
-	Int_xpow_sgn[1]  = 1.0L;
+	Int_xpow[1]      = 0.5q;
+	Int_xpow_log[1]  = log(0.5q);
+	Int_xpow_sgn[1]  = 1.q;
 	Int_xpow_zero[1] = 0;
 
 	for (int i=2; i<2*n+1; i++) {
-		long double tmp = 0.5L*(((long double) i)-1.0L);
+		__float128 tmp = 0.5q*(((__float128) i)-1.q);
 		Int_xpow[i]      = Int_xpow[i-2]*tmp;
 		Int_xpow_log[i]  = Int_xpow_log[i-2] + log(tmp);
-		Int_xpow_sgn[i]  = 1.0L;
+		Int_xpow_sgn[i]  = 1.q;
 		Int_xpow_zero[i] = 0;
 	}// end for i
 }//end routine
@@ -200,12 +202,12 @@ void fetch_Int_xpow_Gausshalf(int n, long double * Int_xpow, long double * Int_x
 // Check the Legrendre nodes, although there is a theorem that the nodes lie
 //   on [-1,1], make sure they do.
 //==========================================================================
-void check_nodes_uniform(int n, long double * x){
+void check_nodes_uniform(int n, __float128 * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] > 1.0L || x[i] < -1.0L) {
+		if (x[i] > 1.q || x[i] < -1.q) {
 			ierr++;
-			PRINTF("x[%d] = %.10Lg out of range!\n",i,x[i]);
+			PRINTF("x[%d] = %.10Lg out of range!\n",i,(long double)x[i]);
 		} // end if
 	}// end for
 	if (ierr > 0) {
@@ -223,12 +225,12 @@ void check_nodes_uniform(int n, long double * x){
 // Check the Half space Gaussian nodes, although there is a theorem that the
 //    nodes lie on [0,\infty], check!
 //==========================================================================
-void check_nodes_Gausshalf(int n, long double * x){
+void check_nodes_Gausshalf(int n, __float128 * x){
 	int ierr = 0;
 	for (int i=0; i<n; i++) {
-		if (x[i] < 0.0L) {
+		if (x[i] < 0.q) {
 			ierr++;
-			PRINTF("x[%d] = %.10Lg out of range!\n",i,x[i]);
+			PRINTF("x[%d] = %.10Lg out of range!\n",i,(long double)x[i]);
 		} // end if
 	}// end for
 	if (ierr > 0) {

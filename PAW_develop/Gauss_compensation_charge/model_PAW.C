@@ -10,10 +10,12 @@
 //==========================================================================
 // Standard include files
 
-	#include "standard_include.h"
-	#include "GaussianPAW.h"
-	#include "grid.h"
-	#include "gen_Gauss_quad_driver_entry.h"
+#include "standard_include.h"
+#include "ckcomplex.h"
+#include "fgrid.h"
+#include "GaussianPAW.h"
+#include "grid.h"
+#include "gen_Gauss_quad_driver_entry.h"
 
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -39,7 +41,7 @@ int main (int argc, char *argv[]){
   double alpb;			// Ewald alpha
   double gcut;		    // Ewald reciprocal space cutoff 
 
-  double *x,*y,*z,*q,*qt,*alp;    // atom positions and core Gaussian parameters
+  double *x,*y,*z,*q,*qt,*alp,*beta;    // atom positions and core Gaussian parameters
   double hmat[10];				  // the simulation box
   double hmati[10];				  // inverse simulation box
   double volume;				  // simulation box volume
@@ -49,25 +51,27 @@ int main (int argc, char *argv[]){
   int phiorder;    // grid sizes
   int lmax;									// maximum angular momentum
   double delta = 1e-6;
+	double beta_unitless;       // unitless beta for screening, beta[J] = alpha[J]*beta_unitless
 
   ESTRUCT energy;		// compensation charge energy terms stored nicely
   ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
   ESTRUCT *energy_minus = new ESTRUCT [3]; 		
 		
-  strcpy(energy.ENN.name           , "E_NN_0D             ");
-  strcpy(energy.EeN.name           , "E_eN_0D             ");
-  strcpy(energy.EeNself.name       , "E_eNself_0D         ");
-  strcpy(energy.EHar.name          , "E_Har_0D            ");
-  strcpy(energy.EHarself.name      , "E_Har_self_0D       ");
-  strcpy(energy.ENNshort.name      , "E_NNshort_3D        ");
-  strcpy(energy.EeNshort.name      , "E_eN_short_3D       ");
-  strcpy(energy.EeNshortself.name  , "E_eN_short_self_3D  ");
-  strcpy(energy.EHarshort.name     , "E_Har_short_3D      ");
-  strcpy(energy.EHarshortself.name , "E_Har_short_self_3D ");
-  strcpy(energy.Elong.name         , "E_long_3D           ");
-  strcpy(energy.ENNselflong.name   , "E_NNselflong_3D     ");
-  strcpy(energy.Etot0D.name        , "E_tot_0D            ");
-  strcpy(energy.Etot3D.name        , "E_tot_3D            ");
+  strcpy(energy.ENN.name           		, "E_NN_0D             ");
+  strcpy(energy.EeN.name           		, "E_eN_0D             ");
+  strcpy(energy.EeNself.name       		, "E_eNself_0D         ");
+  strcpy(energy.EHar.name          		, "E_Har_0D            ");
+  strcpy(energy.EHarself.name      		, "E_Har_self_0D       ");
+  strcpy(energy.ENNshort.name      		, "E_NNshort_3D        ");
+  strcpy(energy.EeNshort.name      		, "E_eN_short_3D       ");
+  strcpy(energy.EeNshortself.name  		, "E_eN_short_self_3D  ");
+  strcpy(energy.EHarshort.name     		, "E_Har_short_3D      ");
+  strcpy(energy.EHarshortself.name 		, "E_Har_short_self_3D ");
+  strcpy(energy.Elong.name         		, "E_long_3D           ");
+  strcpy(energy.ENNselflong.name   		, "E_NNselflong_3D     ");
+  strcpy(energy.Etot0D.name        		, "E_tot_0D            ");
+  strcpy(energy.Etot3D.name        		, "E_tot_3D            ");
+  strcpy(energy.EHarselfscr.name		, "E_Har_self_0D_scr   ");
 
   long seed;		// random seeds
   double dseed;		// random seeds
@@ -87,10 +91,10 @@ int main (int argc, char *argv[]){
     //=========================================================================
     //             Check for input file                                 
 
-    if(argc < 5) {
+    if(argc < 7) {
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       PRINTF("No input file specified!\n");
-      PRINTF("Run it like: ./model_PAW.x PAW.in rorder thetaorder phiorder\n");
+      PRINTF("Run it like: ./model_PAW.x PAW.in rorder thetaorder phiorder lmax beta_unitless\n");
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       FFLUSH(stdout);
       EXIT(1);
@@ -104,6 +108,7 @@ int main (int argc, char *argv[]){
   thetaorder = atoi(argv[3]);
   phiorder   = atoi(argv[4]);
   lmax 	 	 = atoi(argv[5]);
+  beta_unitless 	 	 = atoi(argv[6]);
   strcpy(fnameIn, argv[1]);
   PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
   fp = fopen(fnameIn,"r");
@@ -131,7 +136,7 @@ int main (int argc, char *argv[]){
 
   	x = new double [natm]; y = new double [natm]; z = new double [natm];
   	q = new double [natm]; qt = new double [natm];
-  	alp = new double [natm];
+  	alp = new double [natm]; beta = new double [natm];
 
   	double *vx   = new double [natm]; double *vy   = new double [natm]; double *vz   = new double [natm];
   	double *fx0  = new double [natm]; double *fy0  = new double [natm]; double *fz0  = new double [natm];
@@ -144,6 +149,7 @@ int main (int argc, char *argv[]){
 	for (int i=0; i<natm_typ; i++) { list_atm_by_typ[i] = new int [natm_atm_typ_max]; }
   	for (int i=0; i<natm; i++) {
   		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &alp[i], &index_atm_typ[i]); readtoendofline(fp);
+		beta[i] = alp[i]*beta_unitless;
   	} //end for i
   	fscanf(fp, "%lf %lf %lf", &hmat[1], &hmat[4], &hmat[7]); readtoendofline(fp);
   	fscanf(fp, "%lf %lf %lf", &hmat[2], &hmat[5], &hmat[8]); readtoendofline(fp);
@@ -158,6 +164,7 @@ int main (int argc, char *argv[]){
 	fxg[i]  = 0; fyg[i]  = 0; fzg[i]  = 0;
   } // end for
 
+#ifdef _FORCECHECK_
   //========================================================================
   // make a copy of the atoms: give the dummy structure its own memory!!!!!!
 
@@ -182,15 +189,16 @@ int main (int argc, char *argv[]){
 	qd[i]   = q[i]; qtd[i]  = qt[i];
     alpd[i] = alp[i];
   } // end for
+#endif // _FORCECHECK_
 
   //========================================================================
-  // store the atom information: this is saft because the dummy has its own memory
+  // store the atom information: this is safe because the dummy has its own memory
  
   atom_pos.natm	= natm;
   atom_pos.x 	= x;    atom_pos.y 	  = y;    atom_pos.z    = z;
   atom_pos.q 	= q;
   atom_pos.qt 	= qt;
-  atom_pos.alp 	= alp;
+  atom_pos.alp 	= alp; atom_pos.beta  = beta;
 
   atom_pos.vx	= vx;   atom_pos.vy   = vy;   atom_pos.vz   = vz;
   atom_pos.fx0	= fx0;  atom_pos.fy0  = fy0;  atom_pos.fz0  = fz0;
@@ -198,6 +206,7 @@ int main (int argc, char *argv[]){
   atom_pos.fx0g	= fx0g; atom_pos.fy0g = fy0g; atom_pos.fz0g = fz0g;
   atom_pos.fxg	= fxg;  atom_pos.fyg  = fyg;  atom_pos.fzg  = fzg;
 
+#ifdef _FORCECHECK_
   atom_pos_dummy.natm	= natm;
   atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
   atom_pos_dummy.q 		= qd;
@@ -209,6 +218,7 @@ int main (int argc, char *argv[]){
   atom_pos_dummy.fx		= fxd;   atom_pos_dummy.fy   = fyd;   atom_pos_dummy.fz   = fzd;
   atom_pos_dummy.fx0g	= fx0gd; atom_pos_dummy.fy0g = fy0gd; atom_pos_dummy.fz0g = fz0gd;
   atom_pos_dummy.fxg	= fxgd;  atom_pos_dummy.fyg  = fygd;  atom_pos_dummy.fzg  = fzgd;
+#endif // _FORCECHECK_
 
   //========================================================================
   // compute and store the atom maps
@@ -274,9 +284,6 @@ int main (int argc, char *argv[]){
   //---------------------------------------------------------------------
   // use the master quadratures to create the full fgrid
 
-  double * wr = new double [rorder];
-  double * xr = new double [rorder];
-
   for (int i=0; i<natm_typ; i++) {
   	fgrid[i].nf = nf;
   	fgrid[i].nr = rorder;
@@ -290,15 +297,21 @@ int main (int argc, char *argv[]){
   	fgrid[i].xcostheta = new double [thetaorder];
   	fgrid[i].xphi = new double [phiorder];
 	fgrid[i].Ylmf = new complex [nf];
+  	fgrid[i].xr = new double [rorder];
+  	fgrid[i].wr = new double [rorder];
 	int J = list_atm_by_typ[i][0];
 	double alp_tmp = alp[J];
+	double beta_tmp = beta[J];
 	fgrid[i].alp = alp_tmp;
+	fgrid[i].beta = beta_tmp;
 
     double *wf = fgrid[i].wf;
     double *xf = fgrid[i].xf;
     double *yf = fgrid[i].yf;
     double *zf = fgrid[i].zf;
     double *rf = fgrid[i].rf;
+    double *xr = fgrid[i].xr;
+    double *wr = fgrid[i].wr;
 	double *xcostheta = fgrid[i].xcostheta;
 	double *xphi = fgrid[i].xphi;
 	
@@ -311,8 +324,25 @@ int main (int argc, char *argv[]){
 		result += wr[ir];
 		result2 += wr[ir]*xr[ir]*xr[ir];
 	} // end for ir
-	PRINTF("test %g %g %g %g %g\n", result, result2, sqrt(M_PI_QI)*0.5, sqrt(M_PI_QI)*0.25, alp_tmp);
+//	PRINTF("test %g %g %g %g %g\n", result, result2, sqrt(M_PI_QI)*0.5, sqrt(M_PI_QI)*0.25, alp_tmp);
 	
+	double result3 = 0.0;
+	double result4 = 0.0;
+	double pre3 = 8.0/M_PI_QI*pow(alp_tmp,6);
+	for (int ir=0; ir<rorder; ir++) {
+		for (int jr=0; jr<rorder; jr++) {
+			double rgt = MAX(xr[ir],xr[jr]);
+			double rlt = MIN(xr[ir],xr[jr]);
+			result3 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]/rgt;
+			result4 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]*erf(beta_tmp*rgt)/rgt;
+		} // end for jr
+	} // end for ir
+	result3 *= pre3;
+	PRINTF("test3: %g %g\n", result3, alp_tmp/sqrt(2.0*M_PI_QI));
+
+    double gamma   = 2.0*alp_tmp*beta_tmp/sqrt(2*beta_tmp*beta_tmp + alp_tmp*alp_tmp);
+	PRINTF("test4: %g %g beta_tmp = %g\n", result4, gamma/sqrt(2.0*M_PI_QI), beta_tmp);
+
 	for (int itheta=0; itheta<thetaorder; itheta++) { xcostheta[itheta] = xtheta_master[itheta];}
 	for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
 
@@ -389,6 +419,7 @@ int main (int argc, char *argv[]){
   PRINT_LINE_DASH;
   energy.Etot0D.pres();
   energy.Etot3D.pres();
+  energy.EHarselfscr.pres();
   PRINT_LINE_DASH;
   PRINTF(" Completed output\n");
   PRINT_LINE_STAR;
@@ -449,8 +480,9 @@ int main (int argc, char *argv[]){
   
   double * fdummy = new double [3];
   for (int j=0; j<3; j++) {
-	fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
+//	fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
 //	fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
+	fdummy[j] = (energy_minus[j].ENNshort.EGrid -  energy_plus[j].ENNshort.EGrid)/(2.0*delta);
   }
   PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
 

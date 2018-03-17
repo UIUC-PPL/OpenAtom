@@ -10,4 +10,4 @@
 //==========================================================================
 // function prototypes 
 
-void gen_Gauss_quad(int, long double *, long double *, long double *, int *, long double *, long double *, int, int *, int *);
+void gen_Gauss_quad(int, __float128 *, __float128 *, __float128 *, int *, __float128 *, __float128 *, int, int *, int *);

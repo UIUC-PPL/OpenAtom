@@ -17,7 +17,10 @@
 #include <iomanip>
 #include <stdio.h>
 #include <algorithm>
-#include "ckcomplex.h"
+//extern "C" {
+//#include <quadmath.h>
+//}
+//#include "ckcomplex.h"
 
 using namespace std;
 //==========================================================================
@@ -45,6 +48,7 @@ typedef char NAME[MAXWORD];
 
 #define MAX(A,B) (((A)>(B))?(A):(B))
 #define MIN(A,B) (((A)<(B))?(A):(B))
+#define NINT(X) ( (int) ((X)>=0.0 ? ((X)+0.5):((X)-0.5)) )
 
 //==========================================================================
 // ATOM_MAPS structure
@@ -70,6 +74,7 @@ typedef struct ATOM_POS{
 	double *fxg,*fyg,*fzg;      // atom forces iperd = 3 from the grid
 	double *q,*qt;				// charges
 	double *alp;  		    	// Gaussian parameter for the core 
+	double *beta;		  // beta screener beta[J]
 }ATOM_POS;
 
 //==========================================================================
@@ -82,23 +87,4 @@ typedef struct CELL{
     double hmati[10];                  // inverse simulation box
     double volume;                  // simulation box volume
 }CELL;
-
-//==========================================================================
-// FGRID structure: spherical polar with DVR
-typedef struct FGRID{
-	int nf;				// total number of f points
-	int nr;				// number of r grid points
-	int ntheta;			// number of theta grid points
-	int nphi;			// number of phi grid points
-	int nrfull;			// number of r grid points*2
-	double alp;			// Gaussian parameter
-	double *wf;			// weight including the Jacobian
-	double *xf;			// x coordinate
-	double *yf;			// y
-	double *zf;			// z
-	double *rf;			// r
-	double *xcostheta;  // xcostheta - used to generate Ylmf
-	double *xphi;		// xphi - used to generate Ylmf
-	complex *Ylmf;		// memory to store 1 spehrical harmonic on the f grid
-}FGRID;
 

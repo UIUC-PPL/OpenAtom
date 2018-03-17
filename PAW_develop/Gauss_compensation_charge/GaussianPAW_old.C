@@ -186,34 +186,26 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 { // begin routine
 //===================================================================
 // read in parameters from the structures
-	int natm 	= atom_maps->natm;
-	double *x 	= atom_pos->x;   double *y   = atom_pos->y;   double *z   = atom_pos->z; 
-	double *fx0	= atom_pos->fx0; double *fy0 = atom_pos->fy0; double *fz0 = atom_pos->fz0;
-	double *fx	= atom_pos->fx;  double *fy	 = atom_pos->fy;  double *fz  = atom_pos->fz;
-	double *q 	= atom_pos->q;   double *qt  = atom_pos->qt;
-	double *alp = atom_pos->alp; double *beta = atom_pos->beta; 
-	double alpb = cell->alpb;
-	int iperd 	= cell->iperd;
+  int natm 		= atom_maps->natm;
+  double *x 	= atom_pos->x;   double *y   = atom_pos->y;   double *z   = atom_pos->z; 
+  double *fx0	= atom_pos->fx0; double *fy0 = atom_pos->fy0; double *fz0 = atom_pos->fz0;
+  double *fx	= atom_pos->fx;  double *fy	 = atom_pos->fy;  double *fz  = atom_pos->fz;
+  double *q 	= atom_pos->q;   double *qt  = atom_pos->qt;  double *alp = atom_pos->alp; 
+  double alpb   = cell->alpb;
+  int iperd 	= cell->iperd;
 
 //===================================================================
 // zero all the energies 
-  double ENN = 0.0, EeNself = 0.0, EeN = 0.0, EHarself = 0.0, EHar = 0.0, EHarselfscr = 0.0;
+  double ENN = 0.0, EeNself = 0.0, EeN = 0.0, EHarself = 0.0, EHar = 0.0;
 
 //===================================================================
 // energy contributions for clusters
 //===================================================================
 // if (iperd == 0) { 
-	double prec = 1/sqrt(2.0*M_PI_QI);
-	double preceN = -2.0/sqrt(M_PI_QI);
-	for (int i=0; i<natm; i++) {
-		double gamma   = 2.0*alp[i]*beta[i]/sqrt(2*beta[i]*beta[i] + alp[i]*alp[i]);
-		EHarself      += qt[i]*qt[i]*alp[i];
-		EHarselfscr   += qt[i]*qt[i]*gamma; 
-		EeNself       += qt[i]*q[i]*alp[i];
-	} // end for
-	EHarself    *= prec;
-	EHarselfscr *= prec;
-	EeNself     *= preceN;
+  for (int i=0; i<natm; i++) {
+	EHarself      += 0.5*alp[i]*qt[i]*(sqrt(2.0)*qt[i])/sqrt(M_PI_QI);
+	EeNself       += 0.5*alp[i]*qt[i]*(-4.0*q[i])/sqrt(M_PI_QI);
+  } // end for
 
   for (int i=0; i<natm; i++) {
       for (int j=0; j<natm; j++) {
@@ -300,7 +292,6 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
   energy->EHarshortself.E      = EHarshortself; 
   energy->EHarshort.E          = EHarshort; 
   energy->ENNselflong.E        = ENNselflong;
-  energy->EHarselfscr.E        = EHarselfscr;
 
 //===================================================================
 } // end routine
@@ -323,8 +314,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
   double *x 			= atom_pos->x;    double *y    = atom_pos->y;    double *z    = atom_pos->z; 
   double *fx0g			= atom_pos->fx0g; double *fy0g = atom_pos->fy0g; double *fz0g = atom_pos->fz0g;
   double *fxg			= atom_pos->fxg;  double *fyg  = atom_pos->fyg;  double *fzg  = atom_pos->fzg;
-  double *q 			= atom_pos->q;    double *qt   = atom_pos->qt;
-	double *alp  = atom_pos->alp;  double *beta = atom_pos->beta;
+  double *q 			= atom_pos->q;    double *qt   = atom_pos->qt;   double *alp  = atom_pos->alp; 
   double alpb   		= cell->alpb;     double *hmat = cell->hmat;	 double *hmati = cell->hmati;
   int iperd 			= cell->iperd;
 
@@ -344,7 +334,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 // zero all the energies 
     double EeNGrid      = 0.0, EeNselfGrid = 0.0, EHarGrid = 0.0, EHarselfGrid = 0.0;
     double EeNshortGrid = 0.0, EeNshortselfGrid = 0.0, EHarshortGrid = 0.0, EHarshortselfGrid = 0.0;
-	double EHarselfscrGrid = 0.0;
 
 //===================================================================
 // energy contributions for clusters
@@ -443,8 +432,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		double *xcostheta = fgrid[jtyp].xcostheta;
 		double *xphi      = fgrid[jtyp].xphi;
 		complex *Ylmf     = fgrid[jtyp].Ylmf;
-		double alpJ		  = fgrid[jtyp].alp;
-		double betaJ	  = fgrid[jtyp].beta;
 		int J = list_atm_by_typ[jtyp][0];
 		double Ncoeff = pow(alp[J]*alp[J]/(M_PI_QI),1.5);
 		double wght = ((double) natm_atm_typ[jtyp]);
@@ -485,9 +472,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		} // end for l
 #endif
 		complex tmpsum = (0.0, 0.0);
-		complex tmpscrsum = (0.0, 0.0);
 		for (int l=0; l <= lmax; l++) {
-			double fl = 0.0;
 			for (int m=-l; m<=l; m++) {
 				gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, l, m, Ylmf);
 				for (int f1=0; f1 < nf; f1++) {
@@ -501,23 +486,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 				} //end for f1
 			} //end for m
 		} //end for l
-		EHarselfGrid = tmpsum.re;
-		
-		for (int f1=0; f1 < nf; f1++) {
-			for (int f2=0; f2 < nf; f2++) {
-				double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-				if (f1 != f2) {
-					double dx   = xf[f1] - xf[f2];
-					double dy   = yf[f1] - yf[f2];
-					double dz   = zf[f1] - zf[f2];
-					double r2   = dx*dx + dy*dy + dz*dz;
-					double r    = sqrt(r2);
-					EHarselfscrGrid += pref*erf(betaJ*r)/r;
-				} else {
-					EHarselfscrGrid += pref*2.0*betaJ/sqrt(M_PI_QI);
-				} // end if
-			} //end for f2
-		} //end for f1
+		EHarselfGrid += tmpsum.re;
 
 		complex EHarselfGridtmp = (0.0,0.0);
 		for (int l=0; l <= 0; l++) {
@@ -721,7 +690,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
   energy->EHarshortself.EGrid  = EHarshortselfGrid; 
   energy->EHarshort.EGrid      = EHarshortGrid; 
   energy->ENNselflong.EGrid    = ENNselflongGrid; 
-  energy->EHarselfscr.EGrid    = EHarselfscrGrid; 
 
 //===================================================================
 } // end routine

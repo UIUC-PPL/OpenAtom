@@ -10,6 +10,8 @@
 // Standard include files
 
 #include "standard_include.h"
+#include "ckcomplex.h"
+#include "fgrid.h"
 
 //==========================================================================
 // Function prototypes
