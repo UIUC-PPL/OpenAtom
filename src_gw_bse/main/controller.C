@@ -248,6 +248,13 @@ bool PsiCache::in_np_list(int n_index){
   return false;
 }
 
+int PsiCache::get_index(int n_index){
+  for(int i=0;i<n_np;i++){
+    if(n_index+1==np_list[i]) return i;
+  }
+  return -1;
+}
+
 void PsiCache::computeFs(PsiMessage* msg) {
   double start = CmiWallTimer();
 
@@ -318,7 +325,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
     fvec_cache->computeFTilde(fsave);
   //compute ftilde first - similar to ckloop above for all L's
     fvec_cache->applyCutoff(fsave);
-    fvec_cache->putFVec(msg->k_index, msg->state_index-L, fsave);
+    fvec_cache->putFVec(msg->k_index, get_index(msg->state_index), fsave);
   }
 #endif
 

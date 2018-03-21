@@ -150,6 +150,7 @@ class PsiCache : public CBase_PsiCache {
     std::vector<double> getVCoulb();
     complex* getStates(){return states;}
     bool in_np_list(int n_index);
+    int get_index(int n_index);
     void setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols);
     void reportInfo();
 
