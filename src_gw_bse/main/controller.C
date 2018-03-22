@@ -663,6 +663,7 @@ void FVectorCache::computeFTilde(complex *fs_in){
 }
 
 void FVectorCache::applyCutoff(complex* fs){
+  if(!storing) return;
   int count = 0;
 
   for(int l=0;l<L;l++){
