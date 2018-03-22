@@ -59,9 +59,9 @@ module controller {
     entry [reductiontarget] void converge_results(double max);
     entry [reductiontarget] void prepare_epsilon();
     entry [reductiontarget] void epsilon_created();
-    entry [reductiontarget] void bareExchangeComplete(complex x);
-    entry [reductiontarget] void screenedExchangeComplete(complex x);
-    entry [reductiontarget] void cohComplete(complex x);
+    entry [reductiontarget] void bareExchangeComplete(CkReductionMsg* msg);
+    entry [reductiontarget] void screenedExchangeComplete(CkReductionMsg* msg);
+    entry [reductiontarget] void cohComplete(CkReductionMsg* msg);
     entry [reductiontarget] void s_ready();
     entry [reductiontarget] void readComplete(bool success);
     entry [reductiontarget] void writeComplete(bool success);
@@ -358,44 +358,74 @@ module controller {
         CkPrintf("| Type               | K | n | n' |     Sigma       \n");
         bare_x = screen_x = coh = (0.0,0.0);
       }
-      for (next_K = 0; next_K < K; next_K++) {
-        for (next_state = 0; next_state < Bands; next_state++) {
-          serial{
-            eps_matrix2D_X_proxy.bareExchange(next_K, next_state);
-            s_matrix2D_proxy.screenedExchange(next_K, next_state);
-            s_matrix2D_proxy.coh(next_K, next_state);
-          }
 
-          when bareExchangeComplete(complex x) serial {
-            bare_x += x;
+      serial{
+        eps_matrix2D_X_proxy.bareExchange();
+      }
+
+      when bareExchangeComplete(CkReductionMsg* msg) serial {
+        CkReduction::tupleElement* results = NULL;
+        int num_reductions = 0;
+        msg->toTuple(&results, &num_reductions);
+        int ik = 0;
+
+        for(int k=0;k<K;k++){
+          for(int ib=0;ib<Bands;ib++){
+            complex dx = *(complex*)results[ik++].data;
             CkPrintf("-----------------------------------------------------------------\n");
-            CkPrintf("| Bare Exchange     | %d | %d | %d | %11.8lf + %fi\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
+            CkPrintf("| Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re,dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
           }
-          when screenedExchangeComplete(complex x) serial {
-            screen_x += x;
-            CkPrintf("| Screened Exchange | %d | %d | %d | %11.8f + %fi\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
-            CkPrintf("|                   |   |   |   |                         \n");
+        }
+        complex dx = *(complex*)results[ik].data;
+        CkPrintf("-----------------------------------------------------------------\n");
+        CkPrintf("| Accumulated Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("|                               |   |   |   |                         \n");
+        delete msg;
+        s_matrix2D_proxy.screenedExchange();
+      }
+
+      when screenedExchangeComplete(CkReductionMsg* msg) serial {
+        CkReduction::tupleElement* results = NULL;
+        int num_reductions = 0;
+        msg->toTuple(&results, &num_reductions);
+        int ik = 0;
+
+        for(int k=0;k<K;k++){
+          for(int ib=0;ib<Bands;ib++){
+            complex dx = *(complex*)results[ik++].data;
+            CkPrintf("-----------------------------------------------------------------\n");
+            CkPrintf("| Screen Exchange     | %d | %d | %d | %11.8f + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re,dx.im);
+            CkPrintf("|                     |   |   |   |                         \n");
           }
-          when cohComplete(complex x) serial{
-            coh += x;
-            CkPrintf("| COH               | %d | %d | %d | %e + %ei\t|\n", next_K, n_list[next_state], np_list[next_state], x.re, x.im);
+        }
+        complex dx = *(complex*)results[ik].data;
+        CkPrintf("-----------------------------------------------------------------\n");
+        CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("|                                 |   |   |   |                         \n");
+        delete msg;
+        s_matrix2D_proxy.coh();
+      }
+      when cohComplete(CkReductionMsg* msg) serial {
+        CkReduction::tupleElement* results = NULL;
+        int num_reductions = 0;
+        msg->toTuple(&results, &num_reductions);
+        int ik = 0;
+        for(int k=0;k<K;k++){
+          for(int ib=0;ib<Bands;ib++){
+            complex dx = *(complex*)results[ik++].data;
+            CkPrintf("| COH               | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re, dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
             CkPrintf("-----------------------------------------------------------------\n");
           }
         }
-      }
-      serial {
-        CkPrintf("                    Accummulated values                            \n");
+        complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Bare Exchange     |   |   |   | %11.8lf + %fi\t|\n", bare_x.re, bare_x.im);
-        CkPrintf("|                   |   |   |   |                         \n");
-        CkPrintf("| Screened Exchange |   |   |   | %11.8f + %fi\t|\n", screen_x.re, screen_x.im);
-        CkPrintf("|                   |   |   |   |                         \n");
-        CkPrintf("| COH               |   |   |   | %e + %ei\t|\n", coh.re, coh.im);
-        CkPrintf("|                   |   |   |   |                         \n");
-        CkPrintf("-----------------------------------------------------------------\n");
+        CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("|                     |   |   |   |                         \n");
+        delete msg;
       }
+
       serial {
         STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
         CkExit();

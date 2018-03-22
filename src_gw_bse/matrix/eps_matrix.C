@@ -110,19 +110,26 @@ void EpsMatrix::scalar_multiply(double alpha) {
   contribute(cb);
 }
 
-void EpsMatrix::screenedExchange(int k, int ib) {
+void EpsMatrix::screenedExchange() {
 
-  complex contribution(0.0,0.0);
 
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
+  int n = f_cache->getNSize();
+  int tuple_size = K*n;
+  tuple_size += 1;
+  CkReduction::tupleElement tuple_reduction[tuple_size];
+  complex total_contribution(0.0,0.0);
+  complex contrib_data[tuple_size];
+  int ik = 0;
 
-//  for (int k = 0; k < K; k++) {
-//    for (int i = 0; i < f_cache->getNSize(); i++) {
+  for (int k = 0; k < K; k++) {
+    for (int i = 0; i < f_cache->getNSize(); i++) {
+        complex contribution(0.0,0.0);
 //      for (int j = 0; j < N; j++) { //Performs only <n|Sigma|n> as does the fortran code
 // Uncommenting this loop will perform <n|Sigma|n’>
         for (int l = 0; l < L; l++) {
-          complex* fi = f_cache->getFVec(k, ib, l, thisIndex.x, eps_rows);
-          complex* fj = f_cache->getFVec(k, ib, l, thisIndex.y, eps_cols);
+          complex* fi = f_cache->getFVec(k, i, l, thisIndex.x, eps_rows);
+          complex* fj = f_cache->getFVec(k, i, l, thisIndex.y, eps_cols);
           for (int r = 0; r < config.tile_rows; r++) {
             for (int c = 0; c < config.tile_cols; c++) {
               complex tmp = fi[r]*fj[c];
@@ -130,37 +137,67 @@ void EpsMatrix::screenedExchange(int k, int ib) {
             }
           }
         }
-//    }
-//  }
+        contrib_data[ik] = contribution;
+        tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &(contrib_data[ik]), CkReduction::sum_double);
+        ik++;
+        total_contribution += contribution;
+    }
+  }
 
-  CkCallback cb(CkReductionTarget(Controller, screenedExchangeComplete), controller_proxy);
-  contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
+  tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &total_contribution, CkReduction::sum_double);
+
+  CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
+  msg->setCallback(CkCallback(CkIndex_Controller::screenedExchangeComplete(NULL), controller_proxy));
+  contribute(msg);
 }
 
-void EpsMatrix::bareExchange(int k, int ib) {
-  complex contribution = (0.0,0.0);
+void EpsMatrix::bareExchange() {
+  complex total_contribution = (0.0,0.0);
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
 
+  int n = f_cache->getNSize();
+  int tuple_size = K*n;
+  tuple_size += 1;
+  CkReduction::tupleElement tuple_reduction[tuple_size];
+  complex contrib_data[tuple_size];
+  int ik = 0;
+
   if(thisIndex.x == thisIndex.y) {
-//    for (int k = 0; k < K; k++) {
-//      for (int i = 0; i < f_cache->getNSize(); i++) {//ib = 5 to 8 actually, map to a number from 0
+    for (int k = 0; k < K; k++) {
+      for (int i = 0; i < f_cache->getNSize(); i++) {//ib = 5 to 8 actually, map to a number from 0
+        complex contribution = (0.0,0.0);
         for (int l = 0; l < L; l++) {
-          complex* f = f_cache->getFVec(k, ib, l, thisIndex.x, eps_rows);
+          complex* f = f_cache->getFVec(k, i, l, thisIndex.x, eps_rows);
           for(int ii=0; ii < config.tile_rows; ii++) {
             complex tmp = f[ii]*f[ii];
             contribution += sqrt(tmp.getMagSqr());
           }
         }
-//      }
-//    }
+        contrib_data[ik] = contribution;
+        tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &(contrib_data[ik]), CkReduction::sum_double);
+        ik++;
+        total_contribution += contribution;
+      }
+    }
   }
-  CkCallback cb(CkReductionTarget(Controller, bareExchangeComplete), controller_proxy);
-  contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
+  else{
+    for (int k = 0; k < K; k++) {
+      for (int i = 0; i < f_cache->getNSize(); i++) {
+        complex contribution = (0.0,0.0);
+        tuple_reduction[ik++] =  CkReduction::tupleElement(sizeof(complex), &contribution, CkReduction::sum_double);
+      }
+    }
+  }
+
+  tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &total_contribution, CkReduction::sum_double);
+
+  CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
+  msg->setCallback(CkCallback(CkIndex_Controller::bareExchangeComplete(NULL), controller_proxy));
+  contribute(msg);
 }
 
-void EpsMatrix::coh(int k, int ib){
+void EpsMatrix::coh(){
 
-  complex contribution = (0.0,0.0);
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
 
@@ -171,7 +208,15 @@ void EpsMatrix::coh(int k, int ib){
   std::vector<int> geps_y = f_cache->getGepsYVector();
   std::vector<int> geps_z = f_cache->getGepsZVector();
 
-//  for (int k = 0; k < K; k++) {
+  int n = f_cache->getNSize();
+  int tuple_size = K*n;
+  tuple_size += 1;
+  CkReduction::tupleElement tuple_reduction[tuple_size];
+  complex contrib_data[tuple_size];
+  int ik = 0;
+  complex total_contribution = (0.0,0.0);
+
+  for (int k = 0; k < K; k++) {
     complex *f;
     int epsilon_size = 0;
 
@@ -206,7 +251,8 @@ void EpsMatrix::coh(int k, int ib){
     if(thisIndex.x == last_index-1) end_x = epsilon_size%eps_rows;
     if(thisIndex.y == last_index-1) end_y = epsilon_size%eps_cols;
 
-//    for (int i = 0; i < f_cache->getNSize(); i++) {
+    for (int i = 0; i < f_cache->getNSize(); i++) {
+      complex contribution = (0.0,0.0);
       for (int j = 0; j < f_cache->getNSize(); j++) {
         for (int r = 0; r < end_x; r++) {
           for (int c = 0; c < end_y; c++) {
@@ -225,12 +271,18 @@ void EpsMatrix::coh(int k, int ib){
           }
         }
       }
-//    }
-//  } //end of K loop
+      contrib_data[ik] = contribution;
+      tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &(contrib_data[ik]), CkReduction::sum_double);
+      ik++;
+      total_contribution += contribution;
+    }
+  } //end of K loop
 
-  CkCallback cb(CkReductionTarget(Controller, cohComplete), controller_proxy);
-  contribute(sizeof(complex), &contribution, CkReduction::sum_double, cb);
+  tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &total_contribution, CkReduction::sum_double);
 
+  CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
+  msg->setCallback(CkCallback(CkIndex_Controller::cohComplete(NULL), controller_proxy));
+  contribute(msg);
 }
 
 void EpsMatrix::findAlpha() {
