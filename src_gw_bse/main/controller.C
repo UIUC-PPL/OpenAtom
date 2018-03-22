@@ -365,9 +365,11 @@ std::vector<double> PsiCache::getVCoulb() {
 // TODO: improve this to only be called when REGISTER_REGIONS is active
 // at the moment "#ifdef REGISTER REGIONS" doesn't work in controller.ci
 void PsiCache::reportInfo() {
+#ifdef DEBUG
   if(min_row != -1 && max_row != -1 && min_col != -1 && max_col != -1) {
     CkPrintf("[PSICACHE %i]: minRow: %d, maxRow: %d, minCol: %d, maxCol: %d\n", CkMyNode(), min_row, max_row, min_col, max_col);
   }
+#endif
 }
 
 void PsiCache::kqIndex(unsigned ikpt, unsigned& ikq, int* uklapp){
