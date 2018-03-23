@@ -127,6 +127,9 @@ void InstanceController::init(){
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_
     CkMulticastMgr *mcastGrp = CProxy_CkMulticastMgr(mCastGrpId).ckLocalBranch(); 
     gTemperBeadProxy.ckSectionDelegate(mcastGrp);
+    mcastGrp->setReductionClient(gTemperBeadProxy, new CkCallback(CkReductionTarget(InstanceController, fmagMinTest),CkArrayIndex1D(0), thisProxy));
+#else
+    gTemperBeadProxy.setReductionClient(new CkCallback(CkReductionTarget(InstanceController, fmagMinTest),CkArrayIndex1D(0), thisProxy));
 #endif
     ICCookieMsg *cookieme=new ICCookieMsg;
     gTemperBeadProxy.initBeadCookie(cookieme);
@@ -145,7 +148,7 @@ void InstanceController::fmagMinTest(CkReductionMsg *m){
   //  CkPrintf("[%d] fmagMinTest %d\n",thisIndex, result);
   ICCookieMsg *out=new ICCookieMsg;
   out->junk = result;
-  delete m;
+  // delete m;
   gTemperBeadProxy.minimizeSync(out);
 
 }
