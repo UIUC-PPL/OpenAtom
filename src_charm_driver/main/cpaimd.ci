@@ -166,7 +166,7 @@ module instanceController
     entry void cleanExitAll(CkReductionMsg *m);
     entry void gspDoneNewTemp(CkReductionMsg *m);
     entry void atomsDoneNewTemp(CkReductionMsg *m);
-    entry [reductiontarget] void fmagMinTest(CkReductionMsg *m);
+    entry void fmagMinTest(CkReductionMsg *m);
     entry void instancesReady(CkReductionMsg *m);
     entry void resumeFromTemper();
     entry void doneIteration();
