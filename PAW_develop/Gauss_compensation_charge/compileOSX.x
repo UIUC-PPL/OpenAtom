@@ -4,15 +4,16 @@
 # Compilers with fort under: compile.x FORT UNDER
 #=============================================
 #         Clean up
-rm -rf model_PAW.x *.o *.a
+#rm -rf model_PAW.x *.o *.a
+rm -rf model_PAW.x *.o
 #=============================================
 #         Quad precision ggev
-cd ../ggev_quad_pkg/compile/
-./compile.x
-rm -rf *.o
-cd -
-/bin/cp ./../ggev_quad_pkg/compile/libqggev.a .
-/bin/rm ./../ggev_quad_pkg/compile/libqggev.a 
+#cd ../ggev_quad_pkg/compile/
+#./compile.x
+#rm -rf *.o
+#cd -
+#/bin/cp ./../ggev_quad_pkg/compile/libqggev.a .
+#/bin/rm ./../ggev_quad_pkg/compile/libqggev.a 
 
 #=============================================
 g++-5 -Wall -g -c -O2 grid.C 

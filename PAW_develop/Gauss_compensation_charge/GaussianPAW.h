@@ -14,7 +14,7 @@ typedef struct Eterm{
 	double EGrid;
 	void pres () {
 	//	PRINTF("%-17s  |   % 09.7f  |  % 09.7f  |  %9.7f  |  %4.2f\n",name.c_str(),E,EGrid,fabs(E-EGrid),fabs(E-EGrid)/MAX(fabs(E),1e-20)*100);
-		PRINTF("%-17s  |   % 09.7f  |  % 09.7f  |  %9.7f  |  %4.2f\n",name,E,EGrid,fabs(E-EGrid),fabs(E-EGrid)/MAX(fabs(E),1e-20)*100);
+		PRINTF("%-17s  |   % 014.12f  |  % 014.12f  |  %014.12f  |  %4.2f\n",name,E,EGrid,fabs(E-EGrid),fabs(E-EGrid)/MAX(fabs(E),1e-20)*100);
 	}
 }Eterm;
 
@@ -34,6 +34,7 @@ typedef struct ESTRUCT{
 	Eterm Etot0D;
 	Eterm Etot3D;
 	Eterm EHarselfscr;
+	Eterm EHarshortselfscr;
 }ESTRUCT;
  
 //==========================================================================

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  16 MAR 2018 15:56
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  28 MAR 2018 11:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1212,7 +1212,17 @@ LaTeX Warning: Unused global option(s):
 
 
 (/Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Notes_papers/.texpad
-tmp/PAW_EES_physics.aux)
+tmp/PAW_EES_physics.aux
+
+LaTeX Warning: Label `index' multiply defined.
+
+
+LaTeX Warning: Label `fig:diffbeta' multiply defined.
+
+
+LaTeX Warning: Label `fig:diffbeta' multiply defined.
+
+)
 \openout1 = `PAW_EES_physics.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 259.
@@ -2232,94 +2242,156 @@ Overfull \hbox (0.38954pt too wide) in paragraph at lines 5842--5842
 [] 
  []
 
-[123] [124]
-Underfull \hbox (badness 10000) in paragraph at lines 5874--5875
+[123] [124] [125] [126] <error.png, id=432, 481.8pt x 361.35pt>
+File: error.png Graphic file (type png)
 
- []
+<use error.png>
+Package pdftex.def Info: error.png used on input line 6014.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+ <diffbeta.png, id=433, 481.8pt x 361.35pt>
+File: diffbeta.png Graphic file (type png)
+ <use diffbeta.png>
+Package pdftex.def Info: diffbeta.png used on input line 6021.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
+<betaconv.png, id=434, 481.8pt x 361.35pt>
+File: betaconv.png Graphic file (type png)
+ <use betaconv.png>
+Package pdftex.def Info: betaconv.png used on input line 6028.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 5889--5891
+<betaconvloglog.png, id=435, 481.8pt x 361.35pt>
+File: betaconvloglog.png Graphic file (type png)
+ <use betaconvloglog.png>
+Package pdftex.def Info: betaconvloglog.png used on input line 6035.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
- []
+<error3D.png, id=436, 481.8pt x 361.35pt>
+File: error3D.png Graphic file (type png)
+ <use error3D.png>
+Package pdftex.def Info: error3D.png used on input line 6042.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
+<conv.png, id=437, 481.8pt x 361.35pt>
+File: conv.png Graphic file (type png)
+ <use conv.png>
+Package pdftex.def Info: conv.png used on input line 6049.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 5932--5934
-
- []
-
-[125]
-Underfull \hbox (badness 10000) in paragraph at lines 5941--5943
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 5955--5958
-
- []
-
-[126]
-Underfull \hbox (badness 10000) in paragraph at lines 5993--5996
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 6000--6003
-
- []
-
-[127]
-Underfull \hbox (badness 10000) in paragraph at lines 6054--6056
-
- []
-
-[128]
-Overfull \hbox (11.50279pt too wide) in paragraph at lines 6149--6149
+<fconv.png, id=438, 481.8pt x 361.35pt>
+File: fconv.png Graphic file (type png)
+ <use fconv.png>
+Package pdftex.def Info: fconv.png used on input line 6056.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+ [127 <./error.png>]
+[128 <./diffbeta.png> <./betaconv.png>] [129 <./betaconvloglog.png> <./error3D.
+png>] [130 <./conv.png> <./fconv.png>]
+Overfull \hbox (15.08829pt too wide) in paragraph at lines 6091--6091
 [] 
  []
 
-[129] [130] [131]
+[131]
+./PAW_EES_physics.tex:6110: Double superscript.
+<argument> ...} \re ^{-\al _J^2 r ^2-\al _J^2 r' ^
+                                                  2}\right \}\\ &= E^{(\rcom...
+l.6110 \end{split}
+                  
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+./PAW_EES_physics.tex:6110: Double superscript.
+<argument> ...} \re ^{-\al _J^2 r ^2-\al _J^2 r' ^
+                                                  2}\right \}\\ &= E^{(\rcom...
+l.6110 \end{split}
+                  
+I treat `x^1^2' essentially like `x^1{}^2'.
+
+[132]
+Underfull \hbox (badness 10000) in paragraph at lines 6120--6121
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6135--6137
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6178--6180
+
+ []
+
+[133]
+Underfull \hbox (badness 10000) in paragraph at lines 6187--6189
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6201--6204
+
+ []
+
+[134]
+Underfull \hbox (badness 10000) in paragraph at lines 6239--6242
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6246--6249
+
+ []
+
+[135]
+Underfull \hbox (badness 10000) in paragraph at lines 6300--6302
+
+ []
+
+[136] [137] [138]
 (/Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Notes_papers/.texpad
-tmp/PAW_EES_physics.aux) ) 
+tmp/PAW_EES_physics.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 9493 strings out of 493117
- 163760 string characters out of 6135433
- 247296 words of memory out of 5000000
- 12866 multiletter control sequences out of 15000+600000
+ 9533 strings out of 493117
+ 164351 string characters out of 6135433
+ 247397 words of memory out of 5000000
+ 12899 multiletter control sequences out of 15000+600000
  22060 words of font info for 64 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  40i,23n,39p,10391b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/c
-m-super/cm-super-t1.enc}</usr/local/texlive/2014/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmbx10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmbx12.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmbx7.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmex10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi12.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmmi5.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmmi6.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmmi7.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12
-.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pf
-b></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb><
-/usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></us
-r/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/l
-ocal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/lo
-cal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/loca
-l/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/
-texlive/2014/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/te
-xlive/2014/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texl
-ive/2014/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texliv
-e/2014/texmf-dist/fonts/type1/public/cm-super/sfcc1000.pfb></usr/local/texlive/
-2014/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/20
-14/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2014
-/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pfb>
+{/usr/local/texlive/2014/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
+</usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
+/usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
+usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></us
+r/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr
+/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/
+local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/l
+ocal/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/loc
+al/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local
+/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/t
+exlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/tex
+live/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texli
+ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive
+/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/20
+14/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2014/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2014/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2014/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2014/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2014/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2014/texmf-dist/
+fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2014/texmf-dist/fo
+nts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2014/texmf-dist/font
+s/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2014/texmf-dist/fonts/
+type1/public/cm-super/sfcc1000.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
+pe1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
+1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/
+public/cm-super/sfrm2074.pfb>
 Output written on /Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Not
-es_papers/.texpadtmp/PAW_EES_physics.pdf (131 pages, 877631 bytes).
+es_papers/.texpadtmp/PAW_EES_physics.pdf (138 pages, 941625 bytes).
 PDF statistics:
- 535 PDF objects out of 1000 (max. 8388607)
- 370 compressed objects within 4 object streams
+ 571 PDF objects out of 1000 (max. 8388607)
+ 385 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
 

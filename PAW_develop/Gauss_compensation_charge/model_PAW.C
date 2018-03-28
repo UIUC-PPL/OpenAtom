@@ -57,21 +57,22 @@ int main (int argc, char *argv[]){
   ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
   ESTRUCT *energy_minus = new ESTRUCT [3]; 		
 		
-  strcpy(energy.ENN.name           		, "E_NN_0D             ");
-  strcpy(energy.EeN.name           		, "E_eN_0D             ");
-  strcpy(energy.EeNself.name       		, "E_eNself_0D         ");
-  strcpy(energy.EHar.name          		, "E_Har_0D            ");
-  strcpy(energy.EHarself.name      		, "E_Har_self_0D       ");
-  strcpy(energy.ENNshort.name      		, "E_NNshort_3D        ");
-  strcpy(energy.EeNshort.name      		, "E_eN_short_3D       ");
-  strcpy(energy.EeNshortself.name  		, "E_eN_short_self_3D  ");
-  strcpy(energy.EHarshort.name     		, "E_Har_short_3D      ");
-  strcpy(energy.EHarshortself.name 		, "E_Har_short_self_3D ");
-  strcpy(energy.Elong.name         		, "E_long_3D           ");
-  strcpy(energy.ENNselflong.name   		, "E_NNselflong_3D     ");
-  strcpy(energy.Etot0D.name        		, "E_tot_0D            ");
-  strcpy(energy.Etot3D.name        		, "E_tot_3D            ");
-  strcpy(energy.EHarselfscr.name		, "E_Har_self_0D_scr   ");
+  strcpy(energy.ENN.name           		, "E_NN_0D            	 	");
+  strcpy(energy.EeN.name           		, "E_eN_0D             		");
+  strcpy(energy.EeNself.name       		, "E_eNself_0D         		");
+  strcpy(energy.EHar.name          		, "E_Har_0D            		");
+  strcpy(energy.EHarself.name      		, "E_Har_self_0D       		");
+  strcpy(energy.ENNshort.name      		, "E_NNshort_3D        		");
+  strcpy(energy.EeNshort.name      		, "E_eN_short_3D       		");
+  strcpy(energy.EeNshortself.name  		, "E_eN_short_self_3D  		");
+  strcpy(energy.EHarshort.name     		, "E_Har_short_3D      		");
+  strcpy(energy.EHarshortself.name 		, "E_Har_short_self_3D 		");
+  strcpy(energy.Elong.name         		, "E_long_3D           		");
+  strcpy(energy.ENNselflong.name   		, "E_NNselflong_3D     		");
+  strcpy(energy.Etot0D.name        		, "E_tot_0D            		");
+  strcpy(energy.Etot3D.name        		, "E_tot_3D            		");
+  strcpy(energy.EHarselfscr.name		, "E_Har_self_0D_scr		");
+  strcpy(energy.EHarshortselfscr.name	, "E_Har_short_self_3D_scr	");
 
   long seed;		// random seeds
   double dseed;		// random seeds
@@ -108,7 +109,7 @@ int main (int argc, char *argv[]){
   thetaorder = atoi(argv[3]);
   phiorder   = atoi(argv[4]);
   lmax 	 	 = atoi(argv[5]);
-  beta_unitless 	 	 = atoi(argv[6]);
+  beta_unitless 	 	 = atof(argv[6]);
   strcpy(fnameIn, argv[1]);
   PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
   fp = fopen(fnameIn,"r");
@@ -329,19 +330,29 @@ int main (int argc, char *argv[]){
 	double result3 = 0.0;
 	double result4 = 0.0;
 	double pre3 = 8.0/M_PI_QI*pow(alp_tmp,6);
+	double beta2 = beta_tmp*beta_tmp;
 	for (int ir=0; ir<rorder; ir++) {
 		for (int jr=0; jr<rorder; jr++) {
 			double rgt = MAX(xr[ir],xr[jr]);
 			double rlt = MIN(xr[ir],xr[jr]);
+			double rd = rgt - rlt;
+			double rs = rgt + rlt;
 			result3 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]/rgt;
-			result4 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]*erf(beta_tmp*rgt)/rgt;
+			double complicated;
+			double part1 = (exp(-beta2*rs*rs) - exp(-beta2*rd*rd))/(2.0*beta_tmp*sqrt(M_PI_QI)*rgt*rlt); 
+			double part2 = (rd*erfc(beta_tmp*rd) - rs*erfc(beta_tmp*rs))/(2.0*rgt*rlt);
+			double part3 = 1.0/rgt;
+			complicated = part1 + part2 + part3; 
+			result4 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]*complicated;
 		} // end for jr
 	} // end for ir
 	result3 *= pre3;
+	result4 *= pre3;
 	PRINTF("test3: %g %g\n", result3, alp_tmp/sqrt(2.0*M_PI_QI));
-
-    double gamma   = 2.0*alp_tmp*beta_tmp/sqrt(2*beta_tmp*beta_tmp + alp_tmp*alp_tmp);
-	PRINTF("test4: %g %g beta_tmp = %g\n", result4, gamma/sqrt(2.0*M_PI_QI), beta_tmp);
+	
+	double gamma2_inv = 0.5/(alp_tmp*alp_tmp) + 0.25/(beta_tmp*beta_tmp);
+	double gamma = 1.0/sqrt(gamma2_inv);
+	PRINTF("test4: %.10g %.10g beta_tmp = %g\n", result4, 0.5*gamma/sqrt(M_PI_QI), beta_tmp);
 
 	for (int itheta=0; itheta<thetaorder; itheta++) { xcostheta[itheta] = xtheta_master[itheta];}
 	for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
@@ -420,6 +431,7 @@ int main (int argc, char *argv[]){
   energy.Etot0D.pres();
   energy.Etot3D.pres();
   energy.EHarselfscr.pres();
+  energy.EHarshortselfscr.pres();
   PRINT_LINE_DASH;
   PRINTF(" Completed output\n");
   PRINT_LINE_STAR;
@@ -495,10 +507,10 @@ int main (int argc, char *argv[]){
   PRINTF(" Printing out forces\n");
   PRINT_LINE_DASH;
   for (int i=0; i<natm; i++) {
-	PRINTF("fx0  [%d]: % 09.7f  |  % 09.7f  |  % 09.7f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
-	PRINTF("fx0g [%d]: % 09.7f  |  % 09.7f  |  % 09.7f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
-	PRINTF("fx   [%d]: % 09.7f  |  % 09.7f  |  % 09.7f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
-	PRINTF("fxg  [%d]: % 09.7f  |  % 09.7f  |  % 09.7f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
+	PRINTF("fx0  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
+	PRINTF("fx0g [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
+	PRINTF("fx   [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
+	PRINTF("fxg  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
   } // end for
 
   //==========================================================================

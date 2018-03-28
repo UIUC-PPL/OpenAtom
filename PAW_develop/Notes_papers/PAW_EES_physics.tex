@@ -5852,6 +5852,252 @@ To calculated the force, we have
 \end{split}
 \end{equation}
 
+\subsection{0D screened Hartree self term}
+The unscreened Hartree self term is
+\begin{equation}
+\begin{split}
+E_{\rH}^{(\rcomp,\rself)}
+&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3  \int_0^\infty \rd r \int_0^\infty \rd r' \re^{-\al_J^2 \left(r^2+r'^2\right)} \left( \frac{r^2 r'^2}{r_{>}} \right)\\
+&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \left[ \int_0^r \rd r' r r'^2 \re^{-\al_J^2 r'^2}+ \int_r^\infty \rd r' r^2 r' \re^{-\al_J^2 r'^2} \right]\\
+&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \int_0^r \rd r' r r'^2 \re^{-\al_J^2 r'^2}+  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \int_r^\infty \rd r' r^2 r' \re^{-\al_J^2 r'^2} \right]\\
+&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \int_0^r \rd r' r'^2 \re^{-\al_J^2 r'^2}+  \int_0^\infty \rd r\ r^2 \re^{-\al_J^2 r^2} \int_r^\infty \rd r'\ r' \re^{-\al_J^2 r'^2} \right]\\
+&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \frac{(-2 \al_J r)\re^{-\al_J^2 r^2} + \sqrt{\pi} \rerf(\al_J r)}{4 \al_J^3}\right.\\  
+&\left. \hspace{10mm}+ \int_0^\infty \rd r\ r^2 \re^{-\al_J^2 r^2} \frac{\re^{-\al_J^2 r^2}}{2 \al_J^2} \right]\\
+&= 2\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J}{\pi}\right)^3 \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \sqrt{\pi} \rerf(\al_J r) \\
+&= 2\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J}{\pi}\right)^3 \frac{\sqrt{\pi}}{2\sqrt{2}\al_J^2} \\
+&= \frac{1}{\sqrt{2\pi}} \sum_J \tilde Z_J^2 \al_J
+\end{split}
+\end{equation}
+
+The screened self Hartree term with $\beta$, the inverse screening length, is:
+\begin{equation}
+\begin{split}
+E_{\rH}^{(\mathrm{screen,self})} 
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \int \rd \br \int \rd \br'  \frac{\rerf(\beta|\br - \br'|)}{|\br-\br'|}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{8\pi^3}\int \rd \bg \int \rd \br \int \rd \br'  \frac{4\pi}{g^2} \re^{-\frac{g^2}{4\beta^2}} \re^{i\bg\cdot(\br - \br')}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \int \rd \br \int \rd \br'  \re^{i\bg\cdot(\br - \br')}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \int \rd \br  \re^{i\bg\cdot\br}\re^{-\al_J^2 r^2} \int \rd \br'  \re^{-i\bg\cdot\br'}\re^{-\al_J^2 r'^2}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \frac{\pi^3}{\al_J^6} \re^{-\frac{g^2}{2\al_J^2}}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}} \re^{-\frac{g^2}{2\al_J^2}}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{\gamma^2}} \\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}4\pi \int_0^\infty \rd g\ \re^{-\frac{g^2}{\gamma^2}}\\
+&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}4\pi \frac{\gamma\sqrt{\pi}}{2}\\
+&= \frac{1}{2\sqrt{\pi}}\sum_J \tilde Z_J^2 \gamma
+\end{split}
+\end{equation}
+
+where
+\begin{equation}
+\frac{1}{\gamma^2} = \frac{1}{2\al_J^2} + \frac{1}{4\beta^2}
+\end{equation}
+
+The unscreened Hartree term arises in the limit $\beta \rightarrow \infty$,
+\begin{equation}
+E_{\rH}^{(\mathrm{unscreen,self})} 
+= \frac{1}{\sqrt{2\pi}}\sum_J \tilde Z_J^2 \al_J
+\end{equation}
+which provides check of the math.
+
+The screened Hartree self term is calculated on the grid as
+\begin{equation}
+\begin{split}
+E_{\rH}^{(\rcomp,\mathrm{screen, self, grid})}
+&= \frac{1}{2}\sum_f w_f \sum_{f'} w_{f'} \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{\rerf(\beta_{\mathrm{scr}}|\br_f - \br_{f'}|)}{|\br_f-\br_{f'}|}\re^{-\al_J^2 \left(r_f^2+r_{f'}^2\right)}\\
+\end{split}
+\end{equation}
+
+
+We now perform an error analysis with generalized Gaussian quadrature weights and nodes based on half-space Hermite polynomials for the $\br$-space integration, Gauss Legendre for $cos(\theta)$ and equally spaced points for $\phi$. Due to the symmetry, you need very few points for $\theta$ and $\phi$. The idea is to choose an error bound for a given grid size, select the largest $\beta$ consistent with this error bound. In practice, we choose a $\beta$ for each atom type $\beta_{J} = \beta_{\mathrm{universal}} \alpha_{J}$.
+
+We now present the partial way expansion of the screened Coulomb interaction,
+\begin{equation}
+\begin{split}
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(\br-\br')^2}\\
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}\re^{2u^2 r r' \cos(\theta)} \\
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \left\{\sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{4u^2 r r'}}I_{l+\frac{1}{2}}(2u^2 r r')\right]P_l\left(\cos(\theta)\right)\right\} \\
+&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \sqrt{\frac{\pi}{4u^2 r r'}}I_{l+\frac{1}{2}}(2u^2 r r')\\
+&= \frac{1}{\sqrt{r r'}} \sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{I_{l+\frac{1}{2}}(2u^2 r r')}{u}\\
+&= \frac{4\pi}{\sqrt{r r'}} \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{I_{l+\frac{1}{2}}(2u^2 r r')}{u}\\
+\end{split}
+\end{equation}
+
+Here we have used 2 identities, the spherical harmonics addition theorem and the partial wave expansion of a decaying exponential,
+\begin{equation}
+\begin{split}
+P_l(\cos(\gamma)) &= \frac{4\pi}{2l + 1} \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \\
+\re^{z \cos(\theta)} &= \sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{2z}}I_{l+1/2}(z)\right]P_l(\cos(\theta))
+\end{split}
+\end{equation}
+
+
+For spherical charge distributions, we only need $l=0$ due to orthogonality of the spherical harmonics. Therefore, let's just evaluate the $l=0, m=0$ term using 
+\begin{equation}
+I_{1/2}(z) = \sqrt{\frac{2}{(\pi z)}} \mathrm{sinh}(z)\\
+\end{equation}
+
+Inserting the expression for the modified Bessel function of $1/2$ order into (L.61), the $l=0, m=0$ term is
+\begin{equation}
+\begin{split}
+\frac{4\pi}{\sqrt{r r'}} Y_{00}\left(\cos(\theta),\phi\right)Y_{00}\left(\cos(\theta'),\phi'\right) \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{1}{u}\sqrt{\frac{1}{(\pi u^2 r r')}} \mathrm{sinh}(2 u^2 r r') =\\
+\frac{1}{\sqrt{r r'}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{1}{u}\sqrt{\frac{1}{(\pi u^2 r r')}} \mathrm{sinh}(2 u^2 r r') =\\
+\frac{1}{r r'} \frac{1}{\sqrt{\pi}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{\mathrm{sinh}(2 u^2 r r')}{u^2}  =\\
+\frac{2}{\sqrt{\pi}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{\mathrm{sinh}(2 u^2 r r')}{2u^2 r r'}  =\\
+\sqrt{\frac{2}{\pi r r'}} \int_{0}^{\beta\sqrt{2r r'}} \rd v\ \re^{-\frac{v^2(r^2 + r'^2)}{2r r'}} \frac{\mathrm{sinh}(v^2)}{v^2}  =\\
+\end{split}
+\end{equation}
+When the smoke clears (see appendix O), the $r, r'$ dependence of the $l=0, m=0$ term emerges.
+\begin{equation}
+\frac{\re^{-\beta^2(r_>+r_<)^2 }-\re^{-\beta^2(r_>-r_<)^2 }}{2\beta \sqrt{\pi}r_> r_< } + \frac{(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - (r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2 r_>r_<} + \frac{1}{r_>}
+\end{equation}
+L.65 is surprisingly complicated. In the limit $\beta \rightarrow \infty$, the result is $1/r_>$, which is correct. The limit $r_< \rightarrow 0$ should simply be the error function over r,
+\begin{equation}
+\frac{\rerf(\beta r_>)}{r_>},
+\end{equation}
+which it is! A further check is taking the limit $r_> \rightarrow 0$, which is $2\beta/\sqrt{\pi}$. Last, $r_> = r_< = r$, 
+\begin{equation}
+\frac{\re^{-4\beta^2r^2} - 1}{2\beta\sqrt{\pi}r^2} + \frac{\rerf\left(2\beta r\right)}{r}
+\end{equation}
+$r_> = r_< $ does not cancel any of the $\cos(\gamma) = \br \cdot \br'/(r_> r_<)$ dependence, so it is more complicated than a single error function. In the limit $r \rightarrow 0$, L.67 is zero, which heals the cusp. We verified L.65 for Gaussian spherical charges.
+
+
+\begin{table}[!htbp]
+\caption{\label{index} Largest $\beta_{\mathrm{universal}}$ for each grid size to achieve the desired tolerance per atom in $E_{\rH}^{(\rcomp,\mathrm{screen, self, 0D, grid})}$.}
+\begin{center}
+\begin{tabular}{ c  c  c  c}
+  \hline\hline
+   $n_r$ & $\mathrm{tolerance} (\%)$ & $\beta_{\mathrm{universal}}$ \\
+   \hline
+    6 & 0.01 & 2.16\\
+    8 & 0.01 & 2.69\\
+    10 & 0.01 & 3.32\\
+    12 & 0.01 & 3.50\\
+    14 & 0.01 & 3.86\\ \hline
+    6 & 0.025 & 2.46\\
+    8 & 0.025 & 3.22\\
+    10 & 0.025 & 3.80\\
+    12 & 0.025 & 4.20\\
+    14 & 0.025 & 4.48\\ \hline
+    6 & 0.05 & 2.77\\
+    8 & 0.05 & 3.59\\
+    10 & 0.05 & 4.26\\
+    12 & 0.05 & 4.74\\
+    14 & 0.05 & 5.09\\ \hline
+    6 & 0.1 & 3.19\\
+    8 & 0.1 & 3.58\\
+    10 & 0.1 & 4.90\\
+    12 & 0.1 & 5.47\\
+    14 & 0.1 & 5.88\\
+  \hline\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{error}
+    \caption{Percent error of the 0D Hartree self energy versus $\beta_{\mathrm{universal}}$ for different radial grid sizes.} 
+    \label{fig:error}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{diffbeta}
+    \caption{For $n_r = 14$, the percentage difference between the screened and unscreened 0D Hartree self energy term versus $\beta_{\mathrm{universal}}$. The asymptotic regime is reached for $\beta_{\mathrm{universal}} > 2$.} 
+    \label{fig:diffbeta}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{betaconv}
+    \caption{Percentage error of the 0D Hartree self energy versus $n_r$ for different $\beta_{\mathrm{universal}}$ on a semilog plot.} 
+    \label{fig:diffbeta}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{betaconvloglog}
+    \caption{Percentage error of the 0D Hartree self energy versus $n_r$ for different $\beta_{\mathrm{universal}}$ on a loglog plot.} 
+    \label{fig:diffbeta}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{error3D}
+    \caption{Percent error of the 3D Hartree short self energy versus $\beta_{\mathrm{universal}}$ for $n_r = 14$.} 
+    \label{fig:error3D}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{conv}
+    \caption{The fractional error between the grid and analytical 0D e-N energy and Hartree energy without the self term versus $n_r$.} 
+    \label{fig:conv0D}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{fconv}
+    \caption{The fractional error between the grid and analytical 0D e-N force and Hartree force versus $n_r$.} 
+    \label{fig:fconv0D}
+\end{figure}
+
+\subsection{3D screened Hartree self term}
+\begin{equation}
+\begin{split}
+E^{(\rcomp)} 
+&= \frac{1}{2}\sum_\bm \iint_{D(\bh)} \rd \br \rd \br' \frac{n^{(\rcomp)}(\br)n^{(\rcomp)}(\br')\left[1-1+\rerf(\beta|\br-\br'+\bm\bh|)\right]}{|\br-\br'+\bm\bh|} - E_{\rNN}^{(\rself)}\\
+&= \frac{1}{2}\sum_\bm \iint_{D(\bh)} \rd \br \rd \br' \frac{\left[\rerfc(\bal |\br-\br'+\bm\bh|)- \rerfc(\beta|\br-\br'+\bm\bh|) \right]n^{(\rcomp)}(\br)n^{(\rcomp)}(\br')}{|\br-\br'+\bm\bh|} - E_{\rNN}^{(\rself,\rshort)} \\
+&+ \frac{1}{2}\sum_\bm \iint_{D(\bh)} \rd \br \rd \br' \frac{\rerf(\bal |\br-\br'+\bm\bh|)n^{(\rcomp)}(\br)n^{(\rcomp)}(\br')}{|\br-\br'+\bm\bh|} - E_{\rNN}^{(\rself,\rlong)} \\
+\end{split}
+\end{equation}
+
+Only the short Hartree term is modified, because $\beta$ is chosen very large to screen the Coulomb interaction only inside the PAW radius $-$ the Coulomb interaction between 2 different PAW spheres will not be screened. The condition is $\beta \Rpc >> 1$, while $\bal$ has the more relaxed condition $\bal \Rc >> 1$, where $\Rc > \Rpc$ as described in section 1, page 3. $\Rpc \approx 3/(\sqrt{2}\al)$ for our Gaussian compensation charge. In our tests, $\beta/\al \approx 4$.
+
+\begin{equation}
+\begin{split}
+E^{(\rcomp,\rshort)} 
+&= \frac{1}{2}\iint \rd \br \rd \br' \frac{n^{(\rcomp)}(\br)n^{(\rcomp)}(\br')\left[\rerfc(\bar {\al}|\br-\br'|) - \rerfc(\beta|\br-\br'|)\right]} {|\br-\br'|} - E_{\rNN}^{(\rself,\rshort)}\\
+&= \frac{1}{2}\iint \rd \br \rd \br' \frac{\rerfc(\bar {\al}|\br-\br'|) - \rerfc(\beta|\br-\br'|)}{|\br-\br'|}{|\br-\br'|} \left[\sum_J Z_J\delta(\br-\bR_J) - \sum_J \tilde Z_J\left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_J^2|\br-\bR_J|^2}\right]\\
+&\hspace{10mm}\times \left[\sum_K Z_K\delta(\br'-\bR_K) - \sum_K \tilde Z_K\left(\frac{\al_K^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_K^2|\br'-\bR_K|^2}\right] - E_{\rNN}^{(\rself,\rshort)}\\
+&= \frac{1}{2}\iint \rd \br \rd \br' \frac{\rerfc(\bar {\al}|\br-\br'|) - \rerfc(\beta|\br-\br'|)}{|\br-\br'|} \left\{\sum_J \sum_{K \neq J} Z_J Z_K \delta(\br-\bR_J)\delta(\br'-\bR_K) \right. \\
+&\left.\hspace{10mm} - \sum_J Z_J\delta(\br-\bR_J) \sum_K \tilde Z_K\left(\frac{\al_K^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_K^2|\br'-\bR_K|^2} \right. \\
+&\left.\hspace{10mm} - \sum_J Z_K\delta(\br'-\bR_J) \sum_J \tilde Z_J\left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_J^2|\br-\bR_J|^2} \right. \\
+&\left.\hspace{10mm} + \sum_J\sum_K \tilde Z_J\tilde Z_K\left(\frac{\al_J\al_K}{\pi}\right)^3\re^{-\al_J^2|\br-\bR_J|^2-\al_K^2|\br'-\bR_K|^2}\right\}\\
+&= \frac{1}{2}\iint \rd \br \rd \br' \frac{\rerfc(\bar {\al}|\br-\br'|)}{|\br-\br'|} \left\{\sum_J \sum_{K \neq J} Z_J Z_K \delta(\br-\bR_J)\delta(\br'-\bR_K) \right. \\
+&\left.\hspace{10mm} - \sum_J Z_J\delta(\br-\bR_J) \sum_K \tilde Z_K\left(\frac{\al_K^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_K^2|\br'-\bR_K|^2} \right. \\
+&\left.\hspace{10mm} - \sum_J Z_K\delta(\br'-\bR_J) \sum_J \tilde Z_J\left(\frac{\al_J^2}{\pi}\right)^{\frac{3}{2}}\re^{-\al_J^2|\br-\bR_J|^2} \right. \\
+&\left.\hspace{10mm} + \sum_J\sum_K \tilde Z_J\tilde Z_K\left(\frac{\al_J\al_K}{\pi}\right)^3\re^{-\al_J^2|\br-\bR_J|^2-\al_K^2|\br'-\bR_K|^2}\right\}\\
+&- \frac{1}{2}\iint \rd \br \rd \br'\frac{\rerfc(\beta|\br-\br'|)}{|\br-\br'|} \left\{ \sum_J \tilde Z_J^2\left(\frac{\al_J^2}{\pi}\right)^3\re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\}\\
+&= \frac{1}{2}\sum_{J} \sum_{K \neq J} \frac{\rerfc(\bal R_{JK})Z_JZ_{K}}{R_{JK}}  - \sum_J \sum_{K \neq J} \tilde Z_J Z_K \frac{\rerfc(\bal_J R_{JK}) - \rerfc(\al_J R_{JK})}{R_{JK}}  \\
+&\hspace{10mm}+ \frac{1}{2}\sum_J\sum_{K \neq J} \tilde Z_J \tilde Z_K  \frac{\rerfc(\bal_{JK} R_{JK}) - \rerfc(\al_{JK} R_{JK})}{R_{JK}} + E^{(\rcomp,\rshort,\rself, \mathrm{scr})} \\
+\end{split}
+\end{equation}
+
+Since different atom types can have different screening factor, we construct
+\begin{equation}
+\beta_J = \beta_{\mathrm{unitless}} \al_J
+\end{equation}
+where $\beta_{\mathrm{unitless}}$ is a universal factor for all atom types.
+
+
+\begin{equation}
+\begin{split}
+E^{(\rcomp,\rshort,\rself, \mathrm{scr})} 
+&= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerfc(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\}\\
+&= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{1}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\} \\
+& \hspace{5mm} +\frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerf(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\}\\
+&= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{1}{|\br-\br'|} \re^{-\al_J^2 r^2-\al_J^2 r'^2}\right\} \\
+& \hspace{5mm} +\frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerf(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2 r ^2-\al_J^2 r' ^2}\right\}\\
+&= E^{(\rcomp,\rshort,\rself)} - \lim_{\gamma \rightarrow 0} \frac{1}{2}\sum_{J}  \tilde Z_J^2 \frac{\rerf(\al_{J}\gamma)}{\gamma} + \lim_{\gamma \rightarrow 0} \frac{1}{2} \sum_J \tilde Z_J^2 \frac{\rerf(\beta_{J}\gamma)}{\gamma} \\
+&= E^{(\rcomp,\rshort,\rself)} + \sum_J \tilde Z_J ^2 \frac{\bar{\beta}_{JJ} - \al_{JJ} }{\sqrt{\pi}}
+\end{split}
+\end{equation}
+
+where
+\begin{equation}
+\bar{\beta}_{JJ}= \frac{\beta_J \al_J^2}{\sqrt{\al_J^4 + 2\beta_J^2\al_J^2 }}
+\end{equation}
 
 \newpage
 \section{Charged systems under 3D periodic boundary conditions}\label{App:c3D}
@@ -6123,65 +6369,69 @@ I_{2k+3} &= I_{2k+1} (k+1)a^{-1}
 \end{split}
 \end{equation}
 
-
-\section{Scratch Paper}
+\section{Scratch paper}
+The integral in L.63
 \begin{equation}
 \begin{split}
-E_{\rH}^{(\rcomp,\rself,\rgrid)}
-&= \frac{1}{2}\sum_f w_f \sum_{f'} w_{f'} \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \re^{-\al_J^2 \left(r_f^2+r_{f'}^2\right)}\sum_{l=0}^\infty \sum_{m=-l}^l \left( \frac{4\pi}{2l+1}\right) \left( \frac{r_{<}^{l}}{r_{>}^{l+1}} \right) Y_{lm} (\theta_f,\phi_f) Y_{lm}^* (\theta_{f'},\phi_{f'}) 
+&\frac{-\re^{-(a^2 -1) x^2} + \re^{-(a^2 + 1) x^2} +\sqrt{\pi}\sqrt{(a^2 -1)x^2}\rerfc\left(\sqrt{(a^2 -1)x^2}\right) - \sqrt{\pi}\sqrt{(a^2 +1)x^2}\rerfc\left(\sqrt{(a^2 +1)x^2}\right) }{2x} \mid_0^{\beta\sqrt{2rr'}} \nonumber
 \end{split}
 \end{equation}
-
-\begin{equation}
-\begin{split}
-E_{\rH}^{(\rcomp,\rself,\rgrid)}
-&= 8\pi^2\sum_f w_f \sum_{f'} w_{f'} \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \re^{-\al_J^2 \left(r_f^2+r_{f'}^2\right)} \left( \frac{1}{r_{>}} \right)
-\end{split}
-\end{equation}
-
-Translating back to integral form:
-\begin{equation}
-\begin{split}
-E_{\rH}^{(\rcomp,\rself)}
-&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3  \int_0^\infty \rd r \int_0^\infty \rd r' \re^{-\al_J^2 \left(r^2+r'^2\right)} \left( \frac{r^2 r'^2}{r_{>}} \right)\\
-&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \left[ \int_0^r \rd r' r r'^2 \re^{-\al_J^2 r'^2}+ \int_r^\infty \rd r' r^2 r' \re^{-\al_J^2 r'^2} \right]\\
-&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \int_0^r \rd r' r r'^2 \re^{-\al_J^2 r'^2}+  \int_0^\infty \rd r \re^{-\al_J^2 r^2} \int_r^\infty \rd r' r^2 r' \re^{-\al_J^2 r'^2} \right]\\
-&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \int_0^r \rd r' r'^2 \re^{-\al_J^2 r'^2}+  \int_0^\infty \rd r\ r^2 \re^{-\al_J^2 r^2} \int_r^\infty \rd r'\ r' \re^{-\al_J^2 r'^2} \right]\\
-&= 8\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \left[  \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \frac{(-2 \al_J r)\re^{-\al_J^2 r^2} + \sqrt{\pi} \rerf(\al_J r)}{4 \al_J^3}\right.\\  
-&\left. \hspace{10mm}+ \int_0^\infty \rd r\ r^2 \re^{-\al_J^2 r^2} \frac{\re^{-\al_J^2 r^2}}{2 \al_J^2} \right]\\
-&= 2\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J}{\pi}\right)^3 \int_0^\infty \rd r\ r \re^{-\al_J^2 r^2} \sqrt{\pi} \rerf(\al_J r) \\
-&= 2\pi^2 \sum_J \tilde Z_J^2 \left(\frac{\al_J}{\pi}\right)^3 \frac{\sqrt{\pi}}{2\sqrt{2}\al_J^2} \\
-&= \frac{1}{\sqrt{2\pi}} \sum_J \tilde Z_J^2 \al_J
-\end{split}
-\end{equation}
-
-The screened self Hartree term with $\beta$, the inverse screening length, is:
-\begin{equation}
-\begin{split}
-E_{\rH}^{(\mathrm{screen,self})} 
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \int \rd \br \int \rd \br'  \frac{\rerf(\beta|\br - \br'|)}{|\br-\br'|}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{8\pi^3}\int \rd \bg \int \rd \br \int \rd \br'  \frac{4\pi}{g^2} \re^{-\frac{g^2}{4\beta^2}} \re^{i\bg\cdot(\br - \br')}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \int \rd \br \int \rd \br'  \re^{i\bg\cdot(\br - \br')}\re^{-\al_J^2 \left(r^2+r'^2\right)}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \int \rd \br  \re^{i\bg\cdot\br}\re^{-\al_J^2 r^2} \int \rd \br'  \re^{-i\bg\cdot\br'}\re^{-\al_J^2 r'^2}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \left(\frac{\al_J^2}{\pi}\right)^3 \frac{1}{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}}  \frac{\pi^3}{\al_J^6} \re^{-\frac{g^2}{2\al_J^2}}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{4\beta^2}} \re^{-\frac{g^2}{2\al_J^2}}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}\int \rd \bg \frac{1}{g^2} \re^{-\frac{g^2}{\gamma^2}} \\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}4\pi \int_0^\infty \rd g\ \re^{-\frac{g^2}{\gamma^2}}\\
-&= \frac{1}{2}\sum_J \tilde Z_J^2 \frac{1 }{2\pi^2}4\pi \frac{\gamma\sqrt{\pi}}{2}\\
-&= \frac{1}{2\sqrt{\pi}}\sum_J \tilde Z_J^2 \gamma
-\end{split}
-\end{equation}
-
 where
 \begin{equation}
-\frac{1}{\gamma^2} = \frac{1}{2\al_J^2} + \frac{1}{4\beta^2}
+\begin{split}
+a^2 &= \frac{r^2 + r'^2}{2rr'} \geq 1 \\
+x &\geq 0
+\end{split}
 \end{equation}
 
-Unscreened Hartree is in the limit $\beta \rightarrow \infty$,
+Next, we evaluate the lower limit
 \begin{equation}
-E_{\rH}^{(\mathrm{unscreen,self})} 
-= \frac{1}{\sqrt{2\pi}}\sum_J \tilde Z_J^2 \al_J
+\begin{split}
+\frac{\sqrt{\pi}}{2}\left(\sqrt{a^2 -1} - \sqrt{a^2 + 1}\right)
+&= \frac{\sqrt{\pi}}{2}\left(\sqrt{\frac{r^2 + r'^2}{2rr'} -1} - \sqrt{\frac{r^2 + r'^2}{2rr'} + 1}\right)\\
+&= \frac{\sqrt{\pi}}{2\sqrt{2r_>r_<}} \left(r_> - r_< - r_> - r_<\right)\\
+&= -\frac{r_<}{\sqrt{2r_>r_<}} \\
+&= -\sqrt{\frac{\pi r_<}{2r_>}} \\
+\end{split}
 \end{equation}
+
+In order to take the upper limit, we first simplify some terms,
+\begin{equation}
+\begin{split}
+(a^2 - 1)x^2
+&= (r-r')^2 \beta^2 \\
+(a^2 + 1)x^2
+&= (r+r')^2 \beta^2 \\
+\end{split}
+\end{equation}
+
+\begin{equation}
+\begin{split}
+&\frac{-\re^{-\beta^2(r-r')^2 } + \re^{-\beta^2(r+r')^2 } +\sqrt{\pi}\sqrt{(r-r')^2 \beta^2}\rerfc\left(\sqrt{(r-r')^2 \beta^2}\right) - \sqrt{\pi}\sqrt{(r+r')^2 \beta^2}\rerfc\left(\sqrt{(r+r')^2 \beta^2}\right) }{2\beta \sqrt{2 r r'}} \\
+&= \frac{-\re^{-\beta^2(r-r')^2 } + \re^{-\beta^2(r+r')^2 }}{2\beta \sqrt{2 r r'}} + \frac{\sqrt{\pi}(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - \sqrt{\pi}(r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2\sqrt{2rr'}}\\
+&= \frac{-\re^{-\beta^2(r-r')^2 } + \re^{-\beta^2(r+r')^2 }}{2\beta \sqrt{2 r r'}} + \frac{\sqrt{\pi}(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - \sqrt{\pi}(r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2\sqrt{2rr'}} \nonumber
+\end{split}
+\end{equation}
+
+Combining the two terms yields
+\begin{equation}
+\begin{split}
+&\frac{-\re^{-\beta^2(r-r')^2 } + \re^{-\beta^2(r+r')^2 }}{2\beta \sqrt{2 r r'}} + \frac{\sqrt{\pi}(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - \sqrt{\pi}(r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2\sqrt{2rr'}} + \sqrt{\frac{ \pi r_<}{2r_>}}
+\end{split}
+\end{equation}
+the prefactor from L.63 is
+\begin{equation}
+\sqrt{\frac{2}{\pi r r'}} 
+\end{equation}
+
+Multiplying through, we obtain
+\begin{equation}
+\frac{\re^{-\beta^2(r_>+r_<)^2 }-\re^{-\beta^2(r_>-r_<)^2 }}{2\beta \sqrt{\pi}r_> r_< } + \frac{(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - (r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2 r_>r_<} + \frac{1}{r_>}
+\end{equation}
+
+
+
+
 
 
 
