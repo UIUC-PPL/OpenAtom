@@ -20,9 +20,9 @@ module eps_matrix {
     entry void receiveConvCheck(std::vector<complex> incoming);
     entry void setI(CLA_Matrix_interface mat, bool clean);
     entry void receiveFs(Phase3Message*);
-    entry void bareExchange(int k, int ib);
-    entry void screenedExchange(int k, int ib);
-    entry void coh(int k, int ib);
+    entry void bareExchange();
+    entry void screenedExchange();
+    entry void coh();
     entry void findAlpha();
     entry void multiply_coulb();
     entry void createCopy(CProxy_EpsMatrix other, bool todo);

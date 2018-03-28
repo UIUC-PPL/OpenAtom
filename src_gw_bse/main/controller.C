@@ -248,6 +248,13 @@ bool PsiCache::in_np_list(int n_index){
   return false;
 }
 
+int PsiCache::get_index(int n_index){
+  for(int i=0;i<n_np;i++){
+    if(n_index+1==np_list[i]) return i;
+  }
+  return -1;
+}
+
 void PsiCache::computeFs(PsiMessage* msg) {
   double start = CmiWallTimer();
 
@@ -318,7 +325,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
     fvec_cache->computeFTilde(fsave);
   //compute ftilde first - similar to ckloop above for all L's
     fvec_cache->applyCutoff(fsave);
-    fvec_cache->putFVec(msg->k_index, msg->state_index-L, fsave);
+    fvec_cache->putFVec(msg->k_index, get_index(msg->state_index), fsave);
   }
 #endif
 
@@ -358,9 +365,11 @@ std::vector<double> PsiCache::getVCoulb() {
 // TODO: improve this to only be called when REGISTER_REGIONS is active
 // at the moment "#ifdef REGISTER REGIONS" doesn't work in controller.ci
 void PsiCache::reportInfo() {
+#ifdef DEBUG
   if(min_row != -1 && max_row != -1 && min_col != -1 && max_col != -1) {
     CkPrintf("[PSICACHE %i]: minRow: %d, maxRow: %d, minCol: %d, maxCol: %d\n", CkMyNode(), min_row, max_row, min_col, max_col);
   }
+#endif
 }
 
 void PsiCache::kqIndex(unsigned ikpt, unsigned& ikq, int* uklapp){
@@ -654,6 +663,7 @@ void FVectorCache::computeFTilde(complex *fs_in){
 }
 
 void FVectorCache::applyCutoff(complex* fs){
+  if(!storing) return;
   int count = 0;
 
   for(int l=0;l<L;l++){
