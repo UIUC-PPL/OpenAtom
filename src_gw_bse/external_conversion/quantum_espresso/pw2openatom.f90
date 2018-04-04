@@ -657,7 +657,7 @@ subroutine write_system_info( cell, ncoeff, xk, wk, &
 
    type(cell_info) :: cell
    integer, intent(in) :: ncoeff
-   integer, intent(in) :: nspin, nk, nb
+   integer, intent(in) :: nspin, nk, nb 
    integer, intent(in) :: fftsize(3)
 
    real(dp), intent(in) :: xk(3,nk), wk(nk)
