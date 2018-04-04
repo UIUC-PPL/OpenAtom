@@ -1795,7 +1795,10 @@ int init_rho_chares(CPcharmParaInfo *sim, UberCollection thisInstance)
   // Output to the screen
   CkGroupID rho_fft_maps[3][3]; //map groups for fft
   CkGroupID hart_fft_maps[3];
-  CkGroupID atmSF_fft_maps[config.nchareHartAtmT + 1][3];
+  // because var arrays create compilation woes on some platforms.
+  CkGroupID ** atmSF_fft_maps= new CkGroupID*[nchareHartAtmT+1];
+  for(int atype=0; atype<=nchareHartAtmT ; atype++)
+    atmSF_fft_maps[atype] = new CkGroupID[3];
 
   CkPrintf("Creating density RhoR(%d,%d), RhoG(%d) RhoGHart(%d,%d), "
       "RhoRHart(%d,%d,%d)\n", nchareRhoR_x, nchareRhoR_y, nchareRhoG,
@@ -1993,7 +1996,11 @@ int init_rho_chares(CPcharmParaInfo *sim, UberCollection thisInstance)
             hmati, RC, atmSF_fft_maps[type], fft_callback, miniGrid));
     }
   }
-
+  // for every new there must be a delete
+  for(int atype=0; atype<=nchareHartAtmT ; atype++)
+    delete atmSF_fft_maps[atype];
+  delete atmSF_fft_maps;
+  
   // Output to the screen
   // need to add maps for these, for now just let em default
   // IF some condition which triggers QMMM
