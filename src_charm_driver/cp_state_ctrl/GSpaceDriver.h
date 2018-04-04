@@ -1,5 +1,6 @@
 #include "debug_flags.h"
 #include "gSpaceDriver.decl.h"
+#include "gStatePlane.decl.h"
 #include "structureFactor.decl.h"
 #include "main/CPcharmParaInfoGrp.h"
 #include "charm++.h"
@@ -77,6 +78,9 @@ class GSpaceDriver: public CBase_GSpaceDriver
 
     /// Pointer to the GSpacePlane object that I am driving (controlling) 
     CP_State_GSpacePlane *myGSpaceObj;
+    /// Proxy to the GSpacePlace object that is local. This is required for calling sdag
+    /// entry methods that have when clauses
+    CProxyElement_CP_State_GSpacePlane myGSpaceObjProxy;
     /// Pointer to the ParticlePlane object that I am driving (controlling) 
     CP_State_ParticlePlane *myParticlePlaneObj;
     /// A handle to the local copy of the config parameters (refresh on migration)

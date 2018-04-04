@@ -828,13 +828,13 @@ void DiagonalizerBridge::integrateLambda(int n, internalType* lmat) {
        borderY = true;
      }
      if (borderX && !borderY) {
-       integrateBorderX();
+       thisProxy[CkMyPe()].integrateBorderX();
      }
      else if (!borderX && borderY) {
-       integrateBorderY();
+       thisProxy[CkMyPe()].integrateBorderY();
      }
      else if (borderX && borderY) {
-       integrateBorderXY();
+       thisProxy[CkMyPe()].integrateBorderXY();
      }
      else {
        orthoProxy(x,y).acceptDiagonalizedLambda(n, diagData->selflambda);

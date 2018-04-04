@@ -69,13 +69,13 @@ module gSpaceDriver
       // TODO: Need to update flags to be able to decide between more than just
       // minimization and dynamics.
       if (cp_min_opt && !cp_bomd_opt) {
-        serial "SDAG_computeMinimization" { computeMinimization(); }
+        serial "SDAG_computeMinimization" { thisProxy(thisIndex.x, thisIndex.y).computeMinimization(); }
         when minimizationDone(bool success) {}
       } else if (cp_bomd_opt) {
-        serial "SDAG_computeBOMD" { computeBOMD(); }
+        serial "SDAG_computeBOMD" { thisProxy(thisIndex.x, thisIndex.y).computeBOMD(); }
         when bomdDone(bool success) {}
       } else {
-        serial "SDAG_computeDynamics" { computeDynamics(); }
+        serial "SDAG_computeDynamics" { thisProxy(thisIndex.x, thisIndex.y).computeDynamics(); }
         when dynamicsDone(bool success) {}
       }
       serial "SDAG_finishComputation" { finishComputation(); }
@@ -94,7 +94,7 @@ module gSpaceDriver
       }
       // Compute our initial psi unless gen_wave is on
       if (!_SDAG_DEBUG_PSI_OFF_ && gen_wave) {
-        serial "SDAG_minInitComputeNewPsi" { myGSpaceObj->computeNewPsi(); }
+        serial "SDAG_minInitComputeNewPsi" { myGSpaceObjProxy.computeNewPsi(); }
         when doneNewPsi() {}
       }
 
@@ -120,7 +120,7 @@ module gSpaceDriver
           //! Both branches of this if will trigger an NL force computation if
           //! releaseSFComputeZ() was not called above.
           if (!_SDAG_DEBUG_VKS_OFF_) serial "SDAG_minComputePsiFandVKS" {
-            myGSpaceObj->computePsiFandVKS();
+            myGSpaceObjProxy.computePsiFandVKS();
           } else if (!_SDAG_DEBUG_SFNL_OFF_ && ees_nonlocal && natm_nl)
             serial "SDAG_minStartNonLocalEes" {
             startNonLocalEes(myGSpaceObj->iteration);
@@ -143,19 +143,19 @@ module gSpaceDriver
 
         if (!_SDAG_DEBUG_PSI_OFF_) {
           serial "SDAG_minComputeLambdaAndCg" {
-            myGSpaceObj->computeLambdaAndCg();
+            myGSpaceObjProxy.computeLambdaAndCg();
           }
           when doneLambdaAndCg() serial "SDAG_minLaunchAtoms" {
             myGSpaceObj->launchAtoms();
           }
 
-          serial "SDAG_minComputeRedPsi" { myGSpaceObj->computeRedPsi(); }
+          serial "SDAG_minComputeRedPsi" { myGSpaceObjProxy.computeRedPsi(); }
           when doneRedPsi() {}
         }  // end if !_SDAG_DEBUG_PSI_OFF_
 
         //! Compute our next Psi, update PsiV, and dump output.
         if (!_SDAG_DEBUG_PSI_OFF_) {
-          serial "SDAG_minComputeNewPsi" { myGSpaceObj->computeNewPsi(); }
+          serial "SDAG_minComputeNewPsi" { myGSpaceObjProxy.computeNewPsi(); }
           when doneNewPsi() {}
 
           //! Dump to file every ndump_frq iterations and the final iteration.
@@ -163,7 +163,7 @@ module gSpaceDriver
               (myGSpaceObj->iteration % ndump_frq==0 ||
                myGSpaceObj->iteration==config.maxIter ||
                myGSpaceObj->exitFlag==1)) {
-            serial "SDAG_minDoOutput" { myGSpaceObj->doOutput(); }
+            serial "SDAG_minDoOutput" { myGSpaceObjProxy.doOutput(); }
             when doneOutput() {}
           }
         }  // end if !_SDAG_DEBUG_PSI_OFF_
@@ -210,7 +210,7 @@ module gSpaceDriver
       }
       //! Compute our initial psi
       if (!_SDAG_DEBUG_PSI_OFF_) {
-        serial "SDAG_dynInitComputeNewPsi" { myGSpaceObj->computeNewPsi(); }
+        serial "SDAG_dynInitComputeNewPsi" { myGSpaceObjProxy.computeNewPsi(); }
         when doneNewPsi() {}
       }  // end if !_SDAG_DEBUG_PSI_OFF_
 
@@ -234,8 +234,8 @@ module gSpaceDriver
 
           //! Both branches of this if will trigger an NL force computation if
           //! releaseSFComputeZ() was not called above.
-          if (!_SDAG_DEBUG_VKS_OFF_) serial "SDAG_dynComputePsiFandVKS" {
-            myGSpaceObj->computePsiFandVKS();
+          if (!_SDAG_DEBUG_VKS_OFF_) serial "SDAG_dynComputePsiFandVKS" { 
+            myGSpaceObjProxy.computePsiFandVKS();
           } else if (!_SDAG_DEBUG_SFNL_OFF_ && ees_nonlocal && natm_nl)
             serial "SDAG_dynStartNonLocalEes" {
             startNonLocalEes(myGSpaceObj->iteration);
@@ -260,7 +260,7 @@ module gSpaceDriver
 
         if (!_SDAG_DEBUG_PSI_OFF_) {
           serial "SDAG_dynComputeLambdaAndCg" {
-            myGSpaceObj->computeLambdaAndCg();
+            myGSpaceObjProxy.computeLambdaAndCg();
           }
           when doneLambdaAndCg() {}
 
@@ -270,14 +270,14 @@ module gSpaceDriver
               (myGSpaceObj->iteration % ndump_frq==0 ||
                myGSpaceObj->iteration == config.maxIter ||
                myGSpaceObj->exitFlag == 1)) {
-            serial "SDAG_dynDoOutput" { myGSpaceObj->doOutput(); }
+            serial "SDAG_dynDoOutput" { myGSpaceObjProxy.doOutput(); }
             when doneOutput() {}
           }
 
 	  // TODO: rewrite this to clarify that IntegrateModForce happens here
 	  ///      it should not be buried inside computeRedPsi
 
-          serial "SDAG_dynComputeRedPsi" { myGSpaceObj->computeRedPsi(); }
+          serial "SDAG_dynComputeRedPsi" { myGSpaceObjProxy.computeRedPsi(); }
 
           when doneRedPsi() {}
 
@@ -285,7 +285,7 @@ module gSpaceDriver
 
         //! Compute the Psi for the next iteration
         if (!_SDAG_DEBUG_PSI_OFF_) {
-          serial "SDAG_dynComputeNewPsi" { myGSpaceObj->computeNewPsi(); }
+          serial "SDAG_dynComputeNewPsi" { myGSpaceObjProxy.computeNewPsi(); }
           when doneNewPsi() {}
 
           if (isPsiVupdateNeeded) {
@@ -324,7 +324,7 @@ module gSpaceDriver
       while (myGSpaceObj->bomd_step < myGSpaceObj->num_steps) {
         serial "SDAG_bomdStartIteration" {
           myGSpaceObj->bomd_step++;
-          computeMinimization();
+          thisProxy(thisIndex.x, thisIndex.y).computeMinimization();
         }
         when minimizationDone(bool success) serial "SDAG_bomdCheckIteration" {
           if (!success) {
