@@ -6429,11 +6429,69 @@ Multiplying through, we obtain
 \frac{\re^{-\beta^2(r_>+r_<)^2 }-\re^{-\beta^2(r_>-r_<)^2 }}{2\beta \sqrt{\pi}r_> r_< } + \frac{(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - (r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2 r_>r_<} + \frac{1}{r_>}
 \end{equation}
 
+\newpage
+\section{Spherical Bessel Compensation Charge Model}\label{App:SBC}
+For spherical charge density, we write the compensation charge in terms of spherical Bessel functions
+\begin{equation}
+\begin{split}
+n^{(\rcomp)}(\br) 
+&= \sum_J Z_J\delta(\br-\bR_J) - \sum_J n_J^{(\rcore)}(\br)\\
+&= \sum_J Z_J\delta(\br-\bR_J) - \sum_J \tilde Z_J \frac{2 \left|j_0(k_J r)\right|^2}{R_{\mathrm{pc},J}} Y_{00}\left(\cos(\theta),\phi\right)
+\end{split}
+\end{equation}
+where
+\begin{equation}
+\begin{split}
+j_0(k_J r) &= \frac{\sin(k_J r)}{r} \\
+k_J &= \frac{\pi \hat {k}}{R_{\mathrm{pc},J}},\ \ \ \ \hat {k} = \mathrm{integer} > 0
+\end{split}
+\end{equation}
 
+The first advantage of the spherical Bessel function is that we need not truncate the expansion at a single $\hat {k}$ if we desire a more accurate compensation charge because the $j_0$'s form a complete orthonormal set on the closed interval (0, $\Rpc$). This is simply done by replacing the single spherical Bessel in P.1 by a sum, 
 
+\begin{equation}
+j_0(k_J r) \rightarrow \sum_{\hat {k} = 1}^{\hat {k}_{\mathrm{max}}} c_{\hat {k}}j_0(k_J r)
+\end{equation}
+and changing the normalization as well.
+\begin{equation}
+\frac{2}{R_{\mathrm{pc},J}} \rightarrow \frac{2}{R_{\mathrm{pc},J}\sum_{\hat {k} = 1}^{\hat {k}_{\mathrm{max}}} |c_{\hat {k}}|^2}
+\end{equation}
 
+The second advantage is that for a finite set of $\hat {k} \leq \hat {k}_{\mathrm{max}}$, an equally spaced grid in $r$ assures orthogonality in the finite space of $\hat {k}_{\mathrm{max}}$ (just like for planewave expansions). The number of points in $r$ is just greater than $2\hat {k}_{\mathrm{max}} + 1$, 
+\begin{equation}
+\begin{split}
+\int_0^{R_{\mathrm{pc},J}} \rd r r^2 j_0(k_J r) j_0(k'_J r)
+&= \int_0^{R_{\mathrm{pc},J}} \rd r \sin(k_J r) \sin(k'_J r) = \frac{2}{R_{\mathrm{pc},J}}\\
+&= \Delta \sum_{i=0}^{n_r} \sin(k_J r_i) \sin(k'_J r_i) 
+\end{split}
+\end{equation}
 
+where
+\begin{equation}
+\begin{split}
+\Delta &= \frac{R_{\mathrm{pc},J}}{n_r} \\
+r_i &= \Delta \hat {i}
+\end{split}
+\end{equation}
 
+The third advantage is that the weight and nodes of the grid are simple.
 
+We can evaluate the model analytically, but we will try it first numerically and look at the convergence.
+
+We tested the Bessel grid for $\hat {k}_{\mathrm{max}} = 1$ using the screened and unscreened Hartree self term. The results indicate that the non-analytical character of the unscreened reduces the power law convergence from $n_r^4$ to $n_r^2$.
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{sBesselerror}
+    \caption{The convergence of the screened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
+    \label{fig:sBesselerror}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{sBesselerrorsimple}
+    \caption{The convergence of the unscreened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
+    \label{fig:sBesselerrorsimple}
+\end{figure}
 
 \end{document}
