@@ -108,15 +108,17 @@ void GSpaceDriver::init()
  */
 void GSpaceDriver::startControl()
 {
+  /// Get hold of the (local) GSpacePlane object proxy
+  myGSpaceObjProxy = UgSpacePlaneProxy[thisInstance.proxyOffset](thisIndex.x,thisIndex.y);
   /// Get hold of the (local) GSpacePlane and ParticlePlane objects that we'll be working with
-  myGSpaceObj = UgSpacePlaneProxy[thisInstance.proxyOffset](thisIndex.x,thisIndex.y).ckLocal();
+  myGSpaceObj = myGSpaceObjProxy.ckLocal();
   CkAssert(myGSpaceObj);
   myParticlePlaneObj = UparticlePlaneProxy[thisInstance.proxyOffset](thisIndex.x,thisIndex.y).ckLocal();
   CkAssert(myParticlePlaneObj);
   /// Do other initialization chores
   init();
   /// Call the SDAG method in charge of control flow
-  driveGSpace();
+  thisProxy(thisIndex.x, thisIndex.y).driveGSpace();
 }
 
 

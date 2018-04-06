@@ -40,7 +40,7 @@ void CPNONLOCAL::CP_eke_calc(int ncoef, int istate,complex *forces,complex *psi_
   CP           *cp           = CP::get();
 
 #include "../class_defs/allclass_strip_gen.h"
-sudo apt-get update#include "../class_defs/allclass_strip_cp.h"
+#include "../class_defs/allclass_strip_cp.h"
 
   double ecut      = cpcoeffs_info->ecut_psi; // KS-state cutoff in Ryd
   double *occ      = cpcoeffs_info->occ_up;   // 

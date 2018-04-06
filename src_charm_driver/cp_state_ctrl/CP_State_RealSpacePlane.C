@@ -431,7 +431,7 @@ void CP_State_RealSpacePlane::doFFT(){
         CkAbort("RS nan in the fftcache");
       }
     }//endif
-    sendInputPsi(msghf);
+    thisProxy(thisIndex.x, thisIndex.y).sendInputPsi(msghf);
   }
 #endif
 
