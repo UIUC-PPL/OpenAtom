@@ -190,7 +190,7 @@ void CP_State_GSpacePlane::psiCgOvlap(CkReductionMsg *msg){
 
 	int result=(fmagPsi_total <= tol_cp_min);
 	//	    CkPrintf("{%d} [%d,%d] tolcheck contrib %d %.5g %5g %5g\n",thisInstance.proxyOffset, thisIndex.x, thisIndex.y, result, fmagPsi_total, tol_cp_min,fmagPsi_total - tol_cp_min);
-	CkCallback cb(CkIndex_InstanceController::fmagMinTest(NULL),CkArrayIndex1D(0),thisProxy);
+	CkCallback cb(CkIndex_InstanceController::fmagMinTest(NULL),CkArrayIndex1D(0),instControllerProxy);
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_	
 	CkMulticastMgr *mcastGrp = CProxy_CkMulticastMgr(mCastGrpId).ckLocalBranch();
 	mcastGrp->
