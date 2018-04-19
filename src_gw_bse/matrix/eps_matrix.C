@@ -125,15 +125,14 @@ void EpsMatrix::screenedExchange() {
   for (int k = 0; k < K; k++) {
     for (int i = 0; i < f_cache->getNSize(); i++) {
         complex contribution(0.0,0.0);
-//      for (int j = 0; j < N; j++) { //Performs only <n|Sigma|n> as does the fortran code
-// Uncommenting this loop will perform <n|Sigma|n’>
+  //      for (int j = 0; j < f_cache->getNSize(); j++) { //Performs only <n|Sigma|n> as does the fortran code
+  // Uncommenting above loop will perform <n|Sigma|n’>
         for (int l = 0; l < L; l++) {
           complex* fi = f_cache->getFVec(k, i, l, thisIndex.x, eps_rows);
           complex* fj = f_cache->getFVec(k, i, l, thisIndex.y, eps_cols);
           for (int r = 0; r < config.tile_rows; r++) {
             for (int c = 0; c < config.tile_cols; c++) {
-              complex tmp = fi[r]*fj[c];
-              contribution += sqrt(tmp.getMagSqr())*data[IDX_eps(r,c)];
+              contribution += fi[r]*fj[c].conj()*data[IDX_eps(r,c)];
             }
           }
         }
@@ -154,6 +153,7 @@ void EpsMatrix::screenedExchange() {
 void EpsMatrix::bareExchange() {
   complex total_contribution = (0.0,0.0);
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
+  PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
 
   int n = f_cache->getNSize();
   int tuple_size = K*n;
@@ -161,6 +161,8 @@ void EpsMatrix::bareExchange() {
   CkReduction::tupleElement tuple_reduction[tuple_size];
   complex contrib_data[tuple_size];
   int ik = 0;
+  std::vector<double> vcoulb = psi_cache->getVCoulb();
+  vcoulb[0] = 0.38343474/2.0;
 
   if(thisIndex.x == thisIndex.y) {
     for (int k = 0; k < K; k++) {
@@ -169,8 +171,7 @@ void EpsMatrix::bareExchange() {
         for (int l = 0; l < L; l++) {
           complex* f = f_cache->getFVec(k, i, l, thisIndex.x, eps_rows);
           for(int ii=0; ii < config.tile_rows; ii++) {
-            complex tmp = f[ii]*f[ii];
-            contribution += sqrt(tmp.getMagSqr());
+            contribution += f[ii]*f[ii].conj()*vcoulb[thisIndex.x*eps_rows+ii];
           }
         }
         contrib_data[ik] = contribution;
@@ -389,9 +390,17 @@ void EpsMatrix::multiply_coulb(){
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
   std::vector<double> coulb = psi_cache->getVCoulb();
 
-for(int i=0;i<config.tile_rows;i++)
-    for(int j=0;j<config.tile_cols;j++)
-      data[IDX_eps(i,j)] *= coulb[thisIndex.x*config.tile_rows+i]*coulb[thisIndex.y*config.tile_cols+j];
+  coulb[0] = 0.38343474/2.0;
+
+  for(int i=0;i<config.tile_rows;i++){
+    for(int j=0;j<config.tile_cols;j++){
+      int g = thisIndex.x*config.tile_rows+i;
+      int gp = thisIndex.y*config.tile_cols+j;
+      if(g==gp)
+        data[IDX_eps(i,j)] -= 1.0;
+      data[IDX_eps(i,j)] *= sqrt(coulb[g])*sqrt(coulb[gp]);
+    }
+  }
 
   contribute(CkCallback(CkReductionTarget(Controller, s_ready), controller_proxy));
 }
