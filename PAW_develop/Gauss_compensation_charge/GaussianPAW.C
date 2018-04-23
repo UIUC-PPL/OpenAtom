@@ -555,9 +555,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			  double r2 = dx*dx + dy*dy + dz*dz;
 			  double R_ij = sqrt(r2);
 			  double coeff1  = -q[J]*q[K];
-			  fxg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dx*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-			  fyg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dy*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-			  fzg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dz*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+//			  fxg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dx*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+//			  fyg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dy*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+//			  fzg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dz*(1 + erfc_a_r_over_r(R_ij, alpb)); 
           } // end if
       } // end for 
   } // end for
@@ -606,9 +606,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 							double tmp_K  = -Ncoeff_K*qt[K]*q[J]*wf_ktyp[f1]/r_K;
 							double coeffJ = tmp_J/(r_J*r_J);
 							double coeffK = tmp_K/(r_K*r_K);
-							fxg[J]		 += coeffJ*dx_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dx_K*(1 + erfc_a_r_over_r(r_K, alpb));
-							fyg[J]		 += coeffJ*dy_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dy_K*(1 + erfc_a_r_over_r(r_K, alpb));
-							fzg[J]		 += coeffJ*dz_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dz_K*(1 + erfc_a_r_over_r(r_K, alpb));
+//							fxg[J]		 += coeffJ*dx_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dx_K*(1 + erfc_a_r_over_r(r_K, alpb));
+//							fyg[J]		 += coeffJ*dy_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dy_K*(1 + erfc_a_r_over_r(r_K, alpb));
+//							fzg[J]		 += coeffJ*dz_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dz_K*(1 + erfc_a_r_over_r(r_K, alpb));
 							for (int f2=0; f2 < nf; f2++) {
 								double Hdx_J 	= xf_jtyp[f1]-xf_ktyp[f2]-x[K]+x[J];
 								double Hdy_J 	= yf_jtyp[f1]-yf_ktyp[f2]-y[K]+y[J];
@@ -632,9 +632,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 								double Htmp_K 	= 0.5*Ncoeff_K*Ncoeff_J*qt[J]*qt[K]*wf_ktyp[f1]*wf_jtyp[f2]/Hr_K;
 								double HcoeffJ  = Htmp_J/(Hr_J*Hr_J);
 								double HcoeffK  = Htmp_K/(Hr_K*Hr_K);
-								fxg[J]		   += HcoeffJ*Hdx_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdx_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-								fyg[J]		   += HcoeffJ*Hdy_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdy_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-								fzg[J]		   += HcoeffJ*Hdz_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdz_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+//								fxg[J]		   += HcoeffJ*Hdx_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdx_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+//								fyg[J]		   += HcoeffJ*Hdy_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdy_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
+//								fzg[J]		   += HcoeffJ*Hdz_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdz_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
 							} // end for f2
 						} // end for f1
 					} // end if

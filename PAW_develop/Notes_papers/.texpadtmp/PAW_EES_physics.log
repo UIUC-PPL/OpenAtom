@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  6 APR 2018 13:14
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  13 APR 2018 17:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -2243,109 +2243,98 @@ Overfull \hbox (0.38954pt too wide) in paragraph at lines 5842--5842
 [] 
  []
 
-[123] [124] [125] [126] <images/error.png, id=432, 481.8pt x 361.35pt>
+[123] [124] [125]
+Underfull \hbox (badness 10000) in paragraph at lines 5976--5978
+
+ []
+
+[126] <images/error.png, id=432, 481.8pt x 361.35pt>
 File: images/error.png Graphic file (type png)
-
-<use images/error.png>
-Package pdftex.def Info: images/error.png used on input line 6014.
+ <use images/error.png>
+Package pdftex.def Info: images/error.png used on input line 6015.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
- <images/diffbeta.png, id=433, 481.8pt x 361.35pt>
+
+<images/diffbeta.png, id=433, 481.8pt x 361.35pt>
 File: images/diffbeta.png Graphic file (type png)
-
-<use images/diffbeta.png>
-Package pdftex.def Info: images/diffbeta.png used on input line 6021.
+ <use images/diffbeta.png>
+Package pdftex.def Info: images/diffbeta.png used on input line 6022.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
- <images/betaconv.png, id=434, 481.8pt x 361.35pt>
-File: images/betaconv.png Graphic file (type png)
 
-<use images/betaconv.png>
-Package pdftex.def Info: images/betaconv.png used on input line 6028.
+<images/betaconv.png, id=434, 481.8pt x 361.35pt>
+File: images/betaconv.png Graphic file (type png)
+ <use images/betaconv.png>
+Package pdftex.def Info: images/betaconv.png used on input line 6029.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
 <images/betaconvloglog.png, id=435, 481.8pt x 361.35pt>
 File: images/betaconvloglog.png Graphic file (type png)
 
 <use images/betaconvloglog.png>
-Package pdftex.def Info: images/betaconvloglog.png used on input line 6035.
+Package pdftex.def Info: images/betaconvloglog.png used on input line 6036.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
 <images/error3D.png, id=436, 481.8pt x 361.35pt>
 File: images/error3D.png Graphic file (type png)
  <use images/error3D.png>
-Package pdftex.def Info: images/error3D.png used on input line 6042.
+Package pdftex.def Info: images/error3D.png used on input line 6043.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
 <images/conv.png, id=437, 481.8pt x 361.35pt>
 File: images/conv.png Graphic file (type png)
  <use images/conv.png>
-Package pdftex.def Info: images/conv.png used on input line 6049.
+Package pdftex.def Info: images/conv.png used on input line 6050.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
 <images/fconv.png, id=438, 481.8pt x 361.35pt>
 File: images/fconv.png Graphic file (type png)
  <use images/fconv.png>
-Package pdftex.def Info: images/fconv.png used on input line 6056.
+Package pdftex.def Info: images/fconv.png used on input line 6057.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
  [127 <./images/error.png>] [128 <./images/diffbeta.png> <./images/betaconv.png
 >]
 [129 <./images/betaconvloglog.png> <./images/error3D.png>] [130 <./images/conv.
 png> <./images/fconv.png>]
-Overfull \hbox (15.08829pt too wide) in paragraph at lines 6091--6091
+Overfull \hbox (15.08829pt too wide) in paragraph at lines 6092--6092
 [] 
  []
 
-[131]
-./PAW_EES_physics.tex:6110: Double superscript.
-<argument> ...} \re ^{-\al _J^2 r ^2-\al _J^2 r' ^
-                                                  2}\right \}\\ &= E^{(\rcom...
-l.6110 \end{split}
-                  
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-./PAW_EES_physics.tex:6110: Double superscript.
-<argument> ...} \re ^{-\al _J^2 r ^2-\al _J^2 r' ^
-                                                  2}\right \}\\ &= E^{(\rcom...
-l.6110 \end{split}
-                  
-I treat `x^1^2' essentially like `x^1{}^2'.
-
-[132]
-Underfull \hbox (badness 10000) in paragraph at lines 6120--6121
+[131] [132]
+Underfull \hbox (badness 10000) in paragraph at lines 6121--6122
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6135--6137
+Underfull \hbox (badness 10000) in paragraph at lines 6136--6138
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6178--6180
+Underfull \hbox (badness 10000) in paragraph at lines 6179--6181
 
  []
 
 [133]
-Underfull \hbox (badness 10000) in paragraph at lines 6187--6189
+Underfull \hbox (badness 10000) in paragraph at lines 6188--6190
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6201--6204
+Underfull \hbox (badness 10000) in paragraph at lines 6202--6205
 
  []
 
 [134]
-Underfull \hbox (badness 10000) in paragraph at lines 6239--6242
+Underfull \hbox (badness 10000) in paragraph at lines 6240--6243
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6246--6249
+Underfull \hbox (badness 10000) in paragraph at lines 6247--6250
 
  []
 
 [135]
-Underfull \hbox (badness 10000) in paragraph at lines 6300--6302
+Underfull \hbox (badness 10000) in paragraph at lines 6301--6303
 
  []
 
@@ -2353,17 +2342,49 @@ Underfull \hbox (badness 10000) in paragraph at lines 6300--6302
 File: images/sBesselerror.png Graphic file (type png)
 
 <use images/sBesselerror.png>
-Package pdftex.def Info: images/sBesselerror.png used on input line 6501.
+Package pdftex.def Info: images/sBesselerror.png used on input line 6502.
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
 
 <images/sBesselerrorsimple.png, id=485, 481.8pt x 361.35pt>
 File: images/sBesselerrorsimple.png Graphic file (type png)
 
 <use images/sBesselerrorsimple.png>
-Package pdftex.def Info: images/sBesselerrorsimple.png used on input line 6508.
+Package pdftex.def Info: images/sBesselerrorsimple.png used on input line 6509.
 
 (pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
- [139] [140 <./images/sBesselerror.png> <./images/sBesselerrorsimple.png>]
+
+<nthetaHarself.png, id=486, 481.8pt x 361.35pt>
+File: nthetaHarself.png Graphic file (type png)
+ <use nthetaHarself.png>
+Package pdftex.def Info: nthetaHarself.png used on input line 6516.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+
+<nthetaHarwoself.png, id=487, 481.8pt x 361.35pt>
+File: nthetaHarwoself.png Graphic file (type png)
+ <use nthetaHarwoself.png>
+Package pdftex.def Info: nthetaHarwoself.png used on input line 6525.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+
+<nthetaHarwoselfdiff.png, id=488, 481.8pt x 361.35pt>
+File: nthetaHarwoselfdiff.png Graphic file (type png)
+
+<use nthetaHarwoselfdiff.png>
+Package pdftex.def Info: nthetaHarwoselfdiff.png used on input line 6532.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+ <nrHarwoself.png, id=489, 481.8pt x 361.35pt>
+File: nrHarwoself.png Graphic file (type png)
+
+<use nrHarwoself.png>
+Package pdftex.def Info: nrHarwoself.png used on input line 6539.
+(pdftex.def)             Requested size: 290.22105pt x 217.67181pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 6544--6545
+
+ []
+
+[139] [140 <./images/sBesselerror.png> <./images/sBesselerrorsimple.png>]
+[141 <./nthetaHarself.png> <./nthetaHarwoself.png>] [142 <./nthetaHarwoselfdiff
+.png> <./nrHarwoself.png>]
 (/Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Notes_papers/.texpad
 tmp/PAW_EES_physics.aux)
 
@@ -2371,10 +2392,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 9547 strings out of 493117
- 164917 string characters out of 6135433
- 247431 words of memory out of 5000000
- 12910 multiletter control sequences out of 15000+600000
+ 9571 strings out of 493117
+ 165445 string characters out of 6135433
+ 247479 words of memory out of 5000000
+ 12930 multiletter control sequences out of 15000+600000
  22060 words of font info for 64 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  40i,23n,39p,10391b,264s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -2406,10 +2427,10 @@ pe1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
 1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/
 public/cm-super/sfrm2074.pfb>
 Output written on /Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Not
-es_papers/.texpadtmp/PAW_EES_physics.pdf (140 pages, 954594 bytes).
+es_papers/.texpadtmp/PAW_EES_physics.pdf (142 pages, 976904 bytes).
 PDF statistics:
- 582 PDF objects out of 1000 (max. 8388607)
- 390 compressed objects within 4 object streams
+ 596 PDF objects out of 1000 (max. 8388607)
+ 394 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
- 51 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

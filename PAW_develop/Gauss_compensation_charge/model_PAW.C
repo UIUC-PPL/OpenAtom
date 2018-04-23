@@ -171,7 +171,7 @@ int main (int argc, char *argv[]){
 
   double *xd = new double [natm]; double *yd = new double [natm]; double *zd = new double [natm];
   double *qd = new double [natm]; double *qtd = new double [natm];
-  double *alpd = new double [natm];
+  double *alpd = new double [natm]; double *betad = new double [natm];
 
   double *vxd   = new double [natm]; double *vyd   = new double [natm]; double *vzd   = new double [natm];
   double *fx0d  = new double [natm]; double *fy0d  = new double [natm]; double *fz0d  = new double [natm];
@@ -212,7 +212,7 @@ int main (int argc, char *argv[]){
   atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
   atom_pos_dummy.q 		= qd;
   atom_pos_dummy.qt 	= qtd;
-  atom_pos_dummy.alp 	= alpd;
+  atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta = betad;
 
   atom_pos_dummy.vx		= vxd;   atom_pos_dummy.vy   = vyd;   atom_pos_dummy.vz   = vzd;
   atom_pos_dummy.fx0	= fx0d;  atom_pos_dummy.fy0  = fy0d;  atom_pos_dummy.fz0  = fz0d;
@@ -491,27 +491,34 @@ int main (int argc, char *argv[]){
   }// end for i
   
   double * fdummy = new double [3];
-  for (int j=0; j<3; j++) {
-//	fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
-//	fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
-	fdummy[j] = (energy_minus[j].ENNshort.EGrid -  energy_plus[j].ENNshort.EGrid)/(2.0*delta);
-  }
-  PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
+    for (int j=0; j<3; j++) {
+//      fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
+//      fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
+//      fdummy[j] = (energy_minus[j].Etot0D.EGrid -  energy_plus[j].Etot0D.EGrid)/(2.0*delta);
+//      fdummy[j] = (energy_minus[j].ENNshort.EGrid -  energy_plus[j].ENNshort.EGrid)/(2.0*delta);
+//      fdummy[j] = (energy_minus[j].EeNshort.EGrid -  energy_plus[j].EeNshort.EGrid)/(2.0*delta);
+//      fdummy[j] = (energy_minus[j].EHarshort.EGrid -  energy_plus[j].EHarshort.EGrid)/(2.0*delta);
+        fdummy[j] = (energy_minus[j].Elong.EGrid -  energy_plus[j].Elong.EGrid)/(2.0*delta);
+    }
+    PRINTF("numerical 0D: %.10g %.10g %.10g \n     grid 0D: %.10g %.10g %.10g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
 
 #endif // _FORCECHECK_
 
   //========================================================================
   // Print out the forces
 
-  PRINT_LINE_STAR;
-  PRINTF(" Printing out forces\n");
-  PRINT_LINE_DASH;
-  for (int i=0; i<natm; i++) {
-	PRINTF("fx0  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
-	PRINTF("fx0g [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
-	PRINTF("fx   [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
-	PRINTF("fxg  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
-  } // end for
+    PRINT_LINE_STAR;
+    PRINTF(" Printing out forces\n");
+    PRINT_LINE_DASH;
+    for (int i=0; i<natm; i++) {
+      PRINTF("fx0  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
+      PRINTF("fx0g [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
+    } // end for
+    PRINT_LINE_DASH;
+    for (int i=0; i<natm; i++) {
+      PRINTF("fx   [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
+      PRINTF("fxg  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
+    } // end for
 
   //==========================================================================
   // Tell everyone you are done

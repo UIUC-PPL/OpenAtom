@@ -35,7 +35,7 @@ void gen_Ylmf (int rorder, int thetaorder, double *xcostheta, int phiorder, doub
 
 	int f = 0;
 
-	for (int ir=0; ir<rorder; ir++) {
+	for (int ir=0; ir<=rorder; ir++) {
 		for (int itheta=0; itheta<thetaorder; itheta++) {
 			for (int iphi=0; iphi<phiorder; iphi++) {
 				Ylm[f] = Ylmlocal[itheta][iphi];

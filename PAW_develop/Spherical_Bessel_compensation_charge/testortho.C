@@ -50,8 +50,8 @@ int main (int argc, char *argv[]){
     double result4 = 0.0;
 	double result3 = 0.0;
     double beta2 = beta_tmp*beta_tmp;
-    for (int ir=0; ir<n; ir++) {
-        for (int jr=0; jr<n; jr++) {
+    for (int ir=0; ir<=n; ir++) {
+        for (int jr=0; jr<=n; jr++) {
             double rgt = MAX(xr[ir],xr[jr]);
             double rlt = MIN(xr[ir],xr[jr]);
             double rd = rgt - rlt;
@@ -77,8 +77,8 @@ int main (int argc, char *argv[]){
             result4 += wr[ir]*wr[jr]*complicated;
         } // end for jr
     } // end for ir
-    PRINTF("result3: %.10g\n", result3);
-    PRINTF("result4: %.10g\n", result4);
+    PRINTF("result3: %.14g\n", result3);
+    PRINTF("result4: %.14g\n", result4);
 
 	return 1;	
 }//end routine

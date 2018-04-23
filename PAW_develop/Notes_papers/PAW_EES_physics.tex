@@ -5958,8 +5958,9 @@ which it is! A further check is taking the limit $r_> \rightarrow 0$, which is $
 \begin{equation}
 \frac{\re^{-4\beta^2r^2} - 1}{2\beta\sqrt{\pi}r^2} + \frac{\rerf\left(2\beta r\right)}{r}
 \end{equation}
-$r_> = r_< $ does not cancel any of the $\cos(\gamma) = \br \cdot \br'/(r_> r_<)$ dependence, so it is more complicated than a single error function. In the limit $r \rightarrow 0$, L.67 is zero, which heals the cusp. We verified L.65 for Gaussian spherical charges.
+$r_> = r_< $ does not cancel any of the $\cos(\gamma) = \br \cdot \br'/(r_> r_<)$ dependence, so it is more complicated than a single error function. In the limit $r \rightarrow 0$, L.67 is zero, which heals the cusp. We verified L.65 for Gaussian spherical charges.\\
 
+The advantage of using the explicit partial wave expansion of the screened Coulomb is in convergence with the angular grid. A large number of angular grid points maybe necessary to essentially generate zero for the large angular momentum. Thus, grinding out using Wolfram up to $l=3$ will reduce the grid size required to converge Hartree self.
 
 \begin{table}[!htbp]
 \caption{\label{index} Largest $\beta_{\mathrm{universal}}$ for each grid size to achieve the desired tolerance per atom in $E_{\rH}^{(\rcomp,\mathrm{screen, self, 0D, grid})}$.}
@@ -6087,8 +6088,8 @@ E^{(\rcomp,\rshort,\rself, \mathrm{scr})}
 &= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerfc(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\}\\
 &= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{1}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\} \\
 & \hspace{5mm} +\frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerf(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2|\br-\bR_J|^2-\al_J^2|\br'-\bR_J|^2}\right\}\\
-&= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{1}{|\br-\br'|} \re^{-\al_J^2 r^2-\al_J^2 r'^2}\right\} \\
-& \hspace{5mm} +\frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerf(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^2 r ^2-\al_J^2 r' ^2}\right\}\\
+&= E^{(\rcomp,\rshort,\rself)} - \frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{1}{|\br-\br'|} \re^{-\al_J^{2} r^2-\al_J^{2} r'^{2}}\right\} \\
+& \hspace{5mm} +\frac{1}{2}\sum_J \tilde Z_J^2  \left(\frac{\al_J^2}{\pi}\right)^3 \left\{ \iint \rd \br \rd \br' \frac{\rerf(\beta_J|\br-\br'|)}{|\br-\br'|} \re^{-\al_J^{2} r^{2} - \al_J^{2} r'^{2}}\right\}\\
 &= E^{(\rcomp,\rshort,\rself)} - \lim_{\gamma \rightarrow 0} \frac{1}{2}\sum_{J}  \tilde Z_J^2 \frac{\rerf(\al_{J}\gamma)}{\gamma} + \lim_{\gamma \rightarrow 0} \frac{1}{2} \sum_J \tilde Z_J^2 \frac{\rerf(\beta_{J}\gamma)}{\gamma} \\
 &= E^{(\rcomp,\rshort,\rself)} + \sum_J \tilde Z_J ^2 \frac{\bar{\beta}_{JJ} - \al_{JJ} }{\sqrt{\pi}}
 \end{split}
@@ -6493,5 +6494,40 @@ We tested the Bessel grid for $\hat {k}_{\mathrm{max}} = 1$ using the screened a
     \caption{The convergence of the unscreened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
     \label{fig:sBesselerrorsimple}
 \end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{nthetaHarself}
+    \caption{The convergence of the screened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, $n_r = 20$, $n_{\phi} = 2n_{\theta}$.} 
+    \label{fig:nthetaHarself}
+\end{figure}
+
+In Fig.\ref{fig:nthetaHarself}, we compare the convergence of the partial wave expansion and the full integral over the angular momentum for an s-wave spherical Bessel wavefunction $\hat {k}_{\mathrm{max}} = 1$. Although the convergence to the s-wave result is exponential in the number of angular points, it is pretty wasteful. That means grinding out a few more terms in the partial wave expansion of the screened Hartree self is a good idea.
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{nthetaHarwoself}
+    \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
+    \label{fig:nthetaHarwoself}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{nthetaHarwoselfdiff}
+    \caption{The difference between the Hartree no self term of $n_r = 20$ and $n_r = 30$. The difference is always small.} 
+    \label{fig:nthetaHarwoselfdiff}
+\end{figure}
+
+\begin{figure}[!htbp] 
+    \centering
+    \includegraphics[width=0.6\textwidth]{nrHarwoself}
+    \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$.} 
+    \label{fig:nrHarwoself}
+\end{figure}
+
+From Fig.P.1 where we looked at the convergence of the screened Hartree self term using s-wave only, we see that for $n_r = 10$ we achieve 4 figures accuracy. The slope of the curve is -4 indicating 4th order convergence. Therefore, to achieve 6 figures accuracy, we need 30 points while 20 points achieve 5 figures. In Fig.P.2, we look at unscreened Hartree, which converges terribly - only 2nd order.\\
+
+In Fig.P.3, we examine the convergence of the screened Hartree self term without the partial wave expansion. To achieve the $n_r$ limited accuracy, $n_{\theta} = 12$ with $n_{\phi} = 24$. The conclusion here is we should use the partial wave expansion to limit the size of the angular grid.
+
 
 \end{document}

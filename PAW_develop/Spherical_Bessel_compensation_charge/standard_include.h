@@ -75,6 +75,7 @@ typedef struct ATOM_POS{
 	double *q,*qt;				// charges
 	double *alp;  		    	// Gaussian parameter for the core 
 	double *beta;		  // beta screener beta[J]
+	double *Rpc;				// Rpc
 }ATOM_POS;
 
 //==========================================================================

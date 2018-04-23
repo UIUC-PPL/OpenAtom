@@ -20,6 +20,7 @@
 //=================================================================
 //  Generate Uniform Random Numbers
 //=================================================================
+#define four_pi_inv    (1.0/(4.0*M_PI_QI))
 #define MODULUS_R    2147483647 // DON'T CHANGE THIS VALUE       
 #define MULTIPLIER_R 48271      // DON'T CHANGE THIS VALUE       
 //=================================================================
@@ -388,13 +389,13 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			double *wf_ktyp     = fgrid[ktyp].wf;
 			for(int j=0; j<natm_atm_typ[jtyp];j++){
 				int J = list_atm_by_typ[jtyp][j];
-				double Ncoeff_J = pow(alp[J]*alp[J]/(M_PI_QI),1.5);
+				double Ncoeff_J = four_pi_inv;
 				//int kstart = (ktyp == jtyp ? (j+1):0);
 				//for(int k=kstart;k<natm_atm_typ[ktyp];k++){
 				for(int k=0;k<natm_atm_typ[ktyp];k++){
 					int K = list_atm_by_typ[ktyp][k];
 					if (K != J) {
-						double Ncoeff_K = pow(alp[K]*alp[K]/(M_PI_QI),1.5);
+						double Ncoeff_K = four_pi_inv;
 						for (int f1=0; f1 < nf; f1++) {
 							double dx_J   = xf_jtyp[f1]-x[K]+x[J];
 							double dy_J   = yf_jtyp[f1]-y[K]+y[J];
@@ -456,12 +457,14 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		double alpJ		  = fgrid[jtyp].alp;
 		double betaJ	  = fgrid[jtyp].beta;
 		int J = list_atm_by_typ[jtyp][0];
-		double Ncoeff = pow(alp[J]*alp[J]/(M_PI_QI),1.5);
+		double Ncoeff = four_pi_inv;
 		double wght = ((double) natm_atm_typ[jtyp]);
 
 		for (int f1=0; f1 < nf; f1++) {
 			double r = rf[f1];
-			EeNselfGrid += -1.0*wght*Ncoeff*qt[J]*q[J]*wf[f1]/r;
+			if (r > 0) {
+				EeNselfGrid += -1.0*wght*Ncoeff*qt[J]*q[J]*wf[f1]/r;
+			} // end if
 		} // end for f1
 
 #ifdef _FGRIDTEST_		
@@ -507,9 +510,11 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 						double rrat = rmin/rmax;
 						double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 						double pref_harm = 4.0*M_PI_QI/(2.0*l_re + 1.0);
-						double pref_r = pow(rrat,l_re)/rmax;
-						complex temp = 0.5*pref*pref_harm*pref_r*(Ylmf[f1]*Ylmf[f2].conj());
-						tmpsum += temp*wght;
+						if (rmax > 0) {
+							double pref_r = pow(rrat,l_re)/rmax;
+							complex temp = 0.5*pref*pref_harm*pref_r*(Ylmf[f1]*Ylmf[f2].conj());
+							tmpsum += temp*wght;
+						} // end if
 					} //end for f2
 				} //end for f1
 			} //end for m
@@ -525,7 +530,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 					double dz   = zf[f1] - zf[f2];
 					double r2   = dx*dx + dy*dy + dz*dz;
 					double r    = sqrt(r2);
-					EHarselfscrGrid += pref*erf(betaJ*r)/r;
+					if (r > 0) { EHarselfscrGrid += pref*erf(betaJ*r)/r; }
 				} else {
 					EHarselfscrGrid += pref*2.0*betaJ/sqrt(M_PI_QI);
 				} // end if
@@ -576,12 +581,12 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			double *wf_ktyp     = fgrid[ktyp].wf;
 			for(int j=0; j<natm_atm_typ[jtyp];j++){
 				int J = list_atm_by_typ[jtyp][j];
-				double Ncoeff_J = pow(alp[J]*alp[J]/(M_PI_QI),1.5);
+				double Ncoeff_J = four_pi_inv;
 				//int kstart = (ktyp == jtyp ? (j+1):0);
 				//for(int k=kstart;k<natm_atm_typ[ktyp];k++){
 				for(int k=0;k<natm_atm_typ[ktyp];k++){
 					int K = list_atm_by_typ[ktyp][k];
-					double Ncoeff_K = pow(alp[K]*alp[K]/(M_PI_QI),1.5);
+					double Ncoeff_K = four_pi_inv;
 					if (K != J) {
 						for (int f1=0; f1 < nf; f1++) {
 							double dx_J = xf_jtyp[f1]-x[K]+x[J];
@@ -656,12 +661,12 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		double alpJ			= fgrid[jtyp].alp;
 		double betaJ	  	= fgrid[jtyp].beta;
 		int J = list_atm_by_typ[jtyp][0];
-		double Ncoeff = pow(alp[J]*alp[J]/(M_PI_QI),1.5);
+		double Ncoeff = four_pi_inv;
 		double wght = ((double) natm_atm_typ[jtyp]);
 
 		for (int f1=0; f1 < nf; f1++) {
 			double r = rf[f1];
-			EeNshortselfGrid += -1.0*wght*Ncoeff*qt[J]*q[J]*wf[f1]*erfc(alpb*r)/r;
+			if (r > 0) { EeNshortselfGrid += -1.0*wght*Ncoeff*qt[J]*q[J]*wf[f1]*erfc(alpb*r)/r; }
 		} // end for f1
 
 		double erf_lim = alpb/sqrt(M_PI_QI);
@@ -674,7 +679,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
                 double r2 = dx*dx + dy*dy + dz*dz;
                 double r = sqrt(r2);
 				if (f1 != f2) {
-					EHarshortselfGrid -= 0.5*pref*erf(alpb*r)/r;
+					if (r > 0) { EHarshortselfGrid -= 0.5*pref*erf(alpb*r)/r; }
 				} else {
 					EHarshortselfGrid -= erf_lim*pref;
 				} // end if
@@ -690,7 +695,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 					double dz   = zf[f1] - zf[f2];
 					double r2   = dx*dx + dy*dy + dz*dz;
 					double r    = sqrt(r2);
-					EHarshortselfscrGrid += pref*(erfc(alpb*r) - erfc(betaJ*r))/r;
+					if (r > 0) { EHarshortselfscrGrid += pref*(erfc(alpb*r) - erfc(betaJ*r))/r; }
 				} else {
 					EHarshortselfscrGrid += pref*2.0*(betaJ - alpb)/sqrt(M_PI_QI);
 				} // end if
@@ -710,7 +715,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 //                      double dy = yf[f1] - yf[f2];
 //                      double dz = zf[f1] - zf[f2];
 //                      double r2 = dx*dx + dy*dy + dz*dz;
-						EHarshortselfGrid += temp.re*wght;
+						if (rmax > 0) {EHarshortselfGrid += temp.re*wght;}
 					} //end for f2
 				} //end for f1
 			} //end for m
@@ -791,11 +796,13 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 		delq += (q[i] - qt[i]);
 		qtalp += qt[i]/(alp[i]*alp[i]);
 	} // end for
-	Elongzero = M_PI_QI*delq/vol*(1.0*qtalp - delq/(2.0*alpb*alpb));
+	Elongzero = M_PI_QI*delq/vol*(1.0*qtalp - delq/(2.0*alpb*alpb)); // fix me for non-Gaussian
 
 //===================================================================
 // compute the g-space sum (g != 0)
-
+	
+	complex * ng_form_fact  = new complex [natm_typ];
+	complex * ngf_form_fact = new complex [natm_typ];
 	for (double gx = -xgmax; gx <= xgmax; gx++) {
 		double ggx = gx*(2.0*M_PI_QI)*hmati[1];
 		for (double gy = -ygmax; gy <= ygmax; gy++) {
@@ -806,68 +813,63 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 				complex ng = complex (0.0,0.0);
 				complex ngf = complex (0.0,0.0);
 				if (g2 <= gcut*gcut && g2 > 0.0) { 
-					double prefact = 2.0*M_PI_QI/(g2*vol)*exp(-g2/(4.0*alpb*alpb));
+					double kernel = 2.0*M_PI_QI/(g2*vol)*exp(-g2/(4.0*alpb*alpb));
+					// compute the form factors, which only depends on atom type and g
 					for (int jtyp=0; jtyp<natm_typ; jtyp++) {
-						double *xf		    = fgrid[jtyp].xf;
-						double *yf		    = fgrid[jtyp].yf;
-						double *zf		    = fgrid[jtyp].zf;
-				        double *wf          = fgrid[jtyp].wf;
-						complex ng_atm_typ  = complex(0.0,0.0);
-						complex ngf_atm_typ1 = complex(0.0,0.0);
-						complex ngf_atm_typ2 = complex(0.0,0.0);
- 			            int K 				= list_atm_by_typ[jtyp][0];
-						double Ncoeff 		= pow(alp[K]*alp[K]/(M_PI_QI),1.5);
-						double ng_pref     = q[K] - qt[K]*exp(-g2/(4.0*alp[K]*alp[K]));
-						double ngf_pref1	= q[K];
-						double ngf_pref2	= qt[K]*Ncoeff;
-						for(int j=0; j<natm_atm_typ[jtyp];j++){
- 			                int J = list_atm_by_typ[jtyp][j];
-							double gdotR = -(ggx*x[J] + ggy*y[J] + ggz*z[J]);
-     						ng_atm_typ   += CkExpIm(gdotR);
-     						ngf_atm_typ1 += CkExpIm(gdotR);
-							for (int f=0; f<nf; f++) {
-								double gdotRf = -(ggx*(x[J] + xf[f]) + ggy*(y[J] + yf[f]) + ggz*(z[J] + zf[f]));
-								ngf_atm_typ2 -= wf[f]*CkExpIm(gdotRf);
-							}// end for f
-						} // end for j
-						ng  += ng_pref*ng_atm_typ;
-						ngf += ngf_pref1*ngf_atm_typ1 + ngf_pref2*ngf_atm_typ2;
+						double *xf		     = fgrid[jtyp].xf;
+						double *yf		     = fgrid[jtyp].yf;
+						double *zf		     = fgrid[jtyp].zf;
+				        double *wf           = fgrid[jtyp].wf;
+ 			            int K 				 = list_atm_by_typ[jtyp][0];
+						double Ncoeff 		 = four_pi_inv;
+						ng_form_fact[jtyp]   = complex(q[K] - qt[K]*exp(-g2/(4.0*alp[K]*alp[K])),0.0);
+						ngf_form_fact[jtyp]	 = complex(q[K],0.0);
+						double ngf_pre	     = qt[K]*Ncoeff;
+						for (int f=0; f<nf; f++) {
+							double gdotRf = -(ggx*xf[f] + ggy*yf[f] + ggz*zf[f]);
+							ngf_form_fact[jtyp] -= (ngf_pre*wf[f])*CkExpIm(gdotRf);
+						}// end for f
 					} // end for jtyp
-					double normng = ng.getMagSqr();
-					double normngf = ngf.getMagSqr();
-					Elong += prefact*normng;
-					ElongGrid += prefact*normngf;
+					// compute the atom type resolved density and add it to the total density with the correct form factor
 					for (int jtyp=0; jtyp<natm_typ; jtyp++) {
-						double *xf		    = fgrid[jtyp].xf;
-						double *yf		    = fgrid[jtyp].yf;
-						double *zf		    = fgrid[jtyp].zf;
-				        double *wf          = fgrid[jtyp].wf;
- 			            int K 				= list_atm_by_typ[jtyp][0];
-						double Ncoeff 		= pow(alp[K]*alp[K]/(M_PI_QI),1.5);
+						complex ng_atm_typ = complex(0.0,0.0);
 						for(int j=0; j<natm_atm_typ[jtyp];j++){
+							int J = list_atm_by_typ[jtyp][j];
+							double gdotR = -(ggx*x[J] + ggy*y[J] + ggz*z[J]);
+							ng_atm_typ   += CkExpIm(gdotR);
+						} // end for j
+						ng  += ng_form_fact[jtyp]*ng_atm_typ;
+						ngf += ngf_form_fact[jtyp]*ng_atm_typ;
+					} // end for jtyp
+					// compute the energy using the kernel and the density
+					double ng_mag_square = ng.getMagSqr();
+					double ngf_mag_square = ngf.getMagSqr();
+					Elong += kernel*ng_mag_square;
+					ElongGrid += kernel*ngf_mag_square;
+					// get the forces on the atoms
+					for (int jtyp=0; jtyp<natm_typ; jtyp++) {
+						for(int j=0; j<natm_atm_typ[jtyp]; j++) {
  			        		int J = list_atm_by_typ[jtyp][j];
 							double  gdotR 		= -(ggx*x[J] + ggy*y[J] + ggz*z[J]);
-							double  ng_pref     = q[J] - qt[J]*exp(-g2/(4.0*alp[J]*alp[J]));
-							complex ngf_pref    = complex (q[J],0.0);
-							double  fg_tmp		= 2.0*(ng*CkExpIm(-gdotR)).im;
-							fx[J]			   += fg_tmp*ng_pref*ggx*prefact;
-							fy[J]			   += fg_tmp*ng_pref*ggy*prefact;
-							fz[J]			   += fg_tmp*ng_pref*ggz*prefact;
-  						for (int f=0; f<nf; f++) {
-  							double gdotf    = ggx*xf[f] + ggy*yf[f] + ggz*zf[f];
-  							ngf_pref	   -= qt[J]*wf[f]*CkExpIm(gdotf)*Ncoeff;
-  						}// end for f
-  						double  fgf_tmp		= 2.0*(ng*CkExpIm(-gdotR)*ngf_pref).im;
-							fxg[J]			   += fgf_tmp*ggx*prefact;
-							fyg[J]			   += fgf_tmp*ggy*prefact;
-							fzg[J]			   += fgf_tmp*ggz*prefact;
+							complex expgdotR	= CkExpIm(gdotR);
+							complex div_ng      = ng_form_fact[jtyp]*expgdotR*complex(0.0,-1.0);
+							complex div_ngf     = ngf_form_fact[jtyp]*expgdotR*complex(0.0,-1.0);
+							complex fg_tmp_c	= ng*div_ng.conj();
+							complex fgf_tmp_c	= ngf*div_ngf.conj();
+  							double  fg_tmp		= -2.0*fg_tmp_c.re*kernel;
+  							double  fgf_tmp		= -2.0*fgf_tmp_c.re*kernel;
+							fx[J]			   += fg_tmp*ggx;
+							fy[J]			   += fg_tmp*ggy;
+							fz[J]			   += fg_tmp*ggz;
+							fxg[J]			   += fgf_tmp*ggx;
+							fyg[J]			   += fgf_tmp*ggy;
+							fzg[J]			   += fgf_tmp*ggz;
 						} // end for j
 					}// end for jtyp
 				} // end if
 			} // end for gz
      	} // end for gy
-	} // end for gx
-	
+	} // end for gx	
 
 //===================================================================
 // put the energies in the structure 

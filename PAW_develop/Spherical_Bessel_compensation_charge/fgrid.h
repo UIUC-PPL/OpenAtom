@@ -8,6 +8,7 @@ typedef struct FGRID{
     int nrfull;         // number of r grid points*2
     double alp;         // Gaussian parameter
     double beta;        // screen parameter
+	double Rpc;			// Rpc
     double *wf;         // weight including the Jacobian - size[nf]
     double *xf;         // x coordinate - size[nf]
     double *yf;         // y - size[nf]

@@ -41,7 +41,7 @@ int main (int argc, char *argv[]){
   double alpb;			// Ewald alpha
   double gcut;		    // Ewald reciprocal space cutoff 
 
-  double *x,*y,*z,*q,*qt,*alp,*beta;    // atom positions and core Gaussian parameters
+  double *x,*y,*z,*q,*qt,*alp,*beta, *Rpc;    // atom positions and core Gaussian parameters
   double hmat[10];				  // the simulation box
   double hmati[10];				  // inverse simulation box
   double volume;				  // simulation box volume
@@ -50,7 +50,7 @@ int main (int argc, char *argv[]){
   int thetaorder; 
   int phiorder;    // grid sizes
   int lmax;									// maximum angular momentum
-  double delta = 1e-6;
+  double delta = 1.0e-6;
 	double beta_unitless;       // unitless beta for screening, beta[J] = alpha[J]*beta_unitless
 
   ESTRUCT energy;		// compensation charge energy terms stored nicely
@@ -137,7 +137,7 @@ int main (int argc, char *argv[]){
 
   	x = new double [natm]; y = new double [natm]; z = new double [natm];
   	q = new double [natm]; qt = new double [natm];
-  	alp = new double [natm]; beta = new double [natm];
+  	Rpc = new double [natm]; alp = new double [natm]; beta = new double [natm];
 
   	double *vx   = new double [natm]; double *vy   = new double [natm]; double *vz   = new double [natm];
   	double *fx0  = new double [natm]; double *fy0  = new double [natm]; double *fz0  = new double [natm];
@@ -149,7 +149,8 @@ int main (int argc, char *argv[]){
 	list_atm_by_typ = new int *[natm_typ];
 	for (int i=0; i<natm_typ; i++) { list_atm_by_typ[i] = new int [natm_atm_typ_max]; }
   	for (int i=0; i<natm; i++) {
-  		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &alp[i], &index_atm_typ[i]); readtoendofline(fp);
+  		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &Rpc[i], &index_atm_typ[i]); readtoendofline(fp);
+		alp[i] = 1.8/Rpc[i];
 		beta[i] = alp[i]*beta_unitless;
   	} //end for i
   	fscanf(fp, "%lf %lf %lf", &hmat[1], &hmat[4], &hmat[7]); readtoendofline(fp);
@@ -166,18 +167,19 @@ int main (int argc, char *argv[]){
   } // end for
 
 #ifdef _FORCECHECK_
-  //========================================================================
-  // make a copy of the atoms: give the dummy structure its own memory!!!!!!
+//========================================================================
+// make a copy of the atoms: give the dummy structure its own memory!!!!!!
 
-  double *xd = new double [natm]; double *yd = new double [natm]; double *zd = new double [natm];
-  double *qd = new double [natm]; double *qtd = new double [natm];
-  double *alpd = new double [natm];
+	double *xd = new double [natm]; double *yd = new double [natm]; double *zd = new double [natm];
+	double *qd = new double [natm]; double *qtd = new double [natm];
+	double *alpd = new double [natm]; double *betad = new double [natm]; double *Rpcd = new double [natm];
 
-  double *vxd   = new double [natm]; double *vyd   = new double [natm]; double *vzd   = new double [natm];
-  double *fx0d  = new double [natm]; double *fy0d  = new double [natm]; double *fz0d  = new double [natm];
-  double *fxd   = new double [natm]; double *fyd   = new double [natm]; double *fzd   = new double [natm];
-  double *fx0gd = new double [natm]; double *fy0gd = new double [natm]; double *fz0gd = new double [natm];
-  double *fxgd  = new double [natm]; double *fygd  = new double [natm]; double *fzgd  = new double [natm];
+	double *vxd   = new double [natm]; double *vyd   = new double [natm]; double *vzd   = new double [natm];
+	double *fx0d  = new double [natm]; double *fy0d  = new double [natm]; double *fz0d  = new double [natm];
+	double *fxd   = new double [natm]; double *fyd   = new double [natm]; double *fzd   = new double [natm];
+	double *fx0gd = new double [natm]; double *fy0gd = new double [natm]; double *fz0gd = new double [natm];
+	double *fxgd  = new double [natm]; double *fygd  = new double [natm]; double *fzgd  = new double [natm];
+
 
   for (int i=0; i<natm; i++) {
 	vxd[i]   = 0; vyd[i]   = 0; vzd[i]   = 0;
@@ -189,6 +191,8 @@ int main (int argc, char *argv[]){
 	xd[i]   = x[i]; yd[i]   = y[i]; zd[i]   = z[i];
 	qd[i]   = q[i]; qtd[i]  = qt[i];
     alpd[i] = alp[i];
+	betad[i] = beta[i];
+	Rpc[i] = Rpc[i];
   } // end for
 #endif // _FORCECHECK_
 
@@ -199,7 +203,7 @@ int main (int argc, char *argv[]){
   atom_pos.x 	= x;    atom_pos.y 	  = y;    atom_pos.z    = z;
   atom_pos.q 	= q;
   atom_pos.qt 	= qt;
-  atom_pos.alp 	= alp; atom_pos.beta  = beta;
+  atom_pos.alp 	= alp; atom_pos.beta  = beta; atom_pos.Rpc = Rpc;
 
   atom_pos.vx	= vx;   atom_pos.vy   = vy;   atom_pos.vz   = vz;
   atom_pos.fx0	= fx0;  atom_pos.fy0  = fy0;  atom_pos.fz0  = fz0;
@@ -212,7 +216,7 @@ int main (int argc, char *argv[]){
   atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
   atom_pos_dummy.q 		= qd;
   atom_pos_dummy.qt 	= qtd;
-  atom_pos_dummy.alp 	= alpd;
+  atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta  = betad; atom_pos_dummy.Rpc = Rpcd;
 
   atom_pos_dummy.vx		= vxd;   atom_pos_dummy.vy   = vyd;   atom_pos_dummy.vz   = vzd;
   atom_pos_dummy.fx0	= fx0d;  atom_pos_dummy.fy0  = fy0d;  atom_pos_dummy.fz0  = fz0d;
@@ -259,25 +263,39 @@ int main (int argc, char *argv[]){
 
   //========================================================================
   // compute the grids 
-  int nf = rorder*thetaorder*phiorder;
+  int nf = (rorder+1)*thetaorder*phiorder;
   FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
 
   //---------------------------------------------------------------------
   // get the master Gauss-Legendre, Gauss_Hermite_half, and phi grids
 
-  double * xr_master = new double [rorder]; double * wr_master = new double [rorder];
-  double * xphi_master = new double [phiorder]; double * wphi_master = new double [phiorder];
-  double * xtheta_master = new double [thetaorder]; double * wtheta_master = new double [thetaorder];
+	double * xr_master = new double [rorder+1]; double * wr_master = new double [rorder+1];
+	double * xphi_master = new double [phiorder]; double * wphi_master = new double [phiorder];
+	double * xtheta_master = new double [thetaorder]; double * wtheta_master = new double [thetaorder];
+	double * Bessel2 = new double [rorder+1];
  
-  int kind = 0; 
-//double aaa = -1; double bbb = 1;
-  int type = 2; int iopt = 0;
-// control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
-  int ierr_zero1; int ierr_ortho1;
-  gen_Gauss_quad_driver(kind, thetaorder, iopt, xtheta_master, wtheta_master, &ierr_zero1, &ierr_ortho1);
+	int kind = 1; double aaa = -1; double bbb = 1;
+	control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
+//	int type = 0; int iopt = 0;
+//	int ierr_zero1; int ierr_ortho1;
+//	gen_Gauss_quad_driver(type, thetaorder, iopt, xtheta_master, wtheta_master, &ierr_zero1, &ierr_ortho1);
 
-  int ierr_zero; int ierr_ortho;
-  gen_Gauss_quad_driver(type, rorder, iopt, xr_master, wr_master, &ierr_zero, &ierr_ortho);
+//  int ierr_zero; int ierr_ortho;
+//  gen_Gauss_quad_driver(type, rorder, iopt, xr_master, wr_master, &ierr_zero, &ierr_ortho);
+	
+	
+	double Rpc_master = 1.0;
+	double delta_master = Rpc_master/((double) rorder);
+	for (int i=0; i <= rorder; i++) {
+		double r = ((double) i)*delta_master;
+		xr_master[i] = r; // depends on Rpc - only guy that needs to change if Rpc != 1.0
+		double ak1 = M_PI_QI/Rpc_master;
+		Bessel2[i] = sin(ak1*r)*sin(ak1*r); // ak1*r is unitless
+		wr_master[i] = delta_master*Bessel2[i]*2.0/Rpc_master; // unitless
+	} // end for
+	wr_master[0] *= 0.5;
+	wr_master[rorder] *= 0.5;
+
 
   genphigrid(phiorder,wphi_master,xphi_master); // Fourier (equal space)
 
@@ -298,13 +316,15 @@ int main (int argc, char *argv[]){
   	fgrid[i].xcostheta = new double [thetaorder];
   	fgrid[i].xphi = new double [phiorder];
 	fgrid[i].Ylmf = new complex [nf];
-  	fgrid[i].xr = new double [rorder];
-  	fgrid[i].wr = new double [rorder];
+  	fgrid[i].xr = new double [rorder+1];
+  	fgrid[i].wr = new double [rorder+1];
 	int J = list_atm_by_typ[i][0];
 	double alp_tmp = alp[J];
 	double beta_tmp = beta[J];
+	double Rpc_tmp = Rpc[J];
 	fgrid[i].alp = alp_tmp;
 	fgrid[i].beta = beta_tmp;
+	fgrid[i].Rpc = Rpc_tmp;
 
     double *wf = fgrid[i].wf;
     double *xf = fgrid[i].xf;
@@ -315,41 +335,45 @@ int main (int argc, char *argv[]){
     double *wr = fgrid[i].wr;
 	double *xcostheta = fgrid[i].xcostheta;
 	double *xphi = fgrid[i].xphi;
-	
-	double result = 0.0;
-	double result2 = 0.0;
 
-	for (int ir=0; ir<rorder; ir++) {
-		xr[ir] = xr_master[ir]/alp_tmp;
-		wr[ir] = wr_master[ir]/alp_tmp;
-		result += wr[ir];
-		result2 += wr[ir]*xr[ir]*xr[ir];
+	for (int ir=0; ir<=rorder; ir++) {
+		xr[ir] = xr_master[ir]*Rpc_tmp;
+		wr[ir] = wr_master[ir];
 	} // end for ir
-//	PRINTF("test %g %g %g %g %g\n", result, result2, sqrt(M_PI_QI)*0.5, sqrt(M_PI_QI)*0.25, alp_tmp);
 	
-	double result3 = 0.0;
-	double result4 = 0.0;
-	double pre3 = 8.0/M_PI_QI*pow(alp_tmp,6);
-	double beta2 = beta_tmp*beta_tmp;
-	for (int ir=0; ir<rorder; ir++) {
-		for (int jr=0; jr<rorder; jr++) {
-			double rgt = MAX(xr[ir],xr[jr]);
-			double rlt = MIN(xr[ir],xr[jr]);
-			double rd = rgt - rlt;
-			double rs = rgt + rlt;
-			result3 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]/rgt;
-			double complicated;
-			double part1 = (exp(-beta2*rs*rs) - exp(-beta2*rd*rd))/(2.0*beta_tmp*sqrt(M_PI_QI)*rgt*rlt); 
-			double part2 = (rd*erfc(beta_tmp*rd) - rs*erfc(beta_tmp*rs))/(2.0*rgt*rlt);
-			double part3 = 1.0/rgt;
-			complicated = part1 + part2 + part3; 
-			result4 += wr[ir]*wr[jr]*xr[ir]*xr[ir]*xr[jr]*xr[jr]*complicated;
-		} // end for jr
-	} // end for ir
-	result3 *= pre3;
-	result4 *= pre3;
-	PRINTF("test3: %g %g\n", result3, alp_tmp/sqrt(2.0*M_PI_QI));
-	
+    double result4 = 0.0;
+    double result3 = 0.0;
+    double beta2 = beta_tmp*beta_tmp;
+    for (int ir=0; ir<=rorder; ir++) {
+        for (int jr=0; jr<=rorder; jr++) {
+            double rgt = MAX(xr[ir],xr[jr]);
+            double rlt = MIN(xr[ir],xr[jr]);
+            double rd = rgt - rlt;
+            double rs = rgt + rlt;
+            double complicated;
+            double simple;
+            if (ir != 0 && jr != 0) {
+                double part1 = (exp(-beta2*rs*rs) - exp(-beta2*rd*rd))/(2.0*beta_tmp*sqrt(M_PI_QI)*rgt*rlt);
+                double part2 = (rd*erfc(beta_tmp*rd) - rs*erfc(beta_tmp*rs))/(2.0*rgt*rlt);
+                double part3 = 1.0/rgt;
+                complicated = part1 + part2 + part3;
+                simple = 1.0/rgt;
+            } else {
+                if (ir !=0 || jr != 0) {
+                    complicated = erf(beta_tmp*rgt)/rgt;
+                    simple = 1.0/rgt;
+                } else {
+                    complicated = 2.0*beta_tmp/sqrt(M_PI_QI);
+                    simple = 0.0;
+                } // end if
+            } // end if
+            result3 += wr[ir]*wr[jr]*simple;
+            result4 += wr[ir]*wr[jr]*complicated;
+        } // end for jr
+    } // end for ir
+    PRINTF("result3: %.14g\n", result3);
+	PRINTF("result4: %.14g\n", result4);
+
 	double gamma2_inv = 0.5/(alp_tmp*alp_tmp) + 0.25/(beta_tmp*beta_tmp);
 	double gamma = 1.0/sqrt(gamma2_inv);
 	PRINTF("test4: %.10g %.10g beta_tmp = %g\n", result4, 0.5*gamma/sqrt(M_PI_QI), beta_tmp);
@@ -358,21 +382,24 @@ int main (int argc, char *argv[]){
 	for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
 
     int f = 0;
-    for (int ir=0; ir<rorder; ir++) {
+	double result5 = 0.0;
+    for (int ir=0; ir<=rorder; ir++) {
         for (int itheta=0; itheta<thetaorder; itheta++) {
             for (int iphi=0; iphi<phiorder; iphi++) {
                 double xsintheta = sqrt(1.0-(xtheta_master[itheta])*(xtheta_master[itheta]));
-                wf[f] = wr[ir]*xr[ir]*xr[ir]*wtheta_master[itheta]*wphi_master[iphi];
+                wf[f] = wr[ir]*wtheta_master[itheta]*wphi_master[iphi];
                 xf[f] = xr[ir]*xsintheta*cos(xphi_master[iphi]);
                 yf[f] = xr[ir]*xsintheta*sin(xphi_master[iphi]);
                 zf[f] = xr[ir]*xtheta_master[itheta];
                 rf[f] = xr[ir];
+				result5 += wf[f];
 //				double tmp = xf[f]*xf[f] + yf[f]*yf[f] + zf[f]*zf[f] - rf[f]*rf[f];
 //				PRINTF("\ntest square relation: %g\n", tmp);
                 f++;
             } // end for iphi
         } // end for itheta
     } // end for ir
+	PRINTF("result5: %.10g\n", result5/(4.0*M_PI_QI));
   } // end for
 
   //========================================================================
@@ -491,27 +518,38 @@ int main (int argc, char *argv[]){
   }// end for i
   
   double * fdummy = new double [3];
-  for (int j=0; j<3; j++) {
-//	fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
-//	fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
-	fdummy[j] = (energy_minus[j].ENNshort.EGrid -  energy_plus[j].ENNshort.EGrid)/(2.0*delta);
-  }
-  PRINTF("%g %g %g : %g %g %g\n", fdummy[0], fdummy[1], fdummy[2], fxg[iii], fyg[iii], fzg[iii]);
+	for (int j=0; j<3; j++) {
+		fdummy[j] = (energy_minus[j].Etot3D.EGrid -  energy_plus[j].Etot3D.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].Etot0D.EGrid -  energy_plus[j].Etot0D.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].ENNshort.EGrid -  energy_plus[j].ENNshort.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].EeNshort.EGrid -  energy_plus[j].EeNshort.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].EHarshort.EGrid -  energy_plus[j].EHarshort.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].Elong.EGrid -  energy_plus[j].Elong.EGrid)/(2.0*delta);
+//		fdummy[j] = (energy_minus[j].Elong.E -  energy_plus[j].Elong.E)/(2.0*delta);
+	}
+//	PRINTF(" numerical 3D: %.10g %.10g %.10g \n", fdummy[0], fdummy[1], fdummy[2]);
+//	PRINTF("analytical 3D: %.10g %.10g %.10g\n", fx[iii], fy[iii], fz[iii]);
+	PRINTF("numerical 3D: %.10g %.10g %.10g \n", fdummy[0], fdummy[1], fdummy[2]);
+	PRINTF("     grid 3D: %.10g %.10g %.10g\n", fxg[iii], fyg[iii], fzg[iii]);
 
 #endif // _FORCECHECK_
 
   //========================================================================
   // Print out the forces
 
-  PRINT_LINE_STAR;
-  PRINTF(" Printing out forces\n");
-  PRINT_LINE_DASH;
-  for (int i=0; i<natm; i++) {
-	PRINTF("fx0  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
-	PRINTF("fx0g [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
-	PRINTF("fx   [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
-	PRINTF("fxg  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
-  } // end for
+	PRINT_LINE_STAR;
+	PRINTF(" Printing out forces\n");
+	PRINT_LINE_DASH;
+	for (int i=0; i<natm; i++) {
+	  PRINTF("fx0  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0[i],atom_pos.fy0[i],atom_pos.fz0[i]);
+	  PRINTF("fx0g [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx0g[i],atom_pos.fy0g[i],atom_pos.fz0g[i]);
+	} // end for
+	PRINT_LINE_DASH;
+	for (int i=0; i<natm; i++) {
+	  PRINTF("fx   [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fx[i],atom_pos.fy[i],atom_pos.fz[i]);
+	  PRINTF("fxg  [%d]: % 14.12f  |  % 14.12f  |  % 14.12f\n",i,atom_pos.fxg[i],atom_pos.fyg[i],atom_pos.fzg[i]);
+	} // end for
 
   //==========================================================================
   // Tell everyone you are done
