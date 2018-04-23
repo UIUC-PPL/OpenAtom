@@ -233,7 +233,7 @@ void computeF(int first, int last, void* result, int count, void* params) {
       // change to f corrects that so we get the correct P.
       f[i] = f[i].conj();
 #endif
-      fsave_subset[i] = f[i]*(1.0/psi_size);
+      fsave_subset[i] = f[i];
       f[i] *= scaling_factor;
     }
   }
@@ -282,7 +282,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
 
 #define TESTING 1
 #ifdef TESTING
-  if(in_np_list(msg->state_index)){
+  if(in_np_list(msg->state_index) && msg->state_index >= L){
 //Cache this
     int data_size_x = psi_size;
     complex *store_x = &states[(msg->state_index-L)*data_size_x];
@@ -294,33 +294,58 @@ void PsiCache::computeFs(PsiMessage* msg) {
   // Create the FComputePacket for this set of f vectors and start CkLoop
   f_packet.size = psi_size;
   f_packet.unocc_psi = msg->psi;
-
-  if ( qindex == 0 ) { 
-    f_packet.occ_psis = psis_shifted[ikq]; 
-    f_packet.e_occ = e_occ_shifted[msg->spin_index][ikq];
-  }
-  else { 
-    f_packet.occ_psis = psis[ikq];
-    f_packet.e_occ = e_occ[msg->spin_index][ikq]; 
-  }
-  f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
-  f_packet.fs = fs + (L*psi_size*(received_chunks%pipeline_stages));
   f_packet.fsave = fsave;
 
-  if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
-  else { f_packet.umklapp_factor = NULL; }
+  if(msg->state_index >= L){
+    if ( qindex == 0 ) {
+      f_packet.occ_psis = psis_shifted[ikq];
+      f_packet.e_occ = e_occ_shifted[msg->spin_index][ikq];
+    }
+    else {
+      f_packet.occ_psis = psis[ikq];
+      f_packet.e_occ = e_occ[msg->spin_index][ikq];
+    }
+    f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
+    f_packet.fs = fs + (L*psi_size*(received_chunks%pipeline_stages));
+
+    if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+    else { f_packet.umklapp_factor = NULL; }
 
 #ifdef USE_CKLOOP
-  CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
+    CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
 #else
-  for (int l = 0; l < L; l++) {
-    computeF(l,l,NULL,1,&f_packet);
-  }
+    for (int l = 0; l < L; l++) {
+      computeF(l,l,NULL,1,&f_packet);
+    }
 #endif
-  received_chunks++;
+    received_chunks++;
+  }
+
 #ifdef TESTING
   if(in_np_list(msg->state_index))
   {
+    if(msg->state_index < L)
+      f_packet.e_unocc = f_packet.e_occ[msg->state_index];
+    else
+      f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
+
+    // Ignore shifted states(q=0) for fvectors, when caching for sigma calc
+    if ( qindex == 0 || msg->state_index < L) {
+      complex* f_nop;
+      f_nop = new complex[L*psi_size];
+      f_packet.occ_psis = psis[ikq];
+      f_packet.e_occ = e_occ[msg->spin_index][ikq];
+      f_packet.fs = f_nop;
+
+#ifdef USE_CKLOOP
+      CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
+#else
+      for (int l = 0; l < L; l++) {
+        computeF(l,l,NULL,1,&f_packet);
+      }
+#endif
+    }
+
     FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
     fvec_cache->computeFTilde(fsave);
   //compute ftilde first - similar to ckloop above for all L's
@@ -330,7 +355,12 @@ void PsiCache::computeFs(PsiMessage* msg) {
 #endif
 
   // Let the matrix chares know that the f vectors are ready
-  CkCallback cb(CkReductionTarget(PMatrix, applyFs), pmatrix2D_proxy);
+  CkCallback cb;
+  if(msg->state_index >= L)
+    cb = CkCallback(CkReductionTarget(PMatrix, applyFs), pmatrix2D_proxy);
+  else
+    cb = CkCallback(CkReductionTarget(Controller,prepare_epsilon), controller_proxy);
+
   contribute(cb);
 
   // Cleanup
@@ -642,7 +672,7 @@ void fTildeWorkUnit(int first, int last, void* result, int count, void* params) 
     // Pack our data, do the fft, then get the output
     put_into_fftbox(nfft, &fs[i*psi_size], in_pointer);
     fft_controller->do_fftw();
-    fftbox_to_array(psi_size, out_pointer, &fs[i*psi_size], 1.0); //Now cached on the same partitions
+    fftbox_to_array(psi_size, out_pointer, &fs[i*psi_size], -1.0); //Now cached on the same partitions
     // replace f_vector to f_tilde_vector
   }
 }

@@ -359,6 +359,18 @@ module controller {
         bare_x = screen_x = coh = (0.0,0.0);
       }
 
+      for (next_K = 0; next_K < K; next_K++) {
+//send only occ states
+        for (next_state = 0; next_state < Bands ; next_state++) {
+          if(np_list[next_state]-1 < L){
+            serial {
+              states_proxy(0, next_K, np_list[next_state]-1).sendToComputeF();
+            }
+            when prepare_epsilon() serial { }
+          }
+        }
+      }
+
       serial{
         eps_matrix2D_X_proxy.bareExchange();
       }
@@ -373,13 +385,13 @@ module controller {
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
             CkPrintf("-----------------------------------------------------------------\n");
-            CkPrintf("| Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re,dx.im);
+            CkPrintf("| Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114,dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
           }
         }
         complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("| Accumulated Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
         CkPrintf("|                               |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.screenedExchange();
@@ -395,13 +407,13 @@ module controller {
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
             CkPrintf("-----------------------------------------------------------------\n");
-            CkPrintf("| Screen Exchange     | %d | %d | %d | %11.8f + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re,dx.im);
+            CkPrintf("| Screen Exchange     | %d | %d | %d | %11.8f + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114, dx.im);
             CkPrintf("|                     |   |   |   |                         \n");
           }
         }
         complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
         CkPrintf("|                                 |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.coh();
