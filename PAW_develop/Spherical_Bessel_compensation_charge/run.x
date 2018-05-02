@@ -1,1 +1,1 @@
-./model_PAW.x PAW.in 20 20 40 0 3.0
+./model_PAW.x Cu111.in 16 5 10 0 3.0

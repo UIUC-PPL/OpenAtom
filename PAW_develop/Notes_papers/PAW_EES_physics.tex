@@ -271,7 +271,7 @@
 Define $g=|\bg|$, $r=|\br|$, $\bR_{JK} = \bR_K - \bR_J$, with $\bg$ and $\br$ vectors in 3 dimensional space, $\bg$-space and $\br$-space respectively.\\
 
 
-\begin{table}[!htbp]
+\begin{table}[h!]
 \caption{\label{index} Indices used in this notes.}
 \begin{center}
 \begin{tabular}{ c  c  c  c}
@@ -374,7 +374,7 @@ To perform PAW, we introduce 3 FFT grids, 1 for the density defined by $2g_\rcut
 
 The real space FFT grid can be any size greater than that required to fit the minimum amount of g's within the cutoffs.For EES the real space grid is taken ``too large'' for its g'sso that the EES interpolation error, $(2\hat{g}_{\alpha,\mathrm{max}}/N_{\alpha,\mathrm{FFT}})^p$, is smaller, where $p$ is the interpolation order. Typically, we take $N_{\alpha,\mathrm{FFT}}=(1+\lambda)2\hat{g}_{\alpha,\mathrm{max}}$, so that the total number of points is $(1+\lambda)^3$ larger than that required to contain the g's. The standard value of $\lambda$ is 0.4. The definitions of Table \ref{index1} follow.
 
-\begin{table}[!htbp]
+\begin{table}[h!]
 \caption{\label{index1} Important global parameters.}
 \begin{center}
 \begin{tabular}{ c c}
@@ -820,12 +820,82 @@ Given smooth part of the KS-states are expressed in a plane wave expansion, the 
 
 In the following, we shall show how to evaluate in $\sim N^2 \rl N$, the PAW energy within the local approximation to KS-DFT
 \begin{equation}
-E^{(\rP)} = E^{(\rKE)} +  E^{(\rlo)} + E^{(\rxc)} + E^{(\rH)}
-\end{equation}using the 4 grids and EES interpolation. Each term will be written in terms of a smooth part and a core part \begin{eqnarray}E^{(\rKE)} &=& E^{(\rS,\rKE)} + E^{(\rP,\rcore,\rEES)}_{\rKE}\\E^{(\rlo)} &=& E^{(\rS)}_{\rlo} + E^{(\rP,\rcore,\rEES)}_{\rlo,\rshort} + E^{(\rP,\rcore,\rEES)}_{\rlo,\rlong} \\
+E^{(\rP)} = E^{(\rKE)} +  E^{(\rlo)} + E^{(\rxc)} + E^{(\rH)}.
+\end{equation}
+Here,
+\begin{equation}
+E^{(\rKE)} = -\frac{\hbar^2}{2m_e}\int_{D(\bh)} \rd \br \sum_{I}<\Psi_I|\nabla^2|\Psi_I>
+\end{equation}
+\begin{equation}
+E^{(\rlo)} = -\int_{D(\bh)} \rd \br n(\br) \sum_J \sum_{\bm}\frac{eQ_J}{\left|\br-\bR_J + \bm\bh\right|}
+\end{equation}
+\begin{equation}
+E^{(\rxc)} = \int \rd\br \epsilon_{\rxc}\left(n^{(\rS)}(\br)\right) + \sum_J \int_{D(\Rpc)} \rd \br \left[\epsilon_{\rxc}
+\left(n_J^{(\rtot)}(\br)\right)-\epsilon_{\rxc}\left(n_J^{(\rS)}(\br)\right)\right]
+\end{equation}
+\begin{equation}
+E^{(\rH)} = \frac{e^2}{2}\int_{D(\bh)} \rd \br \int_{D(\bh)} \rd \br' n(\br) \sum_{\bm}\frac{n(\br)n(\br')}{\left|\br-\br' + \bm\bh\right|}.
+\end{equation}
+\\
+
+Unlike planewave DFT, for PAW DFT we will break Hartree and local energies into long and short range parts using the Ewald decomposition of $1/r = (\rerfc(\alpha r) + \rerf(\alpha r))/r$ and Poisson summation. The result is, 
+\\
+\begin{equation}
+\begin{split}
+E^{(\rlo)}
+&= E^{(\rlo,\rshort)}+E^{(\rlo,\rlong)} \\
+&= -e\int_{D(\bh)} \rd \br n(\br) \sum_J \frac{\rerfc\left(\alpha|\br-\br_J|\right)}{\left|\br-\bR_J\right|} \\
+&- \frac{e}{V}\sum_{g \neq 0} ^{g^2 < G_c}\frac{4\pi}{g^2}\rexp\left(-\frac{g^2}{4\al^2}\right)\bar n(\bg) \bar S(\bg) + \frac{\pi e \bar n(0) \bar S(0)}{V\al^2}
+\end{split}
+\end{equation}
+
+\begin{equation}
+\begin{split}
+E^{(\rH)}
+&= E^{(\rH,\rshort)}+E^{(\rH,\rlong)} \\
+&= \frac{e^2}{2}\int_{D(\bh)} \rd \br n(\br) \int_{D(\bh)} \rd \br n(\br) \frac{n(\br)n(\br')\rerfc\left(\al|\br-\br'|\right)}{\left|\br-\br'\right|} \\
+&+ \frac{e^2}{2V}\sum_{g \neq 0} ^{g^2 < G_c}\frac{4\pi}{g^2}\rexp\left(-\frac{g^2}{4\al^2}\right)\left|\bar n(\bg)\right|^2  - \frac{\pi e^2 \left|\bar n(0)\right|^2 }{2V\al^2}
+\end{split}
+\end{equation}
+
+In the preceding, we introduce the Ewald parameter $\al$ and a real space cutoff less than half the box length as the short range part is truncated to the sum over only the first image. We can therefore relate the planewave cutoff $\hbar^2 g_c^2 /(2m_e) = E_{\rcut}, G_c = 2g_c$ to the real space cutoff $R_c > \Rpc$ by equating truncating error
+
+\begin{equation}
+\begin{split}
+\rerfc(\al R_c) \approx \frac{\rexp\left(-(\al R_c)^2\right)}{\sqrt{\pi}\al R_c} \approx \rexp\left(-(\al R_c)^2\right) &\approx \epsilon \\
+\frac{4\pi \rexp\left(-\frac{G_c^2}{4\al^2}\right)}{G_c^2} \approx \rexp\left(-\frac{G_c^2}{4\al^2}\right) &\approx \epsilon\\
+G_c^2 & \approx \frac{4\gamma^2}{R_c^2}
+\end{split}
+\end{equation}
+
+where $\gamma = \al R_c$. It seems most natural to choose a planewave cutoff and a real space cutoff and compute an Ewald parameter that satisfies the relationship, 
+\begin{equation}
+\alpha = \left(\frac{2 m_e E_{\rcut}}{\hbar^2 R_c^2}\right)^{\frac{1}{4}}
+\end{equation}
+
+We further insist that given experience with Ewald summation $\al < G_c/(2\pi) $, so that $G_c^2 /4 \alpha^2 > \pi^2$. This restricts $\gamma = \al R_c > \pi \approx 3$. In Fig.5.1, we show various $\gamma$ and planewave cutoffs for $R_c = 2$ bohr. Note we keep $\gamma > 3$ to ensure the convergence of the Ewald summation approach. If a larger real space cutoff is used, the planewave cutoff can be reduced to achieve similar accuracy. In this way, the Ewald approach divides computational work between real space and reciprocal space.
+
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{alphatable}
+    \caption{Planewave cutoff to achieve various accuracies at fixed real space cutoff $R_c = $ 2 bohr.} 
+    \label{fig:alphatable}
+\end{figure}
+
+Next, we recognize that PAW divides each energy term into a core part and the smooth part.
+ 
+\begin{eqnarray}E^{(\rKE)} &=& E^{(\rS,\rKE)} + E^{(\rP,\rcore)}_{\rKE}\\E^{(\rlo)} &=& E^{(\rS)}_{\rlo} + E^{(\rP,\rcore)}_{\rlo,\rshort} + E^{(\rP,\rcore)}_{\rlo,\rlong} \\
+E^{(\rxc)} &=& E^{(\rS)}_{\rxc} + E^{(\rP,\rcore)}_{\rxc}\\
+E^{(\rH)} &=& E^{(\rS)}_{\rH} + E^{(\rP,\rcore)}_{\rH,\rshort} + E^{(\rP,\rcore)}_{\rH,\rlong}
+\end{eqnarray}
+
+However, we need to introduce EES interpolation in order to achieve $N^2 \rl N$ scale.
+
+\begin{eqnarray}E^{(\rKE)} &=& E^{(\rS,\rKE)} + E^{(\rP,\rcore,\rEES)}_{\rKE}\\E^{(\rlo)} &=& E^{(\rS)}_{\rlo} + E^{(\rP,\rcore,\rEES)}_{\rlo,\rshort} + E^{(\rP,\rcore,\rEES)}_{\rlo,\rlong} \\
 E^{(\rxc)} &=& E^{(\rS)}_{\rxc} + E^{(\rP,\rcore,\rEES)}_{\rxc}\\
 E^{(\rH)} &=& E^{(\rS)}_{\rH} + E^{(\rP,\rcore,\rEES)}_{\rH,\rshort} + E^{(\rP,\rcore,\rEES)}_{\rH,\rlong}
 \end{eqnarray}
-The smooth parts can be evaluated as in a standard plane-wave based DFT code while the core parts will require the development which follows.\\
+The smooth parts can be evaluated as in a standard plane-wave based DFT code while the core parts will require the development which follows. This $N^2 \rl N$ approach will require using 4 grids (3 FFT grids and 1 fine grid for the core).
 
 \subsection{Transformation of the smooth density}
 Performing a 3DFFT on the smooth density $n^{(\rS)}(\hat \bs)$ yields the $\bg$-space smooth density,
@@ -1294,9 +1364,9 @@ Note that here the EES is performed on an FFT grid slightly larger than that req
 For each atom $J$, we only require the functions $\Psi_I^{(\rS,D)}(\hat \bs)$ on the $\pzp$ points around $J$ as indicated in Fig.\eqref{fig:EESdot}.
 
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{EESdot}
+    \includegraphics[width=0.5\textwidth]{EESdot}
     \caption{A schematic representation of the ``dual-grid''. Blue dots represent the FFT grid. Red dots represent the $f$-grid for the real-space integration, centered near a particle. Open blue dots are the $\pzp$ FFT-grid points needed for the EES interpolation of the KS states.} 
     \label{fig:EESdot}
 \end{figure}
@@ -5962,7 +6032,7 @@ $r_> = r_< $ does not cancel any of the $\cos(\gamma) = \br \cdot \br'/(r_> r_<)
 
 The advantage of using the explicit partial wave expansion of the screened Coulomb is in convergence with the angular grid. A large number of angular grid points maybe necessary to essentially generate zero for the large angular momentum. Thus, grinding out using Wolfram up to $l=3$ will reduce the grid size required to converge Hartree self.
 
-\begin{table}[!htbp]
+\begin{table}[h!]
 \caption{\label{index} Largest $\beta_{\mathrm{universal}}$ for each grid size to achieve the desired tolerance per atom in $E_{\rH}^{(\rcomp,\mathrm{screen, self, 0D, grid})}$.}
 \begin{center}
 \begin{tabular}{ c  c  c  c}
@@ -5994,51 +6064,51 @@ The advantage of using the explicit partial wave expansion of the screened Coulo
 \end{center}
 \end{table}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{error}
+    \includegraphics[width=0.5\textwidth]{error}
     \caption{Percent error of the 0D Hartree self energy versus $\beta_{\mathrm{universal}}$ for different radial grid sizes.} 
     \label{fig:error}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{diffbeta}
+    \includegraphics[width=0.5\textwidth]{diffbeta}
     \caption{For $n_r = 14$, the percentage difference between the screened and unscreened 0D Hartree self energy term versus $\beta_{\mathrm{universal}}$. The asymptotic regime is reached for $\beta_{\mathrm{universal}} > 2$.} 
     \label{fig:diffbeta}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{betaconv}
+    \includegraphics[width=0.5\textwidth]{betaconv}
     \caption{Percentage error of the 0D Hartree self energy versus $n_r$ for different $\beta_{\mathrm{universal}}$ on a semilog plot.} 
     \label{fig:diffbeta}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{betaconvloglog}
+    \includegraphics[width=0.5\textwidth]{betaconvloglog}
     \caption{Percentage error of the 0D Hartree self energy versus $n_r$ for different $\beta_{\mathrm{universal}}$ on a loglog plot.} 
     \label{fig:diffbeta}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{error3D}
+    \includegraphics[width=0.5\textwidth]{error3D}
     \caption{Percent error of the 3D Hartree short self energy versus $\beta_{\mathrm{universal}}$ for $n_r = 14$.} 
     \label{fig:error3D}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{conv}
+    \includegraphics[width=0.5\textwidth]{conv}
     \caption{The fractional error between the grid and analytical 0D e-N energy and Hartree energy without the self term versus $n_r$.} 
     \label{fig:conv0D}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{fconv}
+    \includegraphics[width=0.5\textwidth]{fconv}
     \caption{The fractional error between the grid and analytical 0D e-N force and Hartree force versus $n_r$.} 
     \label{fig:fconv0D}
 \end{figure}
@@ -6475,59 +6545,118 @@ r_i &= \Delta \hat {i}
 \end{split}
 \end{equation}
 
-The third advantage is that the weight and nodes of the grid are simple.
+The third advantage is that the weight and nodes of the grid are simple.We can evaluate the model analytically, but we will try it first numerically and look at the convergence. 
+\newpage
 
-We can evaluate the model analytically, but we will try it first numerically and look at the convergence.
-
-We tested the Bessel grid for $\hat {k}_{\mathrm{max}} = 1$ using the screened and unscreened Hartree self term. The results indicate that the non-analytical character of the unscreened reduces the power law convergence from $n_r^4$ to $n_r^2$.
-
-\begin{figure}[!htbp] 
+\begin{figure} [h!]
     \centering
-    \includegraphics[width=0.6\textwidth]{sBesselerror}
+    \includegraphics[width=0.5\textwidth]{sBesselerror}
     \caption{The convergence of the screened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
     \label{fig:sBesselerror}
 \end{figure}
 
-\begin{figure}[!htbp] 
+In order to test our spherical Bessel approach, we set up a dimer separated by 1 unit in a cubic box of size 10 (all units atomic units). We have 1 s-wave electron per atom, and the nuclear charge is 1e. The PAW radius is taken to be 0.45.
+
+In Fig.P.1 we look at the convergence of the screened Hartree self term using the partial wave expansion of the screened Hartree interaction (Eq.L.65). The slope of the curve is -4 indicating 4th order convergence. We see that for $n_r = 10$ we achieve 4 figures accuracy, for 5 figures we need 16 points while 30 points achieve 6 figures. Since we are using the atomic units, 5 figures accuracy is 3K, which is plenty.
+
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{sBesselerrorsimple}
+    \includegraphics[width=0.5\textwidth]{sBesselerrorsimple}
     \caption{The convergence of the unscreened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
     \label{fig:sBesselerrorsimple}
 \end{figure}
 
-\begin{figure}[!htbp] 
+In Fig.P.2, we look at unscreened Hartree, which converges terribly - only 2nd order. Therefore, we need to use screening with any grid based method.
+
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{nthetaHarself}
+    \includegraphics[width=0.5\textwidth]{nthetaHarself}
     \caption{The convergence of the screened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, $n_r = 20$, $n_{\phi} = 2n_{\theta}$.} 
     \label{fig:nthetaHarself}
 \end{figure}
 
-In Fig.\ref{fig:nthetaHarself}, we compare the convergence of the partial wave expansion and the full integral over the angular momentum for an s-wave spherical Bessel wavefunction $\hat {k}_{\mathrm{max}} = 1$. Although the convergence to the s-wave result is exponential in the number of angular points, it is pretty wasteful. That means grinding out a few more terms in the partial wave expansion of the screened Hartree self is a good idea.
+In Fig.P.3, we examine the convergence of the screened Hartree self term without the partial wave expansion. To achieve the $n_r$ limited accuracy (6 figures), $n_{\theta} = 12$ with $n_{\phi} = 24$. The conclusion here is we should use the partial wave expansion to limit the size of the angular grid. Therefore, we need to grind out more terms of Eq.L.61 (we have only done s-wave).
 
-\begin{figure}[!htbp] 
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{nthetaHarwoself}
+    \includegraphics[width=0.5\textwidth]{nthetaHarwoself}
     \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nthetaHarwoself}
 \end{figure}
 
-\begin{figure}[!htbp] 
+In Fig.P.4, $n_{\theta} = 5$, $n_{\phi} = 10$ achieves about 5 figures, which is pretty reasonable. Maybe we cut this by 2 with a partial wave expansion - needs testing. $1/|\br-\br'-\bR_{ij}|$ can be expanded in partial wave, the denominator can't be zero but it can close (because of $\Rpc$). We can try (later) $\br_1 = \br-\bR_i$ and $\br_2 = \br'- \bR_j$, that would give 
+\begin{equation}
+\frac{1}{|\br-\br'-\bR_{ij}|} = \sum_{l=0}^\infty \sum_{m=-l}^l  \left( \frac{4\pi}{2l+1}\right) \left( \frac{r_{<}^{l}}{r_{>}^{l+1}} \right) Y_{lm} (\theta_1,\phi_1) Y_{lm}^* (\theta_{2},\phi_{2}) 
+\end{equation}
+
+This would work for us because of the erfc function in 3D allowing for a short range cutoff. Otherwise, this expansion is not good when $R_{ij}$ is large. Fig.P.4 also indicates the converge with $n_{\theta}$, $n_{\phi}$ does not depend on $n_r$, which is great!
+
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{nthetaHarwoselfdiff}
+    \includegraphics[width=0.5\textwidth]{nthetaHarwoselfdiff}
     \caption{The difference between the Hartree no self term of $n_r = 20$ and $n_r = 30$. The difference is always small.} 
     \label{fig:nthetaHarwoselfdiff}
 \end{figure}
 
-\begin{figure}[!htbp] 
+Fig.P.5 achieves the same conclusion as P.4 for Hartree without self.
+
+\begin{figure}[h!] 
     \centering
-    \includegraphics[width=0.6\textwidth]{nrHarwoself}
-    \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$.} 
+    \includegraphics[width=0.5\textwidth]{nrHarwoself}
+    \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nrHarwoself}
 \end{figure}
 
-From Fig.P.1 where we looked at the convergence of the screened Hartree self term using s-wave only, we see that for $n_r = 10$ we achieve 4 figures accuracy. The slope of the curve is -4 indicating 4th order convergence. Therefore, to achieve 6 figures accuracy, we need 30 points while 20 points achieve 5 figures. In Fig.P.2, we look at unscreened Hartree, which converges terribly - only 2nd order.\\
+Fig.P.6 shows that we can use very small $n_r$ for Hartree without self - so the self terms drives the need for large $n_r$.
 
-In Fig.P.3, we examine the convergence of the screened Hartree self term without the partial wave expansion. To achieve the $n_r$ limited accuracy, $n_{\theta} = 12$ with $n_{\phi} = 24$. The conclusion here is we should use the partial wave expansion to limit the size of the angular grid.
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{eNanalyticscr}
+    \caption{The convergence of the screened e-N self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
+    \label{fig:eNanalyticscr}
+\end{figure}
 
+Fig.P.7 screened or pseudized e-ion self term needs $n_r = 16$ to converge to 5 figures, which is consistent with the Hartree self term.
+
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{eNanalytic}
+    \caption{The convergence of the unscreened e-N self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
+    \label{fig:eNanalytic}
+\end{figure}
+
+Fig.P.8 indicates the unscreened e-ion self is hopeless, which is also consistent with the Hartree self term. Therefore, we will use the pseudized/screened e-ion interactions.
+
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{nthetaeNnoself}
+    \caption{The convergence of the unscreened e-N term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
+    \label{fig:nthetaeNnoself}
+\end{figure}
+
+Fig.P.9 e-ion without self needs $n_{theta} = 4$ and $n_{phi} = 8$ to converge to 5 digits (which is 3K per dimer!). Implementing a partial wave expansion probably helps(see the discussion of Hartree without self).
+
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{nthetaElong}
+    \caption{The convergence of the long range energy term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
+    \label{fig:nthetaElong}
+\end{figure}
+
+Fig.P.10 shows that the long range energy term converges superfast in $n_{\theta}$/$n_{\phi}$ for this little system.
+
+\begin{figure}[h!] 
+    \centering
+    \includegraphics[width=0.5\textwidth]{nrElong}
+    \caption{The convergence of the long range energy term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$.} 
+    \label{fig:nrElong}
+\end{figure}
+Fig.P.11 shows that convergence of long range energy term with $n_r$ is really fast.
+
+In conclusion, we can achieve 3K accuracy per dimer with a grid of $n_r = 16$, $n_{\theta} = 5$, $n_{\phi} = 10$ for a total of 800 points. This is about what we would like.\\
+
+In order to explore the method more carefully, we set up a more complex system. The unit cell is bcc of side $8/\sqrt{3}$ so that the nearest neighbor distance (between the corner and the body centered atom) is 4. We then choose $\Rpc = 1.8$ like copper. We take a planewave cutoff of 40 Ryd. If we would like to use a real space cutoff of 4 bohr, then to avoid implementing sums over images in the real space PAW terms, we can use a 2x2x2 supercell with 16 atoms.
+
+ 
 
 \end{document}

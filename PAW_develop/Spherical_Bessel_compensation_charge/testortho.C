@@ -49,6 +49,8 @@ int main (int argc, char *argv[]){
 
     double result4 = 0.0;
 	double result3 = 0.0;
+	double result5 = 0.0;
+	double result6 = 0.0;
     double beta2 = beta_tmp*beta_tmp;
     for (int ir=0; ir<=n; ir++) {
         for (int jr=0; jr<=n; jr++) {
@@ -79,6 +81,13 @@ int main (int argc, char *argv[]){
     } // end for ir
     PRINTF("result3: %.14g\n", result3);
     PRINTF("result4: %.14g\n", result4);
+	
+	for (int ir=1; ir<=n; ir++) {
+		result5 += wr[ir]/xr[ir];
+		result6 += wr[ir]*erf(beta_tmp*xr[ir])/xr[ir];
+	} // end for
+    PRINTF("result5: %.14g\n", result5);
+    PRINTF("result6: %.14g\n", result6);
 
 	return 1;	
 }//end routine

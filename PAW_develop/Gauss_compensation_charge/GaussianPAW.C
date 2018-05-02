@@ -197,7 +197,7 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 
 //===================================================================
 // zero all the energies 
-  double ENN = 0.0, EeNself = 0.0, EeN = 0.0, EHarself = 0.0, EHar = 0.0, EHarselfscr = 0.0;
+  double ENN = 0.0, EeNself = 0.0, EeN = 0.0, EHarself = 0.0, EHar = 0.0, EHarselfscr = 0.0, EHarscr = 0.0;
 
 //===================================================================
 // energy contributions for clusters
@@ -238,13 +238,14 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
       } // end for 
   } // end for
 	EeN  += EeNself;
+	EHarscr = EHar + EHarselfscr;
 	EHar += EHarself;
 // } // end if
 
 //===================================================================
 // zero all the energies 
 	double EeNshortself = 0.0, EeNshort = 0.0, EHarshortself = 0.0, EHarshort = 0.0;
-	double EHarshortselfscr = 0.0;
+	double EHarshortselfscr = 0.0, EHarshortscr = 0.0;
 	double ENNshort = 0.0;
 	double ENNselflong = 0.0;
 
@@ -288,6 +289,7 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
     } // end for 
   } // end for
     EeNshort  += EeNshortself;
+	EHarshortscr = EHarshort + EHarshortselfscr;
     EHarshort += EHarshortself;
 // } // end if
 
@@ -301,10 +303,12 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 	energy->EeN.E                = EeN; 
 	energy->EHarself.E           = EHarself; 
 	energy->EHar.E               = EHar; 
+	energy->EHarscr.E            = EHarscr; 
 	energy->EeNshortself.E       = EeNshortself; 
 	energy->EeNshort.E           = EeNshort; 
 	energy->EHarshortself.E      = EHarshortself; 
 	energy->EHarshort.E          = EHarshort; 
+	energy->EHarshortscr.E       = EHarshortscr; 
 	energy->ENNselflong.E        = ENNselflong;
 	energy->EHarselfscr.E        = EHarselfscr;
 	energy->EHarshortselfscr.E   = EHarshortselfscr;
@@ -350,8 +354,8 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 
 //===================================================================
 // zero all the energies 
-    double EeNGrid      = 0.0, EeNselfGrid = 0.0, EHarGrid = 0.0, EHarselfGrid = 0.0;
-    double EeNshortGrid = 0.0, EeNshortselfGrid = 0.0, EHarshortGrid = 0.0, EHarshortselfGrid = 0.0;
+    double EeNGrid      = 0.0, EeNselfGrid = 0.0, EHarGrid = 0.0, EHarscrGrid = 0.0, EHarselfGrid = 0.0;
+    double EeNshortGrid = 0.0, EeNshortselfGrid = 0.0, EHarshortGrid = 0.0, EHarshortscrGrid = 0.0, EHarshortselfGrid = 0.0;
 	double EHarshortselfscrGrid = 0.0;
 	double EHarselfscrGrid = 0.0;
 
@@ -533,6 +537,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		} //end for f1
 	} //end for jtyp
 	EeNGrid      += EeNselfGrid;
+	EHarscrGrid   = EHarGrid + EHarselfscrGrid;
 	EHarGrid     += EHarselfGrid;
 // } // end if
 
@@ -717,26 +722,29 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		} //end for l
 	} //end for jtyp
 	EeNshortGrid      += EeNshortselfGrid;
+	EHarshortscrGrid   = EHarshortGrid + EHarshortselfscrGrid;
 	EHarshortGrid     += EHarshortselfGrid;
 // } // end if
 
 //===================================================================
 // Put the energies in the structure
 
-	energy->ENN.EGrid            = ENNGrid;
-	energy->ENNshort.EGrid       = ENNshortGrid;
-	energy->ENNselflong.EGrid    = ENNselflongGrid;
-	energy->EeN.EGrid            = EeNGrid; 
-	energy->EeNself.EGrid        = EeNselfGrid; 
-	energy->EHar.EGrid           = EHarGrid; 
-	energy->EHarself.EGrid       = EHarselfGrid; 
-	energy->EeNshortself.EGrid   = EeNshortselfGrid; 
-	energy->EeNshort.EGrid       = EeNshortGrid; 
-	energy->EHarshortself.EGrid  = EHarshortselfGrid; 
-	energy->EHarshort.EGrid      = EHarshortGrid; 
-	energy->ENNselflong.EGrid    = ENNselflongGrid; 
-	energy->EHarselfscr.EGrid    = EHarselfscrGrid; 
-	energy->EHarshortselfscr.EGrid    = EHarshortselfscrGrid; 
+	energy->ENN.EGrid            	= ENNGrid;
+	energy->ENNshort.EGrid       	= ENNshortGrid;
+	energy->ENNselflong.EGrid    	= ENNselflongGrid;
+	energy->EeN.EGrid            	= EeNGrid; 
+	energy->EeNself.EGrid        	= EeNselfGrid; 
+	energy->EHar.EGrid           	= EHarGrid; 
+	energy->EHarscr.EGrid           = EHarscrGrid; 
+	energy->EHarself.EGrid       	= EHarselfGrid; 
+	energy->EeNshortself.EGrid   	= EeNshortselfGrid; 
+	energy->EeNshort.EGrid       	= EeNshortGrid; 
+	energy->EHarshortself.EGrid  	= EHarshortselfGrid; 
+	energy->EHarshort.EGrid      	= EHarshortGrid; 
+	energy->EHarshortscr.EGrid      = EHarshortscrGrid; 
+	energy->ENNselflong.EGrid    	= ENNselflongGrid; 
+	energy->EHarselfscr.EGrid    	= EHarselfscrGrid; 
+	energy->EHarshortselfscr.EGrid  = EHarshortselfscrGrid; 
 
 //===================================================================
 } // end routine
@@ -755,7 +763,7 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 	int natm			  = atom_maps->natm;
 	double hmati[10];
     for (int i=1; i<10; i++) hmati[i] = cell->hmati[i];
-	double gcut			  = cell->gcut;
+	double Gcut			  = cell->Gcut;
     double vol			  = cell->volume;
     int natm_typ          = atom_maps->natm_typ;
     int *natm_atm_typ     = atom_maps->natm_atm_typ;
@@ -774,9 +782,9 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 // zero the energies and compute the g-vectors
 
 	double Elong = 0.0, ElongGrid = 0.0;
-	int Ixgmax = (int) (gcut/(2.0*M_PI_QI*hmati[1]));
-	int Iygmax = (int) (gcut/(2.0*M_PI_QI*hmati[5]));
-	int Izgmax = (int) (gcut/(2.0*M_PI_QI*hmati[9]));
+	int Ixgmax = (int) (Gcut/(2.0*M_PI_QI*hmati[1]));
+	int Iygmax = (int) (Gcut/(2.0*M_PI_QI*hmati[5]));
+	int Izgmax = (int) (Gcut/(2.0*M_PI_QI*hmati[9]));
 	double xgmax = (double) Ixgmax;
 	double ygmax = (double) Iygmax;
 	double zgmax = (double) Izgmax;
@@ -805,7 +813,7 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 				double g2 = ggx*ggx + ggy*ggy + ggz*ggz;
 				complex ng = complex (0.0,0.0);
 				complex ngf = complex (0.0,0.0);
-				if (g2 <= gcut*gcut && g2 > 0.0) { 
+				if (g2 <= Gcut*Gcut && g2 > 0.0) { 
 					double prefact = 2.0*M_PI_QI/(g2*vol)*exp(-g2/(4.0*alpb*alpb));
 					for (int jtyp=0; jtyp<natm_typ; jtyp++) {
 						double *xf		    = fgrid[jtyp].xf;

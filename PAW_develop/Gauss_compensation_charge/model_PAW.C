@@ -23,71 +23,77 @@
 //  Main Program : Controller to manage compensation charge energy
 //==========================================================================
 int main (int argc, char *argv[]){
-  //==========================================================================
-  // Local variables
-  ATOM_MAPS atom_maps;
-  ATOM_POS  atom_pos;
-  ATOM_POS  atom_pos_dummy;
-  CELL      cell;
+	//==========================================================================
+	// Local variables
+	ATOM_MAPS atom_maps;
+	ATOM_POS  atom_pos;
+	ATOM_POS  atom_pos_dummy;
+	CELL      cell;
 
-  int natm_typ;       	// number of atom types
-  int natm;				// number of atoms
-  int *index_atm_typ;	// index of atom type of each atom
-  int *natm_atm_typ;	// the number of atoms of each type
-  int **list_atm_by_typ;// list of atoms sorted by atom type
-  NAME *atm_typ;	    // names of the atom types
+	int natm_typ;       	// number of atom types
+	int natm;				// number of atoms
+	int *index_atm_typ;	// index of atom type of each atom
+	int *natm_atm_typ;	// the number of atoms of each type
+	int **list_atm_by_typ;// list of atoms sorted by atom type
+	NAME *atm_typ;	    // names of the atom types
 
-  int iperd = 3;		// periodicity
-  double alpb;			// Ewald alpha
-  double gcut;		    // Ewald reciprocal space cutoff 
+	int iperd = 3;		// periodicity
+	double alpb;			// Ewald alpha
+	double gcut;            // state g space cutoff 
+	double Gcut;            // density g space cutoff = 2*gcut
+	double Ecut, Rcut;
 
-  double *x,*y,*z,*q,*qt,*alp,*beta;    // atom positions and core Gaussian parameters
-  double hmat[10];				  // the simulation box
-  double hmati[10];				  // inverse simulation box
-  double volume;				  // simulation box volume
+	double *x,*y,*z,*q,*qt,*alp,*beta, *Rpc;    // atom positions and core Gaussian parameters
+	double hmat[10];				  // the simulation box
+	double hmati[10];				  // inverse simulation box
+	double volume;				  // simulation box volume
 
-  int rorder;
-  int thetaorder; 
-  int phiorder;    // grid sizes
-  int lmax;									// maximum angular momentum
-  double delta = 1e-6;
+	int rorder;
+	int thetaorder; 
+	int phiorder;    // grid sizes
+	int lmax;									// maximum angular momentum
+	double delta = 1.0e-6;
 	double beta_unitless;       // unitless beta for screening, beta[J] = alpha[J]*beta_unitless
 
-  ESTRUCT energy;		// compensation charge energy terms stored nicely
-  ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
-  ESTRUCT *energy_minus = new ESTRUCT [3]; 		
+	ESTRUCT energy;		// compensation charge energy terms stored nicely
+	ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
+	ESTRUCT *energy_minus = new ESTRUCT [3]; 		
 		
-  strcpy(energy.ENN.name           		, "E_NN_0D            	 	");
-  strcpy(energy.EeN.name           		, "E_eN_0D             		");
-  strcpy(energy.EeNself.name       		, "E_eNself_0D         		");
-  strcpy(energy.EHar.name          		, "E_Har_0D            		");
-  strcpy(energy.EHarself.name      		, "E_Har_self_0D       		");
-  strcpy(energy.ENNshort.name      		, "E_NNshort_3D        		");
-  strcpy(energy.EeNshort.name      		, "E_eN_short_3D       		");
-  strcpy(energy.EeNshortself.name  		, "E_eN_short_self_3D  		");
-  strcpy(energy.EHarshort.name     		, "E_Har_short_3D      		");
-  strcpy(energy.EHarshortself.name 		, "E_Har_short_self_3D 		");
-  strcpy(energy.Elong.name         		, "E_long_3D           		");
-  strcpy(energy.ENNselflong.name   		, "E_NNselflong_3D     		");
-  strcpy(energy.Etot0D.name        		, "E_tot_0D            		");
-  strcpy(energy.Etot3D.name        		, "E_tot_3D            		");
-  strcpy(energy.EHarselfscr.name		, "E_Har_self_0D_scr		");
-  strcpy(energy.EHarshortselfscr.name	, "E_Har_short_self_3D_scr	");
+	strcpy(energy.ENN.name           		, "E_NN_0D                  ");
+	strcpy(energy.EeN.name           		, "E_eN_0D                  ");
+	strcpy(energy.EeNself.name       		, "E_eNself_0D              ");
+	strcpy(energy.EHar.name          		, "E_Har_0D                 ");
+	strcpy(energy.EHarself.name      		, "E_Har_self_0D            ");
+	strcpy(energy.ENNshort.name      		, "E_NNshort_3D             ");
+	strcpy(energy.EeNshort.name      		, "E_eN_short_3D            ");
+	strcpy(energy.EeNshortself.name  		, "E_eN_short_self_3D       ");
+	strcpy(energy.EHarshort.name     		, "E_Har_short_3D           ");
+	strcpy(energy.EHarshortself.name 		, "E_Har_short_self_3D      ");
+	strcpy(energy.Elong.name         		, "E_long_3D                ");
+	strcpy(energy.ENNselflong.name   		, "E_NNselflong_3D          ");
+	strcpy(energy.Etot0D.name        		, "E_tot_0D                 ");
+	strcpy(energy.Etot3D.name        		, "E_tot_3D                 ");
+	strcpy(energy.EHarselfscr.name			, "E_Har_self_0D_scr        ");
+	strcpy(energy.EHarshortselfscr.name		, "E_Har_short_self_3D_scr  ");
+	strcpy(energy.Etot0Dscr.name        	, "E_tot_0D_scr             ");
+	strcpy(energy.Etot3Dscr.name        	, "E_tot_3D_scr             ");
+	strcpy(energy.EHarscr.name          	, "E_Har_0D_scr             ");
+	strcpy(energy.EHarshortscr.name     	, "E_Har_short_3D_scr       ");
 
-  long seed;		// random seeds
-  double dseed;		// random seeds
+	long seed;		// random seeds
+	double dseed;		// random seeds
 
-  char fnameIn[MAXLINE];
+	char fnameIn[MAXLINE];
 
-  FILE *fp;
+	FILE *fp;
 
-  //==========================================================================
-  // Tell everyone what you are doing
+	//==========================================================================
+	// Tell everyone what you are doing
 
-  PRINTF("\n");
-  PRINT_LINE_STAR
-    PRINTF("Test a model PAW energy\n");
-  PRINT_LINE_DASH
+	PRINTF("\n");
+	PRINT_LINE_STAR
+	PRINTF("Test a model PAW energy\n");
+	PRINT_LINE_DASH
 
     //=========================================================================
     //             Check for input file                                 
@@ -133,11 +139,11 @@ int main (int argc, char *argv[]){
 	} // end for i
 	PRINT_LINE_STAR;
 	PRINTF("\n");
-  	fscanf(fp,"%lf %lf",&alpb, &gcut); readtoendofline(fp);
+  	fscanf(fp,"%lf %lf",&Rcut, &Ecut); readtoendofline(fp);
 
   	x = new double [natm]; y = new double [natm]; z = new double [natm];
   	q = new double [natm]; qt = new double [natm];
-  	alp = new double [natm]; beta = new double [natm];
+  	Rpc = new double [natm]; alp = new double [natm]; beta = new double [natm];
 
   	double *vx   = new double [natm]; double *vy   = new double [natm]; double *vz   = new double [natm];
   	double *fx0  = new double [natm]; double *fy0  = new double [natm]; double *fz0  = new double [natm];
@@ -149,13 +155,33 @@ int main (int argc, char *argv[]){
 	list_atm_by_typ = new int *[natm_typ];
 	for (int i=0; i<natm_typ; i++) { list_atm_by_typ[i] = new int [natm_atm_typ_max]; }
   	for (int i=0; i<natm; i++) {
-  		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &alp[i], &index_atm_typ[i]); readtoendofline(fp);
+  		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &Rpc[i], &index_atm_typ[i]); readtoendofline(fp);
+		alp[i] = 1.8/Rpc[i]; // sig = 1/(sqrt(2)*alp) = Rpc/(1.8*sqrt(2)) --> 2.55*sig = Rpc
 		beta[i] = alp[i]*beta_unitless;
   	} //end for i
   	fscanf(fp, "%lf %lf %lf", &hmat[1], &hmat[4], &hmat[7]); readtoendofline(fp);
   	fscanf(fp, "%lf %lf %lf", &hmat[2], &hmat[5], &hmat[8]); readtoendofline(fp);
   	fscanf(fp, "%lf %lf %lf", &hmat[3], &hmat[6], &hmat[9]); readtoendofline(fp);
   fclose(fp);
+
+	gcut = sqrt(Ecut); // gcut = sqrt(2*me*Ecut/hbar^2) = sqrt(2*Ecut) in atomic units, for Ecut in Ryd, gcut = sqrt(Ecut)
+	Gcut = 2.0*gcut; // the density g cutoff is twice the pw g cutoff
+	double gammasq = gcut*Rcut; // Gcut = 2*gcut, so Gcut^2/4 = gcut^2 = Ecut (in Ryd) = gamma^4/Rcut^2; gamma^2 = gcut*Rcut
+	double gamma_conv = sqrt(gammasq);
+	alpb = gamma_conv/Rcut;
+	double gcuthat = gcut*hmat[1]/(2.0*M_PI_QI); // this is the state g space
+	double Gcuthat = 2.0*gcuthat; // this is the density g space
+	PRINTF("Pw cutoff E_cut is %lf Ry\n", Ecut);
+	PRINTF("Real space cutoff R_c %lf bohr\n", Rcut);
+	PRINTF("Gamma = alpb*R_c is %lf\n", gamma_conv);
+	PRINTF("Ewald g space %lf\n",Gcuthat);
+	if (Gcuthat < alpb*hmat[1]) {
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		PRINTF("The g space is too small to converge the Ewald sum! gamma = %10g\n", gamma_conv);
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		FFLUSH(stdout);
+		EXIT(1);
+	} // end if
 
   for (int i=0; i<natm; i++) {
 	vx[i]   = 0; vy[i]   = 0; vz[i]   = 0;
@@ -171,7 +197,7 @@ int main (int argc, char *argv[]){
 
   double *xd = new double [natm]; double *yd = new double [natm]; double *zd = new double [natm];
   double *qd = new double [natm]; double *qtd = new double [natm];
-  double *alpd = new double [natm]; double *betad = new double [natm];
+  double *alpd = new double [natm]; double *betad = new double [natm]; double *Rpcd = new double [natm];
 
   double *vxd   = new double [natm]; double *vyd   = new double [natm]; double *vzd   = new double [natm];
   double *fx0d  = new double [natm]; double *fy0d  = new double [natm]; double *fz0d  = new double [natm];
@@ -189,6 +215,8 @@ int main (int argc, char *argv[]){
 	xd[i]   = x[i]; yd[i]   = y[i]; zd[i]   = z[i];
 	qd[i]   = q[i]; qtd[i]  = qt[i];
     alpd[i] = alp[i];
+    betad[i] = beta[i];
+    Rpcd[i] = Rpc[i];
   } // end for
 #endif // _FORCECHECK_
 
@@ -199,7 +227,7 @@ int main (int argc, char *argv[]){
   atom_pos.x 	= x;    atom_pos.y 	  = y;    atom_pos.z    = z;
   atom_pos.q 	= q;
   atom_pos.qt 	= qt;
-  atom_pos.alp 	= alp; atom_pos.beta  = beta;
+  atom_pos.alp 	= alp; atom_pos.beta  = beta; atom_pos.Rpc = Rpc;
 
   atom_pos.vx	= vx;   atom_pos.vy   = vy;   atom_pos.vz   = vz;
   atom_pos.fx0	= fx0;  atom_pos.fy0  = fy0;  atom_pos.fz0  = fz0;
@@ -212,7 +240,7 @@ int main (int argc, char *argv[]){
   atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
   atom_pos_dummy.q 		= qd;
   atom_pos_dummy.qt 	= qtd;
-  atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta = betad;
+  atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta = betad; atom_pos_dummy.Rpc = Rpcd;
 
   atom_pos_dummy.vx		= vxd;   atom_pos_dummy.vy   = vyd;   atom_pos_dummy.vz   = vzd;
   atom_pos_dummy.fx0	= fx0d;  atom_pos_dummy.fy0  = fy0d;  atom_pos_dummy.fz0  = fz0d;
@@ -241,13 +269,13 @@ int main (int argc, char *argv[]){
   atom_maps.natm_atm_typ_max 	= natm_atm_typ_max;
 
   gethinv(hmat, hmati, &volume, iperd);
-  gcut *= alpb;
 
   //========================================================================
   // store the simulation cell information 
   cell.iperd 					= iperd;		
   cell.alpb						= alpb;			
   cell.gcut						= gcut;		   
+  cell.Gcut						= Gcut;
   for (int i=1; i<10; i++) {
   	cell.hmat[i]	    		= hmat[i];				 
   }				 
@@ -375,27 +403,29 @@ int main (int argc, char *argv[]){
     } // end for ir
   } // end for
 
-  //========================================================================
-  // Compute the real space energy analytically
-  
-  computePAWreal(&atom_maps, &atom_pos, &cell, &energy);
+	//========================================================================
+	// Compute the real space energy analytically
 
-  //========================================================================
-  // Compute the long range energy analytically
+	computePAWreal(&atom_maps, &atom_pos, &cell, &energy);
 
-  computePAWlong(&atom_maps, &atom_pos, &cell, &energy, fgrid);
+	//========================================================================
+	// Compute the long range energy analytically
 
-  //========================================================================
-  // Compute the real space energy on grid
+	computePAWlong(&atom_maps, &atom_pos, &cell, &energy, fgrid);
 
-  computePAWGrid(lmax, &atom_maps, &atom_pos, &cell, &energy, fgrid);
+	//========================================================================
+	// Compute the real space energy on grid
 
-  energy.Etot0D.E     = energy.ENN.E + energy.EeN.E + energy.EHar.E;
-  energy.Etot0D.EGrid = energy.ENN.EGrid + energy.EeN.EGrid + energy.EHar.EGrid;
-// energy.Etot3D.E     = energy.ENNshort.E + energy.EeNshort.E + energy.EHarshort.E + energy.Elong.E - energy.ENNselflong.E;
-// energy.Etot3D.EGrid = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.EHarshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
-  energy.Etot3D.E     = energy.ENNshort.E + energy.EeNshort.E + energy.Elong.E - energy.ENNselflong.E;
-  energy.Etot3D.EGrid = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
+	computePAWGrid(lmax, &atom_maps, &atom_pos, &cell, &energy, fgrid);
+
+	energy.Etot0D.E     	  = energy.ENN.E + energy.EeN.E + energy.EHar.E;
+	energy.Etot0Dscr.E        = energy.ENN.E + energy.EeN.E + energy.EHarscr.E;
+	energy.Etot0D.EGrid 	  = energy.ENN.EGrid + energy.EeN.EGrid + energy.EHar.EGrid;
+	energy.Etot0Dscr.EGrid    = energy.ENN.EGrid + energy.EeN.EGrid + energy.EHarscr.EGrid;
+	energy.Etot3D.E     	  = energy.ENNshort.E + energy.EeNshort.E + energy.EHarshort.E + energy.Elong.E - energy.ENNselflong.E;
+	energy.Etot3D.EGrid 	  = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.EHarshort.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
+	energy.Etot3Dscr.E     	  = energy.ENNshort.E + energy.EeNshort.E + energy.EHarshortscr.E + energy.Elong.E - energy.ENNselflong.E;
+	energy.Etot3Dscr.EGrid 	  = energy.ENNshort.EGrid + energy.EeNshort.EGrid + energy.EHarshortscr.EGrid + energy.Elong.EGrid - energy.ENNselflong.EGrid;
 
   //========================================================================
   // Print out the energy
@@ -412,6 +442,8 @@ int main (int argc, char *argv[]){
   energy.EeNself.pres();
   energy.EHar.pres();
   energy.EHarself.pres();
+  energy.EHarscr.pres();
+  energy.EHarselfscr.pres();
   //----------------------------------------- 
   //Printing the 3D short range energies
   PRINT_LINE_DASH;    
@@ -420,6 +452,8 @@ int main (int argc, char *argv[]){
   energy.EeNshortself.pres();
   energy.EHarshort.pres();
   energy.EHarshortself.pres();
+  energy.EHarshortscr.pres();
+  energy.EHarshortselfscr.pres();
   //----------------------------------------- 
   //Printing the 3D long range energies
   PRINT_LINE_DASH;
@@ -430,8 +464,8 @@ int main (int argc, char *argv[]){
   PRINT_LINE_DASH;
   energy.Etot0D.pres();
   energy.Etot3D.pres();
-  energy.EHarselfscr.pres();
-  energy.EHarshortselfscr.pres();
+  energy.Etot0Dscr.pres();
+  energy.Etot3Dscr.pres();
   PRINT_LINE_DASH;
   PRINTF(" Completed output\n");
   PRINT_LINE_STAR;

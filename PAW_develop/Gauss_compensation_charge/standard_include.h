@@ -75,6 +75,7 @@ typedef struct ATOM_POS{
 	double *q,*qt;				// charges
 	double *alp;  		    	// Gaussian parameter for the core 
 	double *beta;		  // beta screener beta[J]
+	double *Rpc;				// Rpc
 }ATOM_POS;
 
 //==========================================================================
@@ -82,7 +83,8 @@ typedef struct ATOM_POS{
 typedef struct CELL{
     int iperd;  			        // periodicity
     double alpb;          			// Ewald alpha
-    double gcut;          			// Ewald reciprocal space cutoff 
+    double gcut;          			// state g space
+	double Gcut;					// density g cutoff, twice gcut
     double hmat[10];                   // the simulation box
     double hmati[10];                  // inverse simulation box
     double volume;                  // simulation box volume
