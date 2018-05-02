@@ -117,9 +117,11 @@ void EpsMatrix::screenedExchange() {
   int n = f_cache->getNSize();
   int tuple_size = K*n;
   tuple_size += 1;
-  CkReduction::tupleElement tuple_reduction[tuple_size];
+  CkReduction::tupleElement *tuple_reduction;
+  tuple_reduction = new CkReduction::tupleElement[tuple_size];
   complex total_contribution(0.0,0.0);
-  complex contrib_data[tuple_size];
+  complex *contrib_data;
+  contrib_data = new complex[tuple_size];
   int ik = 0;
 
   for (int k = 0; k < K; k++) {
@@ -158,8 +160,10 @@ void EpsMatrix::bareExchange() {
   int n = f_cache->getNSize();
   int tuple_size = K*n;
   tuple_size += 1;
-  CkReduction::tupleElement tuple_reduction[tuple_size];
-  complex contrib_data[tuple_size];
+  CkReduction::tupleElement *tuple_reduction;
+  tuple_reduction = new CkReduction::tupleElement[tuple_size];
+  complex *contrib_data;
+  contrib_data = new complex[tuple_size];
   int ik = 0;
   std::vector<double> vcoulb = psi_cache->getVCoulb();
   vcoulb[0] = 0.38343474/2.0;
@@ -212,8 +216,10 @@ void EpsMatrix::coh(){
   int n = f_cache->getNSize();
   int tuple_size = K*n;
   tuple_size += 1;
-  CkReduction::tupleElement tuple_reduction[tuple_size];
-  complex contrib_data[tuple_size];
+  CkReduction::tupleElement *tuple_reduction;
+  tuple_reduction = new CkReduction::tupleElement[tuple_size];
+  complex *contrib_data;
+  contrib_data = new complex[tuple_size];
   int ik = 0;
   complex total_contribution = (0.0,0.0);
 
