@@ -5992,18 +5992,32 @@ We now present the partial way expansion of the screened Coulomb interaction,
 \end{split}
 \end{equation}
 
+Using the more friendly modified Spherical Bessel functions,
+\begin{equation}
+\begin{split}
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \left\{\sum_{l=0}^\infty (2l+1) i_{l}(2u^2 r r')P_l\left(\cos(\theta)\right)\right\} \\
+&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= 8\sqrt{\pi}\sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+\end{split}
+\end{equation}
+
 Here we have used 2 identities, the spherical harmonics addition theorem and the partial wave expansion of a decaying exponential,
 \begin{equation}
 \begin{split}
 P_l(\cos(\gamma)) &= \frac{4\pi}{2l + 1} \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \\
-\re^{z \cos(\theta)} &= \sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{2z}}I_{l+1/2}(z)\right]P_l(\cos(\theta))
+\re^{z \cos(\theta)} &= \sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{2z}}I_{l+1/2}(z)\right]P_l(\cos(\theta)) \\
+&= \sum_{l=0}^\infty (2l+1) i_{l}(z) P_l(\cos(\theta)) \\
 \end{split}
 \end{equation}
 
 
 For spherical charge distributions, we only need $l=0$ due to orthogonality of the spherical harmonics. Therefore, let's just evaluate the $l=0, m=0$ term using 
 \begin{equation}
-I_{1/2}(z) = \sqrt{\frac{2}{(\pi z)}} \mathrm{sinh}(z)\\
+\begin{split}
+I_{1/2}(z) &= \sqrt{\frac{2}{(\pi z)}} \mathrm{sinh}(z)\\
+i_0(z) &= \frac{\mathrm{sinh}(z)}{z}
+\end{split}
 \end{equation}
 
 Inserting the expression for the modified Bessel function of $1/2$ order into (L.61), the $l=0, m=0$ term is

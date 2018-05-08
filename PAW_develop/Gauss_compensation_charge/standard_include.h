@@ -81,12 +81,13 @@ typedef struct ATOM_POS{
 //==========================================================================
 // CELL structure
 typedef struct CELL{
-    int iperd;  			        // periodicity
-    double alpb;          			// Ewald alpha
-    double gcut;          			// state g space
+	int iperd;  			        // periodicity
+	double alpb;          			// Ewald alpha
+	double Rcut;					// Ewald cutoff real space
+	double gcut;          			// state g space
 	double Gcut;					// density g cutoff, twice gcut
-    double hmat[10];                   // the simulation box
-    double hmati[10];                  // inverse simulation box
-    double volume;                  // simulation box volume
+	double hmat[10];                   // the simulation box
+	double hmati[10];                  // inverse simulation box
+	double volume;                  // simulation box volume
 }CELL;
 

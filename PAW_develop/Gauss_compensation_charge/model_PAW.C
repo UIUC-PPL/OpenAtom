@@ -276,6 +276,7 @@ int main (int argc, char *argv[]){
   cell.alpb						= alpb;			
   cell.gcut						= gcut;		   
   cell.Gcut						= Gcut;
+  cell.Rcut						= Rcut;
   for (int i=1; i<10; i++) {
   	cell.hmat[i]	    		= hmat[i];				 
   }				 

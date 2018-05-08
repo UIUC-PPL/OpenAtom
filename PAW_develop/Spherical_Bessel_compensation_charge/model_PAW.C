@@ -37,7 +37,7 @@ int main (int argc, char *argv[]){
 	int **list_atm_by_typ;// list of atoms sorted by atom type
 	NAME *atm_typ;	    // names of the atom types
 
-	int iperd = 3;		// periodicity
+	int iperd;		// periodicity
 	double alpb;			// Ewald alpha
 	double gcut;		    // state g space cutoff 
 	double Gcut;		    // density g space cutoff = 2*gcut
@@ -58,27 +58,27 @@ int main (int argc, char *argv[]){
 	ESTRUCT energy;		// compensation charge energy terms stored nicely
 	ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
 	ESTRUCT *energy_minus = new ESTRUCT [3]; 		
-		
-	strcpy(energy.ENN.name                  , "E_NN_0D                  ");
-	strcpy(energy.EeN.name                  , "E_eN_0D                  ");
-	strcpy(energy.EeNself.name              , "E_eNself_0D              ");
-	strcpy(energy.EHar.name                 , "E_Har_0D                 ");
-	strcpy(energy.EHarself.name             , "E_Har_self_0D            ");
-	strcpy(energy.ENNshort.name             , "E_NNshort_3D             ");
-	strcpy(energy.EeNshort.name             , "E_eN_short_3D            ");
-	strcpy(energy.EeNshortself.name         , "E_eN_short_self_3D       ");
-	strcpy(energy.EHarshort.name            , "E_Har_short_3D           ");
-	strcpy(energy.EHarshortself.name        , "E_Har_short_self_3D      ");
-	strcpy(energy.Elong.name                , "E_long_3D                ");
-	strcpy(energy.ENNselflong.name          , "E_NNselflong_3D          ");
-	strcpy(energy.Etot0D.name               , "E_tot_0D                 ");
-	strcpy(energy.Etot3D.name               , "E_tot_3D                 ");
-	strcpy(energy.EHarselfscr.name          , "E_Har_self_0D_scr        ");
-	strcpy(energy.EHarshortselfscr.name     , "E_Har_short_self_3D_scr  ");
-	strcpy(energy.Etot0Dscr.name            , "E_tot_0D_scr             ");
-	strcpy(energy.Etot3Dscr.name            , "E_tot_3D_scr             ");
-	strcpy(energy.EHarscr.name              , "E_Har_0D_scr             ");
-	strcpy(energy.EHarshortscr.name         , "E_Har_short_3D_scr       ");
+
+    strcpy(energy.ENN.name                  , "E_NN_0D                  ");
+    strcpy(energy.EeN.name                  , "E_eN_0D                  ");
+    strcpy(energy.EeNself.name              , "E_eNself_0D              ");
+    strcpy(energy.EHar.name                 , "E_Har_0D                 ");
+    strcpy(energy.EHarself.name             , "E_Har_self_0D            ");
+    strcpy(energy.ENNshort.name             , "E_NNshort_3D             ");
+    strcpy(energy.EeNshort.name             , "E_eN_short_3D            ");
+    strcpy(energy.EeNshortself.name         , "E_eN_short_self_3D       ");
+    strcpy(energy.EHarshort.name            , "E_Har_short_3D           ");
+    strcpy(energy.EHarshortself.name        , "E_Har_short_self_3D      ");
+    strcpy(energy.Elong.name                , "E_long_3D                ");
+    strcpy(energy.ENNselflong.name          , "E_NNselflong_3D          ");
+    strcpy(energy.Etot0D.name               , "E_tot_0D                 ");
+    strcpy(energy.Etot3D.name               , "E_tot_3D                 ");
+    strcpy(energy.EHarselfscr.name          , "E_Har_self_0D_scr        ");
+    strcpy(energy.EHarshortselfscr.name     , "E_Har_short_self_3D_scr  ");
+    strcpy(energy.Etot0Dscr.name            , "E_tot_0D_scr             ");
+    strcpy(energy.Etot3Dscr.name            , "E_tot_3D_scr             ");
+    strcpy(energy.EHarscr.name              , "E_Har_0D_scr             ");
+    strcpy(energy.EHarshortscr.name         , "E_Har_short_3D_scr       ");
 
 	long seed;		// random seeds
 	double dseed;		// random seeds
@@ -87,21 +87,21 @@ int main (int argc, char *argv[]){
 
 	FILE *fp;
 
-  //==========================================================================
-  // Tell everyone what you are doing
+	//==========================================================================
+	// Tell everyone what you are doing
 
-  PRINTF("\n");
-  PRINT_LINE_STAR
-    PRINTF("Test a model PAW energy\n");
-  PRINT_LINE_DASH
+	PRINTF("\n");
+	PRINT_LINE_STAR
+	PRINTF("Test a model PAW energy\n");
+	PRINT_LINE_DASH
 
     //=========================================================================
     //             Check for input file                                 
 
-    if(argc < 7) {
+    if(argc < 8) {
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       PRINTF("No input file specified!\n");
-      PRINTF("Run it like: ./model_PAW.x PAW.in rorder thetaorder phiorder lmax beta_unitless\n");
+      PRINTF("Run it like: ./model_PAW.x PAW.in rorder thetaorder phiorder lmax beta_unitless iperd\n");
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       FFLUSH(stdout);
       EXIT(1);
@@ -111,14 +111,16 @@ int main (int argc, char *argv[]){
   // Read the user specified input file: atoms, Ewald parameters, core density parameters and box
   // store the information
 
-  rorder 	 = atoi(argv[2]);
-  thetaorder = atoi(argv[3]);
-  phiorder   = atoi(argv[4]);
-  lmax 	 	 = atoi(argv[5]);
-  beta_unitless 	 	 = atof(argv[6]);
-  strcpy(fnameIn, argv[1]);
-  PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
-  fp = fopen(fnameIn,"r");
+	rorder 	 	  = atoi(argv[2]);
+	thetaorder    = atoi(argv[3]);
+	phiorder      = atoi(argv[4]);
+	lmax 	 	  = atoi(argv[5]);
+	beta_unitless = atof(argv[6]);
+	iperd 		  = atoi(argv[7]);
+
+	strcpy(fnameIn, argv[1]);
+	PRINTF("\nReading input parameters and atom positions from %s\n\n",fnameIn);
+	fp = fopen(fnameIn,"r");
   	fscanf(fp,"%d %d", &natm, &natm_typ); readtoendofline(fp);
 	atm_typ = new NAME [natm_typ];
   	natm_atm_typ = new int [natm_typ];
@@ -154,10 +156,12 @@ int main (int argc, char *argv[]){
 	index_atm_typ = new int [natm];
 	list_atm_by_typ = new int *[natm_typ];
 	for (int i=0; i<natm_typ; i++) { list_atm_by_typ[i] = new int [natm_atm_typ_max]; }
+	double Rpc_max = 0.0;
   	for (int i=0; i<natm; i++) {
   		fscanf(fp,"%lf %lf %lf %lf %lf %lf %d",&x[i],&y[i],&z[i], &q[i], &qt[i], &Rpc[i], &index_atm_typ[i]); readtoendofline(fp);
 		alp[i] = 1.8/Rpc[i];
 		beta[i] = alp[i]*beta_unitless;
+		Rpc_max = MAX(Rpc_max, Rpc[i]);
   	} //end for i
   	fscanf(fp, "%lf %lf %lf", &hmat[1], &hmat[4], &hmat[7]); readtoendofline(fp);
   	fscanf(fp, "%lf %lf %lf", &hmat[2], &hmat[5], &hmat[8]); readtoendofline(fp);
@@ -181,6 +185,32 @@ int main (int argc, char *argv[]){
       PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
       FFLUSH(stdout);
       EXIT(1);
+	} // end if
+	if (gamma_conv < 3.0) {
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+      PRINTF("The gamma(.%10g) = alpha_bar(.%10g)*Rcut(.%10g) is too small!\n", gamma_conv, alpb, Rcut);
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+      FFLUSH(stdout);
+      EXIT(1);
+	} // end if
+	if (Rcut > hmat[1]*0.5) {
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+      PRINTF("The box (%.10g) is too small for your Rcut (%.10g) !\n", hmat[1], Rcut);
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+      FFLUSH(stdout);
+      EXIT(1);
+	} // end if
+	if (Rcut + Rpc_max > hmat[1]*0.5) {
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_warning_@@@@@@@@@@@@@@@@@@@@\n");
+      PRINTF("The box (%.10g) is too small for your Rcut (%.10g) to treat eN without images Rpc_max = %.10g!\n", hmat[1], Rcut, Rpc_max);
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_warning_@@@@@@@@@@@@@@@@@@@@\n");
+      FFLUSH(stdout);
+	} // end if
+	if (Rcut + 2.0*Rpc_max > hmat[1]*0.5) {
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_warning_@@@@@@@@@@@@@@@@@@@@\n");
+      PRINTF("The box (%.10g) is too small for your Rcut (%.10g) to tream Hartree without images 2Rpc_max = %.10g!\n", hmat[1], Rcut, 2.0*Rpc_max);
+      PRINTF("@@@@@@@@@@@@@@@@@@@@_warning_@@@@@@@@@@@@@@@@@@@@\n");
+      FFLUSH(stdout);
 	} // end if
 
   for (int i=0; i<natm; i++) {
@@ -224,72 +254,74 @@ int main (int argc, char *argv[]){
   //========================================================================
   // store the atom information: this is safe because the dummy has its own memory
  
-  atom_pos.natm	= natm;
-  atom_pos.x 	= x;    atom_pos.y 	  = y;    atom_pos.z    = z;
-  atom_pos.q 	= q;
-  atom_pos.qt 	= qt;
-  atom_pos.alp 	= alp; atom_pos.beta  = beta; atom_pos.Rpc = Rpc;
+	atom_pos.natm	= natm;
+	atom_pos.x 	= x;    atom_pos.y 	  = y;    atom_pos.z    = z;
+	atom_pos.q 	= q;
+	atom_pos.qt 	= qt;
+	atom_pos.alp 	= alp; atom_pos.beta  = beta; atom_pos.Rpc = Rpc;
 
-  atom_pos.vx	= vx;   atom_pos.vy   = vy;   atom_pos.vz   = vz;
-  atom_pos.fx0	= fx0;  atom_pos.fy0  = fy0;  atom_pos.fz0  = fz0;
-  atom_pos.fx	= fx;   atom_pos.fy   = fy;   atom_pos.fz   = fz;
-  atom_pos.fx0g	= fx0g; atom_pos.fy0g = fy0g; atom_pos.fz0g = fz0g;
-  atom_pos.fxg	= fxg;  atom_pos.fyg  = fyg;  atom_pos.fzg  = fzg;
+	atom_pos.vx	= vx;   atom_pos.vy   = vy;   atom_pos.vz   = vz;
+	atom_pos.fx0	= fx0;  atom_pos.fy0  = fy0;  atom_pos.fz0  = fz0;
+	atom_pos.fx	= fx;   atom_pos.fy   = fy;   atom_pos.fz   = fz;
+	atom_pos.fx0g	= fx0g; atom_pos.fy0g = fy0g; atom_pos.fz0g = fz0g;
+	atom_pos.fxg	= fxg;  atom_pos.fyg  = fyg;  atom_pos.fzg  = fzg;
 
 #ifdef _FORCECHECK_
-  atom_pos_dummy.natm	= natm;
-  atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
-  atom_pos_dummy.q 		= qd;
-  atom_pos_dummy.qt 	= qtd;
-  atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta  = betad; atom_pos_dummy.Rpc = Rpcd;
+	atom_pos_dummy.natm	= natm;
+	atom_pos_dummy.x 		= xd;    atom_pos_dummy.y 	  = yd;    atom_pos_dummy.z    = zd;
+	atom_pos_dummy.q 		= qd;
+	atom_pos_dummy.qt 	= qtd;
+	atom_pos_dummy.alp 	= alpd; atom_pos_dummy.beta  = betad; atom_pos_dummy.Rpc = Rpcd;
 
-  atom_pos_dummy.vx		= vxd;   atom_pos_dummy.vy   = vyd;   atom_pos_dummy.vz   = vzd;
-  atom_pos_dummy.fx0	= fx0d;  atom_pos_dummy.fy0  = fy0d;  atom_pos_dummy.fz0  = fz0d;
-  atom_pos_dummy.fx		= fxd;   atom_pos_dummy.fy   = fyd;   atom_pos_dummy.fz   = fzd;
-  atom_pos_dummy.fx0g	= fx0gd; atom_pos_dummy.fy0g = fy0gd; atom_pos_dummy.fz0g = fz0gd;
-  atom_pos_dummy.fxg	= fxgd;  atom_pos_dummy.fyg  = fygd;  atom_pos_dummy.fzg  = fzgd;
+	atom_pos_dummy.vx		= vxd;   atom_pos_dummy.vy   = vyd;   atom_pos_dummy.vz   = vzd;
+	atom_pos_dummy.fx0	= fx0d;  atom_pos_dummy.fy0  = fy0d;  atom_pos_dummy.fz0  = fz0d;
+	atom_pos_dummy.fx		= fxd;   atom_pos_dummy.fy   = fyd;   atom_pos_dummy.fz   = fzd;
+	atom_pos_dummy.fx0g	= fx0gd; atom_pos_dummy.fy0g = fy0gd; atom_pos_dummy.fz0g = fz0gd;
+	atom_pos_dummy.fxg	= fxgd;  atom_pos_dummy.fyg  = fygd;  atom_pos_dummy.fzg  = fzgd;
 #endif // _FORCECHECK_
 
   //========================================================================
   // compute and store the atom maps
 
-  int *natm_typ_now = new int[natm_typ];
-  for (int i=0; i<natm_typ; i++) { natm_typ_now[i] = 0; }
-  for (int i=0; i<natm; i++) { 
-	int ityp = index_atm_typ[i];
-	list_atm_by_typ[ityp][natm_typ_now[ityp]] = i;
-	natm_typ_now[ityp]++; 
-  } // end for
-  delete [] natm_typ_now;
-  atom_maps.natm_typ 			= natm_typ;
-  atom_maps.natm				= natm;		 
-  atom_maps.index_atm_typ   	= index_atm_typ;	
-  atom_maps.natm_atm_typ    	= natm_atm_typ;
-  atom_maps.list_atm_by_typ 	= list_atm_by_typ;
-  atom_maps.atm_typ				= atm_typ;	    
-  atom_maps.natm_atm_typ_max 	= natm_atm_typ_max;
+	int *natm_typ_now = new int[natm_typ];
+	for (int i=0; i<natm_typ; i++) { natm_typ_now[i] = 0; }
+	for (int i=0; i<natm; i++) { 
+		int ityp = index_atm_typ[i];
+		list_atm_by_typ[ityp][natm_typ_now[ityp]] = i;
+		natm_typ_now[ityp]++; 
+	} // end for
+	delete [] natm_typ_now;
+	atom_maps.natm_typ 			= natm_typ;
+	atom_maps.natm				= natm;		 
+	atom_maps.index_atm_typ   	= index_atm_typ;	
+	atom_maps.natm_atm_typ    	= natm_atm_typ;
+	atom_maps.list_atm_by_typ 	= list_atm_by_typ;
+	atom_maps.atm_typ				= atm_typ;	    
+	atom_maps.natm_atm_typ_max 	= natm_atm_typ_max;
 
-  gethinv(hmat, hmati, &volume, iperd);
+	gethinv(hmat, hmati, &volume, iperd);
 
-  //========================================================================
-  // store the simulation cell information 
-  cell.iperd 					= iperd;		
-  cell.alpb						= alpb;			
-  cell.gcut						= gcut;		   
-  cell.Gcut						= Gcut;
-  for (int i=1; i<10; i++) {
-  	cell.hmat[i]	    		= hmat[i];				 
-  }				 
-  gethinv(hmat, hmati, &volume, iperd);
-  for (int i=1; i<10; i++) {
-  	cell.hmati[i]   	 		= hmati[i];
-  }				 
-  cell.volume    			    = volume;
+	//========================================================================
+	// store the simulation cell information 
+	cell.iperd 	= iperd;		
+	cell.alpb	= alpb;			
+	cell.gcut	= gcut;		   
+	cell.Gcut	= Gcut;
+	cell.Rcut	= Rcut;
 
-  //========================================================================
-  // compute the grids 
-  int nf = (rorder+1)*thetaorder*phiorder;
-  FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
+	for (int i=1; i<10; i++) {
+		cell.hmat[i]	    		= hmat[i];				 
+	}				 
+	gethinv(hmat, hmati, &volume, iperd);
+	for (int i=1; i<10; i++) {
+		cell.hmati[i]   	 		= hmati[i];
+	}				 
+	cell.volume    			    = volume;
+
+	//========================================================================
+	// compute the grids 
+	int nf = (rorder+1)*thetaorder*phiorder;
+	FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
 
   //---------------------------------------------------------------------
   // get the master Gauss-Legendre, Gauss_Hermite_half, and phi grids
@@ -429,21 +461,31 @@ int main (int argc, char *argv[]){
 
   //========================================================================
   // Compute the real space energy analytically
-  
+ 
+	clock_t start, end;
 	PRINTF("Computing the PAW energy analytically with a Gaussian basis set for 0D and short range 3D:\n");
+	start = clock(); 
 	computePAWreal(&atom_maps, &atom_pos, &cell, &energy);
+	end = clock(); 
+	PRINTF("step1 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
   //========================================================================
   // Compute the long range energy analytically and on grid
 
 	PRINTF("Computing the 3D long range PAW energy with grid and Gaussian basis analytically:\n");
+	start = clock(); 
 	computePAWlong(&atom_maps, &atom_pos, &cell, &energy, fgrid);
+	end = clock(); 
+	PRINTF("step2 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
   //========================================================================
   // Compute the real space energy on grid
 
 	PRINTF("Computing the 0D and 3D short range PAW energy with grid:\n");
+	start = clock(); 
 	computePAWGrid(lmax, &atom_maps, &atom_pos, &cell, &energy, fgrid);
+	end = clock(); 
+	PRINTF("step3 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
 	energy.Etot0D.E           = energy.ENN.E + energy.EeN.E + energy.EHar.E;
 	energy.Etot0Dscr.E        = energy.ENN.E + energy.EeN.E + energy.EHarscr.E;

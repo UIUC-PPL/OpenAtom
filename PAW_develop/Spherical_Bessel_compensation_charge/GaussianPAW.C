@@ -193,7 +193,8 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 	double *fx	= atom_pos->fx;  double *fy	 = atom_pos->fy;  double *fz  = atom_pos->fz;
 	double *q 	= atom_pos->q;   double *qt  = atom_pos->qt;
 	double *alp = atom_pos->alp; double *beta = atom_pos->beta; 
-	double alpb = cell->alpb;
+	double *Rpc = atom_pos->Rpc;
+	double alpb = cell->alpb;    double *hmat = cell->hmat;    double *hmati = cell->hmati; double Rcut = cell->Rcut;
 	int iperd 	= cell->iperd;
 
 //===================================================================
@@ -203,7 +204,7 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 //===================================================================
 // energy contributions for clusters
 //===================================================================
-// if (iperd == 0) { 
+ if (iperd == 0) { 
 	double prec = 1.0/sqrt(2.0*M_PI_QI);
 	double precH = 0.5/sqrt(M_PI_QI);
 	double preceN = -2.0/sqrt(M_PI_QI);
@@ -223,25 +224,31 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
           if (j != i) {
               double alp_ij  = alp[i]*alp[j]/sqrt(alp[i]*alp[i] + alp[j]*alp[j]);
               double R_ij    = dist((x[i]-x[j]), (y[i]-y[j]), (z[i]-z[j]));
-              ENN           += 0.5*q[i]*q[j]/R_ij;
-              EeN           -= 1.0*qt[i]*q[j]*erf(alp[i]*R_ij)/R_ij;
-              EHar          += 0.5*qt[i]*qt[j]*erf(alp_ij*R_ij)/R_ij;
+			  double fgerfc_i, fgerfc_j, fgerfc_ij;
+			  double gerfc_tmp_i =  gerfc(R_ij, alp[i], &fgerfc_i);
+			  double gerfc_tmp_j =  gerfc(R_ij, alp[j], &fgerfc_j);
+			  double gerfc_tmp_ij =  gerfc(R_ij, alp_ij, &fgerfc_ij);
+			  double gerf_tmp_i =  1.0 - gerfc_tmp_i;
+			  double gerf_tmp_ij = 1.0 - gerfc_tmp_ij;
+			  double R_ij_inv = 1.0/R_ij;
+              ENN           += 0.5*q[i]*q[j]*R_ij_inv;
+              EeN           -= 1.0*qt[i]*q[j]*gerf_tmp_i*R_ij_inv;
+              EHar          += 0.5*qt[i]*qt[j]*gerf_tmp_ij*R_ij_inv;
 			  double coeff1  = -q[i]*q[j];
-			  double coeff2  = -(qt[i]*q[j]*erfc_a_r_over_r(R_ij,alp[i])+ q[i]*qt[j]*erfc_a_r_over_r(R_ij,alp[i]));
-			  double coeff3  = qt[i]*qt[j]*erfc_a_r_over_r(R_ij,alp_ij);
-			  fx0[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(x[j] - x[i]); 
-			  fy0[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(y[j] - y[i]); 
-			  fz0[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(z[j] - z[i]); 
-//			  fx0[i]		  += (coeff2)/(R_ij*R_ij*R_ij)*(x[j] - x[i]); 
-//			  fy0[i]		  += (coeff2)/(R_ij*R_ij*R_ij)*(y[j] - y[i]); 
-//			  fz0[i]		  += (coeff2)/(R_ij*R_ij*R_ij)*(z[j] - z[i]); 
+			  double coeff2  = -(qt[i]*q[j]*erfc_a_r_over_r(R_ij,alp[i],gerfc_tmp_i, fgerfc_i) 
+								+ q[i]*qt[j]*erfc_a_r_over_r(R_ij,alp[j],gerfc_tmp_j, fgerfc_j));
+			  double coeff3  = qt[i]*qt[j]*erfc_a_r_over_r(R_ij,alp_ij, gerfc_tmp_ij, fgerfc_ij);
+			  double ftmp = (coeff1 + coeff2 + coeff3)*R_ij_inv*R_ij_inv*R_ij_inv;
+			  fx0[i]		  += ftmp*(x[j] - x[i]);  // 0D, no periodic images
+			  fy0[i]		  += ftmp*(y[j] - y[i]); 
+			  fz0[i]		  += ftmp*(z[j] - z[i]); 
           } // end if
       } // end for 
   } // end for
 	EeN  += EeNself;
 	EHarscr = EHar + EHarselfscr;
 	EHar += EHarself;
-// } // end if
+ } // end if iperd = 0
 
 //===================================================================
 // zero all the energies 
@@ -254,7 +261,7 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 // energy contributions for 3D PDC
 //===================================================================
 
-// if (iperd == 3) { 
+ if (iperd == 3) { 
   for (int i=0; i<natm; i++) {
 	double alpb_i     = alpb*alp[i]/sqrt(alp[i]*alp[i] + alpb*alpb);
 	double alpb_ii 	  = alpb*alp[i]*alp[i]/sqrt(alp[i]*alp[i]*alp[i]*alp[i] + 2*alpb*alpb*alp[i]*alp[i]);
@@ -273,26 +280,52 @@ void computePAWreal(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
     		double alpb_j = alpb*alp[j]/sqrt(alp[j]*alp[j] + alpb*alpb);
             double alp_ij  = alp[i]*alp[j]/sqrt(alp[i]*alp[i] + alp[j]*alp[j]);
             double alpb_ij = alpb*alp[i]*alp[j]/sqrt(alp[i]*alp[i]*alp[j]*alp[j] + alpb*alpb*alp[i]*alp[i] + alpb*alpb*alp[j]*alp[j]);
-            double R_ij    = dist((x[i]-x[j]), (y[i]-y[j]), (z[i]-z[j]));
-            ENNshort      += 0.5*q[i]*q[j]*erfc(alpb*R_ij)/R_ij;
-            EeNshort      -= 1.0*qt[i]*q[j]*(erfc(alpb_i*R_ij)-erfc(alp[i]*R_ij))/R_ij;
-            EHarshort     += 0.5*qt[i]*qt[j]*(erfc(alpb_ij*R_ij)-erfc(alp_ij*R_ij))/R_ij;
-			double coeff1  = -q[i]*q[j]*(1 + erfc_a_r_over_r(R_ij,alpb));
-			double coeff2  = -(qt[i]*q[j]*(erfc_a_r_over_r(R_ij,alp[i]) - erfc_a_r_over_r(R_ij,alpb_i))+ q[i]*qt[j]*(erfc_a_r_over_r(R_ij,alp[j]) - erfc_a_r_over_r(R_ij,alpb_j)));
-			double coeff3  = qt[i]*qt[j]*(erfc_a_r_over_r(R_ij,alp_ij) - erfc_a_r_over_r(R_ij,alpb_ij));
-			fx[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(x[j] - x[i]); 
-			fy[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(y[j] - y[i]); 
-			fz[i]		  += (coeff1 + coeff2 + coeff3)/(R_ij*R_ij*R_ij)*(z[j] - z[i]); 
-//			fx[i]		  += (coeff3)/(R_ij*R_ij*R_ij)*(x[j] - x[i]); 
-//			fy[i]		  += (coeff3)/(R_ij*R_ij*R_ij)*(y[j] - y[i]); 
-//			fz[i]		  += (coeff3)/(R_ij*R_ij*R_ij)*(z[j] - z[i]); 
-     	} // end if
-    } // end for 
-  } // end for
+			double dx = x[j]-x[i];
+			double dy = y[j]-y[i];
+			double dz = z[j]-z[i];
+			dx -= hmat[1]*NINT(dx*hmati[1]);
+			dy -= hmat[5]*NINT(dy*hmati[5]);
+			dz -= hmat[9]*NINT(dz*hmati[9]);
+			double r2 = dx*dx + dy*dy + dz*dz;
+			double R_ij = sqrt(r2);
+			if (R_ij < Rcut + Rpc[i] + Rpc[j]) { // Hartree allowed
+                double fgerfc_bar_ij, fgerfc_ij;
+                double gerfc_tmp_ij =  gerfc(R_ij, alp_ij, &fgerfc_ij);
+                double gerfc_tmp_bar_ij =  gerfc(R_ij, alpb_ij, &fgerfc_bar_ij);
+                double R_ij_inv = 1.0/R_ij;
+            	EHarshort     += 0.5*qt[i]*qt[j]*(gerfc_tmp_bar_ij - gerfc_tmp_ij)*R_ij_inv;
+				double coeff1 = 0.0;
+				double coeff2 = 0.0;
+				double coeff3  = qt[i]*qt[j]*(erfc_a_r_over_r(R_ij,alp_ij,gerfc_tmp_ij,fgerfc_ij) - 
+											  erfc_a_r_over_r(R_ij,alpb_ij, gerfc_tmp_bar_ij, fgerfc_bar_ij));
+				if (R_ij < Rcut + Rpc[i]) { // eN allowed
+				    double fgerfc_i, fgerfc_j, fgerfc_bar_i, fgerfc_bar_j;
+				    double gerfc_tmp_i =  gerfc(R_ij, alp[i], &fgerfc_i);
+				    double gerfc_tmp_j =  gerfc(R_ij, alp[j], &fgerfc_j);
+				    double gerfc_tmp_bar_i =  gerfc(R_ij, alpb_i, &fgerfc_bar_i);
+				    double gerfc_tmp_bar_j =  gerfc(R_ij, alpb_j, &fgerfc_bar_j);
+					coeff2  = -(qt[i]*q[j]*(erfc_a_r_over_r(R_ij,alp[i],gerfc_tmp_i,fgerfc_i) - erfc_a_r_over_r(R_ij,alpb_i,gerfc_tmp_bar_i,fgerfc_bar_i)) 
+								+q[i]*qt[j]*(erfc_a_r_over_r(R_ij,alp[j],gerfc_tmp_j,fgerfc_j) - erfc_a_r_over_r(R_ij,alpb_j,gerfc_tmp_bar_j,fgerfc_bar_j)));
+            		EeNshort      -= 1.0*qt[i]*q[j]*(gerfc_tmp_bar_i - gerfc_tmp_i)*R_ij_inv;
+					if (R_ij < Rcut) { // NN allowed
+					   double fgerfc_bar;
+					   double gerfc_tmp_bar =  gerfc(R_ij, alpb, &fgerfc_bar);
+            			ENNshort      += 0.5*q[i]*q[j]*gerfc_tmp_bar*R_ij_inv;
+						coeff1  = -q[i]*q[j]*(1.0 + erfc_a_r_over_r(R_ij,alpb,gerfc_tmp_bar,fgerfc_bar));
+					} // end if NN allowed 
+				} // end if eN allowed
+				double ftmp = (coeff1 + coeff2 + coeff3)*R_ij_inv*R_ij_inv*R_ij_inv;
+				fx[i]		  += ftmp*dx; 
+				fy[i]		  += ftmp*dy; 
+				fz[i]		  += ftmp*dz; 
+			} // end if Hartree allowed
+     	} // end if j!= i
+    } // end for  j
+  } // end for i
     EeNshort  += EeNshortself;
 	EHarshortscr = EHarshort + EHarshortselfscr;
     EHarshort += EHarshortself;
-// } // end if
+ } // end if iperd = 3
 
 
 //===================================================================
@@ -329,24 +362,27 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 { // begin routine
 //===================================================================
 // read in parameters from the structures
-  int natm				= atom_maps->natm;
-  int natm_typ 			= atom_maps->natm_typ;
-  int *natm_atm_typ 	= atom_maps->natm_atm_typ;
-  int **list_atm_by_typ = atom_maps->list_atm_by_typ;
-  double *x 			= atom_pos->x;    double *y    = atom_pos->y;    double *z    = atom_pos->z; 
-  double *fx0g			= atom_pos->fx0g; double *fy0g = atom_pos->fy0g; double *fz0g = atom_pos->fz0g;
-  double *fxg			= atom_pos->fxg;  double *fyg  = atom_pos->fyg;  double *fzg  = atom_pos->fzg;
-  double *q 			= atom_pos->q;    double *qt   = atom_pos->qt;
-	double *alp  = atom_pos->alp;  double *beta = atom_pos->beta;
-  double alpb   		= cell->alpb;     double *hmat = cell->hmat;	 double *hmati = cell->hmati;
-  int iperd 			= cell->iperd;
+	int natm			  = atom_maps->natm;
+	int natm_typ 		  = atom_maps->natm_typ;
+	int *natm_atm_typ 	  = atom_maps->natm_atm_typ;
+	int **list_atm_by_typ = atom_maps->list_atm_by_typ;
+	double *x 			= atom_pos->x;    double *y    = atom_pos->y;    double *z    = atom_pos->z; 
+	double *fx0g		= atom_pos->fx0g; double *fy0g = atom_pos->fy0g; double *fz0g = atom_pos->fz0g;
+	double *fxg			= atom_pos->fxg;  double *fyg  = atom_pos->fyg;  double *fzg  = atom_pos->fzg;
+	double *q 			= atom_pos->q;    double *qt   = atom_pos->qt;
+	double *alp  = atom_pos->alp;
+	double *beta = atom_pos->beta;
+	double *Rpc  = atom_pos->Rpc;
+	double alpb   		= cell->alpb;     double *hmat = cell->hmat;	 double *hmati = cell->hmati;
+	int iperd 			= cell->iperd;
+	double Rcut = cell->Rcut;
 
 //===================================================================
 // local variables
-  int rorder     = fgrid[0].nr;
-  int thetaorder = fgrid[0].ntheta;
-  int phiorder   = fgrid[0].nphi;
-  int nf         = fgrid[0].nf;
+	int rorder     = fgrid[0].nr;
+	int thetaorder = fgrid[0].ntheta;
+	int phiorder   = fgrid[0].nphi;
+	int nf         = fgrid[0].nf;
 //-------------------------------------------------------------------
 // nuclear-nuclear energy is the same
     double ENNGrid         = energy->ENN.E;
@@ -363,10 +399,12 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 //===================================================================
 // energy contributions for clusters
 //===================================================================
-// if (iperd == 0) { 
+ if (iperd == 0) { 
 
+clock_t start, end;
 //===================================================================
 // Adding the ENN part force 
+	start = clock();
   for (int i=0; i<natm; i++) {
       for (int j=0; j<natm; j++) {
           if (j != i) {
@@ -378,8 +416,13 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
           } // end if
       } // end for 
   } // end for
-// } // end if
+  end = clock();
+  PRINTF("0D ENN finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 	
+
+// 0D eN and Har no self
+	int pair = 0;
+	start = clock();
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
 		double *xf_jtyp     = fgrid[jtyp].xf;
 		double *yf_jtyp     = fgrid[jtyp].yf;
@@ -399,6 +442,7 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 				for(int k=0;k<natm_atm_typ[ktyp];k++){
 					int K = list_atm_by_typ[ktyp][k];
 					if (K != J) {
+						pair++;
 						double Ncoeff_K = four_pi_inv;
 						for (int f1=0; f1 < nf; f1++) {
 							double dx_J   = xf_jtyp[f1]-x[K]+x[J];
@@ -426,7 +470,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 								double Hr2_J 	= Hdx_J*Hdx_J + Hdy_J*Hdy_J + Hdz_J*Hdz_J;
 								double Hr_J 	= sqrt(Hr2_J);
 								double Htmp_J  	= 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]/Hr_J;
-//								double Htmp_J  	= 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]*erf(beta[0]*Hr_J)/Hr_J;
 								EHarGrid 	   += Htmp_J; 
 								double Hdx_K 	= xf_ktyp[f1]-xf_jtyp[f2]+x[K]-x[J];
 								double Hdy_K 	= yf_ktyp[f1]-yf_jtyp[f2]+y[K]-y[J];
@@ -446,9 +489,12 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			} //end for j
 		} // end for ktyp
  	} // end for jtyp
+  end = clock();
+  PRINTF("(%d) pairs\n",pair);
+  PRINTF("0D EeN and EHar noself finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 //==============================================================================
 //eN and Har self term
-
+	start = clock();
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
         double *wf        = fgrid[jtyp].wf;
         double *rf        = fgrid[jtyp].rf;
@@ -527,32 +573,44 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		
 		for (int f1=0; f1 < nf; f1++) {
 			for (int f2=0; f2 < nf; f2++) {
-				double pref = 0.5*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
+				double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 				if (f1 != f2) {
 					double dx   = xf[f1] - xf[f2];
 					double dy   = yf[f1] - yf[f2];
 					double dz   = zf[f1] - zf[f2];
 					double r2   = dx*dx + dy*dy + dz*dz;
 					double r    = sqrt(r2);
-					if (r > 0) { EHarselfscrGrid += pref*erf(betaJ*r)/r; }
+					if (r > 0) { 
+						double fgerfc;
+						double gerfc_tmp = gerfc(r, betaJ, &fgerfc);
+						double gerf_tmp =  1.0 - gerfc_tmp;
+						double r_inv = 1.0/r;
+						EHarselfscrGrid += pref*gerf_tmp*r_inv;
+					} // end if r>0
 				} else {
-					EHarselfscrGrid += pref*2.0*betaJ/sqrt(M_PI_QI);
+					EHarselfscrGrid += pref*PRE_ERFC*betaJ;
 				} // end if
 			} //end for f2
 		} //end for f1
 	} //end for jtyp
+	end = clock();
+	PRINTF("0D EeN and EHar self finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
+
+// register the energies to the struct
 	EeNGrid      += EeNselfGrid;
 	EHarscrGrid   = EHarGrid + EHarselfscrGrid;
 	EHarGrid     += EHarselfGrid;
-// } // end if
+} // end if iperd = 0
 
 //===================================================================
 // energy contributions for 3D PDC
 //===================================================================
-// if (iperd == 3) { 
+ if (iperd == 3) { 
 
+clock_t start, end;
 //===================================================================
 // Adding the ENN part force 
+  start = clock();
   for (int J=0; J<natm; J++) {
       for (int K=0; K<natm; K++) {
           if (J != K) {
@@ -565,14 +623,23 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			  double r2 = dx*dx + dy*dy + dz*dz;
 			  double R_ij = sqrt(r2);
 			  double coeff1  = -q[J]*q[K];
-			  fxg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dx*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-			  fyg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dy*(1 + erfc_a_r_over_r(R_ij, alpb)); 
-			  fzg[J]		+= (coeff1)/(R_ij*R_ij*R_ij)*dz*(1 + erfc_a_r_over_r(R_ij, alpb)); 
+              double fgerfc_bar;
+              double gerfc_tmp_bar =  gerfc(R_ij, alpb, &fgerfc_bar);
+              double R_ij_inv = 1.0/R_ij;
+			  double tmp    = coeff1*R_ij_inv*R_ij_inv*R_ij_inv*(1.0 + erfc_a_r_over_r(R_ij, alpb,gerfc_tmp_bar,fgerfc_bar));
+			  fxg[J]		+= tmp*dx; 
+			  fyg[J]		+= tmp*dy; 
+			  fzg[J]		+= tmp*dz; 
           } // end if
       } // end for 
   } // end for
-// } // end if
+  end = clock();
+  PRINTF("3D ENN finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 	
+
+	int pair = 0;
+	// short range eN and Hartree without self
+	start = clock();
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
 		double *xf_jtyp     = fgrid[jtyp].xf;
 		double *yf_jtyp     = fgrid[jtyp].yf;
@@ -587,73 +654,115 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			for(int j=0; j<natm_atm_typ[jtyp];j++){
 				int J = list_atm_by_typ[jtyp][j];
 				double Ncoeff_J = four_pi_inv;
-				//int kstart = (ktyp == jtyp ? (j+1):0);
-				//for(int k=kstart;k<natm_atm_typ[ktyp];k++){
 				for(int k=0;k<natm_atm_typ[ktyp];k++){
 					int K = list_atm_by_typ[ktyp][k];
 					double Ncoeff_K = four_pi_inv;
 					if (K != J) {
-						for (int f1=0; f1 < nf; f1++) {
-							double dx_J = xf_jtyp[f1]-x[K]+x[J];
-							double dy_J = yf_jtyp[f1]-y[K]+y[J];
-							double dz_J = zf_jtyp[f1]-z[K]+z[J];
-							dx_J -= hmat[1]*NINT(dx_J*hmati[1]);
-							dy_J -= hmat[5]*NINT(dy_J*hmati[5]);
-							dz_J -= hmat[9]*NINT(dz_J*hmati[9]);
-							double r2_J = dx_J*dx_J + dy_J*dy_J + dz_J*dz_J;
-							double r_J = sqrt(r2_J);
-							double tmp_eJ = -Ncoeff_J*qt[J]*q[K]*wf_jtyp[f1]*erfc(alpb*r_J)/r_J;
-							double tmp_J = -Ncoeff_J*qt[J]*q[K]*wf_jtyp[f1]/r_J;
-							EeNshortGrid += tmp_eJ;
-							double dx_K   = xf_ktyp[f1]-x[J]+x[K];
-							double dy_K   = yf_ktyp[f1]-y[J]+y[K];
-							double dz_K   = zf_ktyp[f1]-z[J]+z[K];
-							dx_K -= hmat[1]*NINT(dx_K*hmati[1]);
-							dy_K -= hmat[5]*NINT(dy_K*hmati[5]);
-							dz_K -= hmat[9]*NINT(dz_K*hmati[9]);
-							double r2_K   = dx_K*dx_K + dy_K*dy_K + dz_K*dz_K;
-							double r_K    = sqrt(r2_K);
-							double tmp_K  = -Ncoeff_K*qt[K]*q[J]*wf_ktyp[f1]/r_K;
-							double coeffJ = tmp_J/(r_J*r_J);
-							double coeffK = tmp_K/(r_K*r_K);
-							fxg[J]		 += coeffJ*dx_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dx_K*(1 + erfc_a_r_over_r(r_K, alpb));
-							fyg[J]		 += coeffJ*dy_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dy_K*(1 + erfc_a_r_over_r(r_K, alpb));
-							fzg[J]		 += coeffJ*dz_J*(1 + erfc_a_r_over_r(r_J, alpb)) - coeffK*dz_K*(1 + erfc_a_r_over_r(r_K, alpb));
-							for (int f2=0; f2 < nf; f2++) {
-								double Hdx_J 	= xf_jtyp[f1]-xf_ktyp[f2]-x[K]+x[J];
-								double Hdy_J 	= yf_jtyp[f1]-yf_ktyp[f2]-y[K]+y[J];
-								double Hdz_J 	= zf_jtyp[f1]-zf_ktyp[f2]-z[K]+z[J];
-								Hdx_J -= hmat[1]*NINT(Hdx_J*hmati[1]);
-								Hdy_J -= hmat[5]*NINT(Hdy_J*hmati[5]);
-								Hdz_J -= hmat[9]*NINT(Hdz_J*hmati[9]);
-								double Hr2_J 	= Hdx_J*Hdx_J + Hdy_J*Hdy_J + Hdz_J*Hdz_J;
-								double Hr_J 	= sqrt(Hr2_J);
-								double Htmp_eJ  = 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]*erfc(alpb*Hr_J)/Hr_J;
-								double Htmp_J   = 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]/Hr_J;
-								EHarshortGrid  += Htmp_eJ;
-								double Hdx_K 	= xf_ktyp[f1]-xf_jtyp[f2]+x[K]-x[J];
-								double Hdy_K 	= yf_ktyp[f1]-yf_jtyp[f2]+y[K]-y[J];
-								double Hdz_K 	= zf_ktyp[f1]-zf_jtyp[f2]+z[K]-z[J];
-								Hdx_K -= hmat[1]*NINT(Hdx_K*hmati[1]);
-								Hdy_K -= hmat[5]*NINT(Hdy_K*hmati[5]);
-								Hdz_K -= hmat[9]*NINT(Hdz_K*hmati[9]);
-								double Hr2_K 	= Hdx_K*Hdx_K + Hdy_K*Hdy_K + Hdz_K*Hdz_K;
-								double Hr_K 	= sqrt(Hr2_K);
-								double Htmp_K 	= 0.5*Ncoeff_K*Ncoeff_J*qt[J]*qt[K]*wf_ktyp[f1]*wf_jtyp[f2]/Hr_K;
-								double HcoeffJ  = Htmp_J/(Hr_J*Hr_J);
-								double HcoeffK  = Htmp_K/(Hr_K*Hr_K);
-								fxg[J]		   += HcoeffJ*Hdx_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdx_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-								fyg[J]		   += HcoeffJ*Hdy_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdy_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-								fzg[J]		   += HcoeffJ*Hdz_J*(1 + erfc_a_r_over_r(Hr_J, alpb)) - HcoeffK*Hdz_K*(1 + erfc_a_r_over_r(Hr_K, alpb)); 
-							} // end for f2
-						} // end for f1
-					} // end if
+                        double dx = x[K]-x[J];
+                        double dy = y[K]-y[J];
+                        double dz = z[K]-z[J];
+                        dx -= hmat[1]*NINT(dx*hmati[1]);
+                        dy -= hmat[5]*NINT(dy*hmati[5]);
+                        dz -= hmat[9]*NINT(dz*hmati[9]);
+                        double r2 = dx*dx + dy*dy + dz*dz;
+                        double R_ij = sqrt(r2);
+						if (R_ij < Rcut + Rpc[J] + Rpc[K]) { // allows Hartree and e-N to be calculated
+							pair++;
+							for (int f1=0; f1 < nf; f1++) {
+								if (R_ij < Rcut + Rpc[J]) {  // alows e-N
+									double dx_J = xf_jtyp[f1] - dx;
+									double dy_J = yf_jtyp[f1] - dy;
+									double dz_J = zf_jtyp[f1] - dz;
+//									dx_J -= hmat[1]*NINT(dx_J*hmati[1]);
+//									dy_J -= hmat[5]*NINT(dy_J*hmati[5]);
+//									dz_J -= hmat[9]*NINT(dz_J*hmati[9]);
+									double r2_J = dx_J*dx_J + dy_J*dy_J + dz_J*dz_J;
+									double r_J = sqrt(r2_J);
+
+									double fgerfc_bar_J;
+									double gerfc_tmp_bar_J =  gerfc(r_J, alpb, &fgerfc_bar_J);
+									double r_J_inv = 1.0/r_J;
+
+									double tmp_eJ = -Ncoeff_J*qt[J]*q[K]*wf_jtyp[f1]*gerfc_tmp_bar_J*r_J_inv;
+									double tmp_J = -Ncoeff_J*qt[J]*q[K]*wf_jtyp[f1]*r_J_inv;
+									EeNshortGrid += tmp_eJ;
+
+									double dx_K   = xf_ktyp[f1] + dx;
+									double dy_K   = yf_ktyp[f1] + dy;
+									double dz_K   = zf_ktyp[f1] + dz;
+//									dx_K -= hmat[1]*NINT(dx_K*hmati[1]);
+//									dy_K -= hmat[5]*NINT(dy_K*hmati[5]);
+//									dz_K -= hmat[9]*NINT(dz_K*hmati[9]);
+									double r2_K   = dx_K*dx_K + dy_K*dy_K + dz_K*dz_K;
+									double r_K    = sqrt(r2_K);
+
+									double fgerfc_bar_K;
+									double gerfc_tmp_bar_K =  gerfc(r_K, alpb, &fgerfc_bar_K);
+									double r_K_inv = 1.0/r_K;
+
+									double tmp_K  = -Ncoeff_K*qt[K]*q[J]*wf_ktyp[f1]*r_K_inv;
+									double coeffJ = tmp_J*r_J_inv*r_J_inv;
+									double coeffK = tmp_K*r_K_inv*r_K_inv;
+
+									double eNtmp_J = coeffJ*(1.0 + erfc_a_r_over_r(r_J, alpb,gerfc_tmp_bar_J,fgerfc_bar_J));
+									double eNtmp_K = coeffK*(1.0 + erfc_a_r_over_r(r_K, alpb,gerfc_tmp_bar_K,fgerfc_bar_K));
+									fxg[J]		 += (eNtmp_J*dx_J - eNtmp_K*dx_K);
+									fyg[J]		 += (eNtmp_J*dy_J - eNtmp_K*dy_K);
+									fzg[J]		 += (eNtmp_J*dz_J - eNtmp_K*dz_K);
+								} // ends e-N
+								for (int f2=0; f2 < nf; f2++) {
+									double Hdx_J 	= xf_jtyp[f1]-xf_ktyp[f2] - dx;
+									double Hdy_J 	= yf_jtyp[f1]-yf_ktyp[f2] - dy;
+									double Hdz_J 	= zf_jtyp[f1]-zf_ktyp[f2] - dz;
+//									Hdx_J -= hmat[1]*NINT(Hdx_J*hmati[1]);
+//									Hdy_J -= hmat[5]*NINT(Hdy_J*hmati[5]);
+//									Hdz_J -= hmat[9]*NINT(Hdz_J*hmati[9]);
+									double Hr2_J 	= Hdx_J*Hdx_J + Hdy_J*Hdy_J + Hdz_J*Hdz_J;
+									double Hr_J 	= sqrt(Hr2_J);
+
+									double fgerfc_bar_HJ;
+									double gerfc_tmp_bar_HJ =  gerfc(Hr_J, alpb, &fgerfc_bar_HJ);
+									double Hr_J_inv = 1.0/Hr_J;
+
+									double Htmp_eJ  = 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]*gerfc_tmp_bar_HJ*Hr_J_inv;
+									double Htmp_J   = 0.5*Ncoeff_J*Ncoeff_K*qt[J]*qt[K]*wf_jtyp[f1]*wf_ktyp[f2]*Hr_J_inv;
+									EHarshortGrid  += Htmp_eJ;
+
+									double Hdx_K 	= xf_ktyp[f1]-xf_jtyp[f2] + dx;
+									double Hdy_K 	= yf_ktyp[f1]-yf_jtyp[f2] + dy;
+									double Hdz_K 	= zf_ktyp[f1]-zf_jtyp[f2] + dz;
+//									Hdx_K -= hmat[1]*NINT(Hdx_K*hmati[1]);
+//									Hdy_K -= hmat[5]*NINT(Hdy_K*hmati[5]);
+//									Hdz_K -= hmat[9]*NINT(Hdz_K*hmati[9]);
+									double Hr2_K 	= Hdx_K*Hdx_K + Hdy_K*Hdy_K + Hdz_K*Hdz_K;
+									double Hr_K 	= sqrt(Hr2_K);
+
+									double fgerfc_bar_HK;
+									double gerfc_tmp_bar_HK =  gerfc(Hr_K, alpb, &fgerfc_bar_HK);
+									double Hr_K_inv = 1.0/Hr_K;
+
+									double Htmp_K 	= 0.5*Ncoeff_K*Ncoeff_J*qt[J]*qt[K]*wf_ktyp[f1]*wf_jtyp[f2]*Hr_K_inv;
+									double HcoeffJ  = Htmp_J*Hr_J_inv*Hr_J_inv;
+									double HcoeffK  = Htmp_K*Hr_K_inv*Hr_K_inv;
+									double Hartmp_J   = HcoeffJ*(1.0 + erfc_a_r_over_r(Hr_J, alpb, gerfc_tmp_bar_HJ, fgerfc_bar_HJ));
+									double Hartmp_K   = HcoeffK*(1.0 + erfc_a_r_over_r(Hr_K, alpb, gerfc_tmp_bar_HK, fgerfc_bar_HK));
+									fxg[J]		   += (Hartmp_J*Hdx_J - Hartmp_K*Hdx_K); 
+									fyg[J]		   += (Hartmp_J*Hdy_J - Hartmp_K*Hdy_K); 
+									fzg[J]		   += (Hartmp_J*Hdz_J - Hartmp_K*Hdz_K); 
+								} // end for f2
+							} // end for f1
+						} // end allows Hartree and eN
+					} // end if K != J
 				} // end for k
 			} //end for j
 		} // end for ktyp
  	} // end for jtyp
+	end = clock();
+	PRINTF("(%d) pairs\n",pair);
+	PRINTF("3D short EeN and Har noself finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 //==============================================================================
 //eN and Har self term (short)
+	start = clock();
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
 		double *xf		  = fgrid[jtyp].xf;
 		double *yf		  = fgrid[jtyp].yf;
@@ -677,14 +786,20 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		double erf_lim = alpb/sqrt(M_PI_QI);
 		for (int f1=0; f1 < nf; f1++) {
 			for (int f2=0; f2 < nf; f2++) {
-				double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
+				double pref = wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 				double dx = xf[f1] - xf[f2];
                 double dy = yf[f1] - yf[f2];
                 double dz = zf[f1] - zf[f2];
                 double r2 = dx*dx + dy*dy + dz*dz;
                 double r = sqrt(r2);
 				if (f1 != f2) {
-					if (r > 0) { EHarshortselfGrid -= 0.5*pref*erf(alpb*r)/r; }
+					if (r > 0) { 
+						double fgerfc;
+						double gerfc_tmp = gerfc(r, alpb, &fgerfc);
+						double gerf_tmp =  1.0 - gerfc_tmp;
+						double r_inv = 1.0/r;
+						EHarshortselfGrid -= 0.5*pref*gerf_tmp*r_inv; 
+					}// end if r > 0
 				} else {
 					EHarshortselfGrid -= erf_lim*pref;
 				} // end if
@@ -693,14 +808,20 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 
 		for (int f1=0; f1 < nf; f1++) {
 			for (int f2=0; f2 < nf; f2++) {
-				double pref = 0.5*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
+				double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 				if (f1 != f2) {
 					double dx   = xf[f1] - xf[f2];
 					double dy   = yf[f1] - yf[f2];
 					double dz   = zf[f1] - zf[f2];
 					double r2   = dx*dx + dy*dy + dz*dz;
 					double r    = sqrt(r2);
-					if (r > 0) { EHarshortselfscrGrid += pref*(erfc(alpb*r) - erfc(betaJ*r))/r; }
+					if (r > 0) { 
+						double fgerfc_bar, fgerfc_beta;
+						double gerfc_tmp_bar  = gerfc(r, alpb, &fgerfc_bar);
+						double gerfc_tmp_beta = gerfc(r, betaJ, &fgerfc_beta);
+						double r_inv = 1.0/r;
+						EHarshortselfscrGrid += pref*(gerfc_tmp_bar - gerfc_tmp_beta)*r_inv; 
+					}// end if r > 0
 				} else {
 					EHarshortselfscrGrid += pref*2.0*(betaJ - alpb)/sqrt(M_PI_QI);
 				} // end if
@@ -716,20 +837,20 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 						double rmax = MAX(rf[f1],rf[f2]);
 						double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
 						complex temp = pref*(2.0*M_PI_QI)/(2*l+1)*pow(rmin,l)/pow(rmax,l+1)*(Ylmf[f1]*Ylmf[f2].conj());
-//						double dx = xf[f1] - xf[f2];
-//                      double dy = yf[f1] - yf[f2];
-//                      double dz = zf[f1] - zf[f2];
-//                      double r2 = dx*dx + dy*dy + dz*dz;
 						if (rmax > 0) {EHarshortselfGrid += temp.re*wght;}
 					} //end for f2
 				} //end for f1
 			} //end for m
 		} //end for l
 	} //end for jtyp
+	end = clock();
+	PRINTF("3D eN and Har self finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
+
+	// register the energies in the energy struct
 	EeNshortGrid      += EeNshortselfGrid;
 	EHarshortscrGrid   = EHarshortGrid + EHarshortselfscrGrid;
 	EHarshortGrid     += EHarshortselfGrid;
-// } // end if
+ } // end if iperd = 3D
 
 //===================================================================
 // Put the energies in the structure
@@ -763,6 +884,9 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUCT *energy, FGRID *fgrid) 
 //===================================================================
 { // begin routine
+int iperd = cell->iperd;
+double Elong = 0.0, ElongGrid = 0.0, Elongzero = 0.0;
+if (iperd == 3) {
 //===================================================================
 // read in parameters from the structures
 	int natm			  = atom_maps->natm;
@@ -786,7 +910,6 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 //===================================================================
 // zero the energies and compute the g-vectors
 
-	double Elong = 0.0, ElongGrid = 0.0;
 	int Ixgmax = (int) (Gcut/(2.0*M_PI_QI*hmati[1]));
 	int Iygmax = (int) (Gcut/(2.0*M_PI_QI*hmati[5]));
 	int Izgmax = (int) (Gcut/(2.0*M_PI_QI*hmati[9]));
@@ -799,7 +922,7 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 //===================================================================
 // compute the g=0 term 
 
-	double Elongzero, delq = 0.0, qtalp = 0.0;
+	double delq = 0.0, qtalp = 0.0;
 	for (int i=0; i<natm; i++) {
 		delq += (q[i] - qt[i]);
 		qtalp += qt[i]/(alp[i]*alp[i]);
@@ -878,7 +1001,7 @@ void computePAWlong(ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, ESTRUC
 			} // end for gz
      	} // end for gy
 	} // end for gx	
-
+} // end if iperd = 3
 //===================================================================
 // put the energies in the structure 
 	Elong      			   += Elongzero;
@@ -909,12 +1032,36 @@ inline double dist(double dx, double dy, double dz)
 //===================================================================
 // Compute the distance between two points
 //===================================================================
-inline double erfc_a_r_over_r(double r, double a) 
+inline double erfc_a_r_over_r(double r, double a, double gerfc, double fgerfc) 
 //===================================================================
 { // begin routine
 //===================================================================
-	double result = 2.0*a*r/sqrt(M_PI_QI)*exp(-a*a*r*r) - erf(a*r);
+//	double result = 2.0*a*r/sqrt(M_PI_QI)*exp(-a*a*r*r) - erf(a*r);
+	double result = r*fgerfc + gerfc - 1.0;
 	return result;
 //===================================================================
 } // end routine
 //===================================================================
+
+//===========================================================================
+//ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+//===========================================================================
+// Generic error function
+//===========================================================================
+inline double gerfc(double r, double a, double *fgerfc){
+//===========================================================================
+#define _STRICT_ERFC_DER_OFF_
+	double x        = a*r;
+	double eee      = exp(-x*x);
+	double tt       = 1.0/(1.0+PERFC*x);
+	double gerfc_x  = ((((((((CERFC9*tt+CERFC8)*tt+CERFC7)*tt+CERFC6)*tt+CERFC5)*tt+CERFC4)*tt+CERFC3)*tt+CERFC2)*tt+CERFC1)*tt*eee;
+#ifdef _STRICT_ERFC_DER_
+    double fgerfc_x = ((((((((DCERFC9*tt+DCERFC8)*tt+DCERFC7)*tt+DCERFC6)*tt+DCERFC5)*tt+DCERFC4)*tt+DCERFC3)*tt+DCERFC2)*tt+DCERFC1)*tt*tt*eee*PERFC
+                         +2.0*gerfc_x*x;
+#else
+    fgerfc[0]       = a*eee*PRE_ERFC;   // -d/dr ( erfc(a*r)  )
+#endif
+//===========================================================================
+    return gerfc_x;
+}//end routine gerf
+//===========================================================================

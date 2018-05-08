@@ -53,5 +53,7 @@ void computePAWGrid(int, ATOM_MAPS *, ATOM_POS *, CELL *, ESTRUCT *, FGRID *);
 void computePAWlong(ATOM_MAPS *, ATOM_POS *, CELL *, ESTRUCT *, FGRID *); 
 double dist(double, double, double);	
 void gen_Ylmf (int, int, double *, int, double *, int, int, complex *);
-double erfc_a_r_over_r(double, double);
+inline double erfc_a_r_over_r(double, double, double, double);
+inline double erfc_a_r_over_r_old(double, double);
+inline double gerfc(double, double, double *);
 //==========================================================================

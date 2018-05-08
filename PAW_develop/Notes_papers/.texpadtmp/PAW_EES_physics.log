@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  2 MAY 2018 15:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  7 MAY 2018 19:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -2254,21 +2254,24 @@ Overfull \hbox (0.38954pt too wide) in paragraph at lines 5910--5910
 [] 
  []
 
-[125] [126] [127]
-Underfull \hbox (badness 10000) in paragraph at lines 6044--6046
+[125] [126] [127] [128]
+Underfull \hbox (badness 10000) in paragraph at lines 6058--6060
 
  []
 
-[128] <images/error.png, id=442, 481.8pt x 361.35pt>
+<images/error.png, id=442, 481.8pt x 361.35pt>
 File: images/error.png Graphic file (type png)
  <use images/error.png>
-Package pdftex.def Info: images/error.png used on input line 6083.
+Package pdftex.def Info: images/error.png used on input line 6097.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 <images/diffbeta.png, id=443, 481.8pt x 361.35pt>
 File: images/diffbeta.png Graphic file (type png)
  <use images/diffbeta.png>
-Package pdftex.def Info: images/diffbeta.png used on input line 6090.
+Package pdftex.def Info: images/diffbeta.png used on input line 6104.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
@@ -2277,7 +2280,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <images/betaconv.png, id=444, 481.8pt x 361.35pt>
 File: images/betaconv.png Graphic file (type png)
  <use images/betaconv.png>
-Package pdftex.def Info: images/betaconv.png used on input line 6097.
+Package pdftex.def Info: images/betaconv.png used on input line 6111.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
@@ -2287,7 +2290,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 File: images/betaconvloglog.png Graphic file (type png)
 
 <use images/betaconvloglog.png>
-Package pdftex.def Info: images/betaconvloglog.png used on input line 6104.
+Package pdftex.def Info: images/betaconvloglog.png used on input line 6118.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
@@ -2296,7 +2299,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <images/error3D.png, id=446, 481.8pt x 361.35pt>
 File: images/error3D.png Graphic file (type png)
  <use images/error3D.png>
-Package pdftex.def Info: images/error3D.png used on input line 6111.
+Package pdftex.def Info: images/error3D.png used on input line 6125.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
@@ -2305,7 +2308,7 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <images/conv.png, id=447, 481.8pt x 361.35pt>
 File: images/conv.png Graphic file (type png)
  <use images/conv.png>
-Package pdftex.def Info: images/conv.png used on input line 6118.
+Package pdftex.def Info: images/conv.png used on input line 6132.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
@@ -2314,163 +2317,162 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <images/fconv.png, id=448, 481.8pt x 361.35pt>
 File: images/fconv.png Graphic file (type png)
  <use images/fconv.png>
-Package pdftex.def Info: images/fconv.png used on input line 6125.
+Package pdftex.def Info: images/fconv.png used on input line 6139.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[129 <./images/error.png>]
-Overfull \vbox (50.64394pt too high) has occurred while \output is active []
-
-
-[130 <./images/diffbeta.png> <./images/betaconv.png> <./images/betaconvloglog.p
-ng>]
-Overfull \hbox (15.08829pt too wide) in paragraph at lines 6160--6160
+[129]
+Overfull \hbox (15.08829pt too wide) in paragraph at lines 6174--6174
 [] 
  []
 
-[131 <./images/error3D.png> <./images/conv.png> <./images/fconv.png>] [132]
+[130 <./images/error.png> <./images/diffbeta.png> <./images/betaconv.png>]
+Overfull \vbox (441.72833pt too high) has occurred while \output is active []
+
+
+[131 <./images/betaconvloglog.png> <./images/error3D.png> <./images/conv.png>]
+[132 <./images/fconv.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 6203--6204
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6218--6220
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6261--6263
+
+ []
+
 [133]
-Underfull \hbox (badness 10000) in paragraph at lines 6189--6190
+Underfull \hbox (badness 10000) in paragraph at lines 6270--6272
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6204--6206
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 6247--6249
+Underfull \hbox (badness 10000) in paragraph at lines 6284--6287
 
  []
 
 [134]
-Underfull \hbox (badness 10000) in paragraph at lines 6256--6258
+Underfull \hbox (badness 10000) in paragraph at lines 6322--6325
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6270--6273
+Underfull \hbox (badness 10000) in paragraph at lines 6329--6332
 
  []
 
 [135]
-Underfull \hbox (badness 10000) in paragraph at lines 6308--6311
+Underfull \hbox (badness 10000) in paragraph at lines 6383--6385
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 6315--6318
-
- []
-
-[136]
-Underfull \hbox (badness 10000) in paragraph at lines 6369--6371
-
- []
-
-[137] [138] [139] [140] <images/sBesselerror.png, id=494, 481.8pt x 361.35pt>
+[136] [137] [138] [139] <images/sBesselerror.png, id=491, 481.8pt x 361.35pt>
 File: images/sBesselerror.png Graphic file (type png)
 
 <use images/sBesselerror.png>
-Package pdftex.def Info: images/sBesselerror.png used on input line 6567.
+Package pdftex.def Info: images/sBesselerror.png used on input line 6581.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
-<images/sBesselerrorsimple.png, id=495, 481.8pt x 361.35pt>
+<images/sBesselerrorsimple.png, id=492, 481.8pt x 361.35pt>
 File: images/sBesselerrorsimple.png Graphic file (type png)
 
 <use images/sBesselerrorsimple.png>
-Package pdftex.def Info: images/sBesselerrorsimple.png used on input line 6578.
+Package pdftex.def Info: images/sBesselerrorsimple.png used on input line 6592.
 
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
-<nthetaHarself.png, id=496, 481.8pt x 361.35pt>
+<nthetaHarself.png, id=493, 481.8pt x 361.35pt>
 File: nthetaHarself.png Graphic file (type png)
  <use nthetaHarself.png>
-Package pdftex.def Info: nthetaHarself.png used on input line 6587.
+Package pdftex.def Info: nthetaHarself.png used on input line 6601.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<nthetaHarwoself.png, id=497, 481.8pt x 361.35pt>
+<nthetaHarwoself.png, id=494, 481.8pt x 361.35pt>
 File: nthetaHarwoself.png Graphic file (type png)
  <use nthetaHarwoself.png>
-Package pdftex.def Info: nthetaHarwoself.png used on input line 6596.
+Package pdftex.def Info: nthetaHarwoself.png used on input line 6610.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<nthetaHarwoselfdiff.png, id=498, 481.8pt x 361.35pt>
+<nthetaHarwoselfdiff.png, id=495, 481.8pt x 361.35pt>
 File: nthetaHarwoselfdiff.png Graphic file (type png)
 
 <use nthetaHarwoselfdiff.png>
-Package pdftex.def Info: nthetaHarwoselfdiff.png used on input line 6610.
+Package pdftex.def Info: nthetaHarwoselfdiff.png used on input line 6624.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
- [141 <./images/sBesselerror.png> <./images/sBesselerrorsimple.png>] <nrHarwose
-lf.png, id=504, 481.8pt x 361.35pt>
+ [140 <./images/sBesselerror.png> <./images/sBesselerrorsimple.png>] <nrHarwose
+lf.png, id=501, 481.8pt x 361.35pt>
 File: nrHarwoself.png Graphic file (type png)
 
 <use nrHarwoself.png>
-Package pdftex.def Info: nrHarwoself.png used on input line 6619.
+Package pdftex.def Info: nrHarwoself.png used on input line 6633.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
- [142 <./nthetaHarself.png> <./nthetaHarwoself.png> <./nthetaHarwoselfdiff.png>
-] <eNanalyticscr.png, id=511, 481.8pt x 361.35pt>
+ [141 <./nthetaHarself.png> <./nthetaHarwoself.png> <./nthetaHarwoselfdiff.png>
+] <eNanalyticscr.png, id=508, 481.8pt x 361.35pt>
 File: eNanalyticscr.png Graphic file (type png)
 
 <use eNanalyticscr.png>
-Package pdftex.def Info: eNanalyticscr.png used on input line 6628.
+Package pdftex.def Info: eNanalyticscr.png used on input line 6642.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
- <eNanalytic.png, id=512, 481.8pt x 361.35pt>
+ <eNanalytic.png, id=509, 481.8pt x 361.35pt>
 File: eNanalytic.png Graphic file (type png)
 
 <use eNanalytic.png>
-Package pdftex.def Info: eNanalytic.png used on input line 6637.
+Package pdftex.def Info: eNanalytic.png used on input line 6651.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<nthetaeNnoself.png, id=513, 481.8pt x 361.35pt>
+<nthetaeNnoself.png, id=510, 481.8pt x 361.35pt>
 File: nthetaeNnoself.png Graphic file (type png)
  <use nthetaeNnoself.png>
-Package pdftex.def Info: nthetaeNnoself.png used on input line 6646.
+Package pdftex.def Info: nthetaeNnoself.png used on input line 6660.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<nthetaElong.png, id=514, 481.8pt x 361.35pt>
+<nthetaElong.png, id=511, 481.8pt x 361.35pt>
 File: nthetaElong.png Graphic file (type png)
  <use nthetaElong.png>
-Package pdftex.def Info: nthetaElong.png used on input line 6655.
+Package pdftex.def Info: nthetaElong.png used on input line 6669.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<nrElong.png, id=515, 481.8pt x 361.35pt>
+<nrElong.png, id=512, 481.8pt x 361.35pt>
 File: nrElong.png Graphic file (type png)
  <use nrElong.png>
-Package pdftex.def Info: nrElong.png used on input line 6664.
+Package pdftex.def Info: nrElong.png used on input line 6678.
 (pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 6670--6671
+Underfull \hbox (badness 10000) in paragraph at lines 6684--6685
 
  []
 
-[143 <./nrHarwoself.png> <./eNanalyticscr.png>]
+[142 <./nrHarwoself.png> <./eNanalyticscr.png>]
 
-LaTeX Warning: Text page 144 contains only floats.
+LaTeX Warning: Text page 143 contains only floats.
 
-[144 <./eNanalytic.png> <./nthetaeNnoself.png> <./nthetaElong.png>] [145 <./nrE
+[143 <./eNanalytic.png> <./nthetaeNnoself.png> <./nthetaElong.png>] [144 <./nrE
 long.png>]
 (/Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Notes_papers/.texpad
 tmp/PAW_EES_physics.aux)
@@ -2515,10 +2517,10 @@ s/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2014/texmf-dist/fonts/
 type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
 pe1/public/cm-super/sfrm2074.pfb>
 Output written on /Users/Qi-MAC/Work/openatom/openatom_03_08_18/PAW_develop/Not
-es_papers/.texpadtmp/PAW_EES_physics.pdf (145 pages, 1041218 bytes).
+es_papers/.texpadtmp/PAW_EES_physics.pdf (144 pages, 1041570 bytes).
 PDF statistics:
- 624 PDF objects out of 1000 (max. 8388607)
- 405 compressed objects within 5 object streams
+ 619 PDF objects out of 1000 (max. 8388607)
+ 401 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  101 words of extra memory for PDF output out of 10000 (max. 10000000)
 
