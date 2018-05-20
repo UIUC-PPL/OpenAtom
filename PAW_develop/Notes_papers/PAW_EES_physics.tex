@@ -37,6 +37,7 @@
 \usepackage[english]{babel} % English language/hyphenation
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 \usepackage{graphicx}
+\usepackage{mathtools}
 \graphicspath{ {images/} }
 
 
@@ -877,7 +878,7 @@ We further insist that given experience with Ewald summation $\al < G_c/(2\pi) $
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{alphatable}
+    \includegraphics[width=0.5\textwidth]{alphatable}
     \caption{Planewave cutoff to achieve various accuracies at fixed real space cutoff $R_c = $ 2 bohr.} 
     \label{fig:alphatable}
 \end{figure}
@@ -5212,7 +5213,7 @@ E^{(\rlo,\rlong)}
 where the $\bg=0$ terms are given below.
 
 \subsection{Fourier Transforms of ewald functions}
-For the erf function use transforms $s=t/r$, 
+For the $\rerf$ function use transforms $s=t/r$, 
 \begin{equation}
 \begin{split}
 \frac{\rerf(\alpha r)}{r}
@@ -5999,6 +6000,7 @@ Using the more friendly modified Spherical Bessel functions,
 &= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \left\{\sum_{l=0}^\infty (2l+1) i_{l}(2u^2 r r')P_l\left(\cos(\theta)\right)\right\} \\
 &= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
 &= 8\sqrt{\pi}\sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= 8\sqrt{\pi}\sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \frac{1}{\sqrt{2rr'}} \int_0^{\sqrt{2rr'}\beta} \rd v\ \re^{-\left(\frac{r^2 + r'^2}{2rr'}\right)v^2}i_{l}(v^2) \\
 \end{split}
 \end{equation}
 
@@ -6458,7 +6460,7 @@ I_{2k+3} &= I_{2k+1} (k+1)a^{-1}
 The integral in L.63
 \begin{equation}
 \begin{split}
-&\frac{-\re^{-(a^2 -1) x^2} + \re^{-(a^2 + 1) x^2} +\sqrt{\pi}\sqrt{(a^2 -1)x^2}\rerfc\left(\sqrt{(a^2 -1)x^2}\right) - \sqrt{\pi}\sqrt{(a^2 +1)x^2}\rerfc\left(\sqrt{(a^2 +1)x^2}\right) }{2x} \mid_0^{\beta\sqrt{2rr'}} \nonumber
+&\frac{-\re^{-(a^2 -1) x^2} + \re^{-a_{+}^2 x^2} +\sqrt{\pi}\sqrt{(a^2 -1)x^2}\rerfc\left(\sqrt{(a^2 -1)x^2}\right) - \sqrt{\pi}\sqrt{(a^2 +1)x^2}\rerfc\left(\sqrt{(a^2 +1)x^2}\right) }{2x} \mid_0^{\beta\sqrt{2rr'}} \nonumber
 \end{split}
 \end{equation}
 where
@@ -6483,9 +6485,9 @@ Next, we evaluate the lower limit
 In order to take the upper limit, we first simplify some terms,
 \begin{equation}
 \begin{split}
-(a^2 - 1)x^2
+a_{-}^2x^2
 &= (r-r')^2 \beta^2 \\
-(a^2 + 1)x^2
+a_{+}^2x^2
 &= (r+r')^2 \beta^2 \\
 \end{split}
 \end{equation}
@@ -6513,6 +6515,77 @@ Multiplying through, we obtain
 \begin{equation}
 \frac{\re^{-\beta^2(r_>+r_<)^2 }-\re^{-\beta^2(r_>-r_<)^2 }}{2\beta \sqrt{\pi}r_> r_< } + \frac{(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - (r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2 r_>r_<} + \frac{1}{r_>}
 \end{equation}
+\clearpage
+
+The partial wave expansion performs so well, we have to grind more terms. To do this, we use the more friendly modified spherical Bessel functions form of the expansion.
+\begin{equation}
+\begin{split}
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \left[ 8\sqrt{\frac{\pi}{2rr'}} \int_0^{\sqrt{2rr'}\beta} \rd v\ \re^{-\left(\frac{r^2 + r'^2}{2rr'}\right)v^2}i_{l}(v^2)\right] \\
+\end{split}
+\end{equation}
+
+We will grind out up to $l=3$ using the definition
+\begin{equation}
+\begin{split}
+i_0(x)    &=    \frac{\sinh(x)}{x}    \\
+i_1(x)    &=    \frac{x\cosh(x)-\sinh(x)}{x^2}   \\ 
+i_2(x)    &=    \frac{(x^2+3)\sinh(x)-3x\cosh(x)}{x^3}    \\
+i_3(x)    &=    \frac{(x^3+15x)\cosh(x)-(6x^2+15)\sinh(x)}{x^4}
+\end{split}
+\end{equation}
+
+The desired integrals are 
+\begin{equation}
+\begin{split}
+\int \rd v\ \re^{-a^2 v^2}i_{0}(v^2)
+&= \frac{-\sqrt{\pi} a_{-}|x| \rerf(a_{-}|x|) 
++ \sqrt{\pi} a_{+}|x| \rerf(a_{+}|x|)
+- \re^{-a_{-}^2 x^2} + \re^{-a_{+}^2 x^2} 
++ \sqrt{\pi}a_{-}|x| 
+- \sqrt{\pi}a_{+}|x|}{2 x}\\
+&= \frac{\sqrt{\pi} a_{-}|x| \rerfc(a_{-}|x|) 
+- \sqrt{\pi} a_{+}|x| \rerfc(a_{+}|x|)
+- \re^{-a_{-}^2 x^2} + \re^{-a_{+}^2 x^2} }{2 x}\\
+\int \rd v\ \re^{-a^2 v^2}i_{1}(v^2)
+&= \frac{-2 \re^{-a_{+}^2 x^2} a_{-}^3 a_{+} x^4 (-4 a^4 x^2 + a^2 (2 - 8 x^2) + 3 x^4 - 4 x^2 + 2) }{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{2 \re^{-a_{-}^2 x^2} a_{-} a_{+}^3 x^4 (4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2)}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} (8 a^8 - 16 a^6 + 13 a^2 - 11) x^6 a_{+} |x| \rerf(a_{-} |x|) - \sqrt{\pi} (8 a^8 + 16 a^6 - 13 a^2 - 11) x^6 a_{-} |x|\rerf(a_{+} |x|)}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} x^6 \left[-13 a^2 (a_{-} |x| + a_{+} |x|) + 11 (a_{+} |x| - a_{-} |x|) + 8 a^8 (a_{-} |x| - a_{+} |x| ) + 16 a^6 (a_{-} |x| + a_{+} |x|)\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&= \frac{-2 \re^{-a_{+}^2 x^2} a_{-}^3 a_{+} x^4 (-4 a^4 x^2 + a^2 (2 - 8 x^2) + 3 x^4 - 4 x^2 + 2) }{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{2 \re^{-a_{-}^2 x^2} a_{-} a_{+}^3 x^4 (4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2)}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} x^6 \left[(8 a^8 - 16 a^6 + 13 a^2 - 11) a_{+} |x| \rerf(a_{-} |x|) - (8 a^8 + 16 a^6 - 13 a^2 - 11) a_{-} |x|\rerf(a_{+} |x|)\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi}x^6\left[a_{-}|x|\left(-13a^2 - 11 + 8a^8 +16a^6 \right) + a_{+}|x|\left(-13a^2 + 11 - 8a^8 +16a^6\right)\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&= \frac{-2 \re^{-a_{+}^2 x^2} a_{-}^3 a_{+} x^4 \left[-4 a^4 x^2 - 2a^2 (4 x^2 - 1) + 3 x^4 - 4 x^2 + 2\right] }{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{2 \re^{-a_{-}^2 x^2} a_{-} a_{+}^3 x^4 \left[4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} x^6 \left[-(8 a^8 - 16 a^6 + 13 a^2 - 11) a_{+} |x| \rerfc(a_{-} |x|) + (8 a^8 + 16 a^6 - 13 a^2 - 11) a_{-} |x|\rerfc(a_{+} |x|)\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&= \frac{2 \re^{-a_{+}^2 x^2} a_{-}^3 a_{+} x^4 \left[4 a^4 x^2 + 2a^2 (4 x^2 - 1) - 3 x^4 + 4 x^2 - 2\right] }{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{2 \re^{-a_{-}^2 x^2} a_{-} a_{+}^3 x^4 \left[4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} |x|^7 \left[-(8 a^8 - 16 a^6 + 13 a^2 - 11) a_{+} \rerfc(a_{-} |x|) + (8 a^8 + 16 a^6 - 13 a^2 - 11) a_{-}\rerfc(a_{+} |x|)\right]}{24 x^7 a_{-}^3 a_{+}^3}\\
+&= \frac{ \re^{-a_{+}^2 x^2} a_{-}^3 a_{+} \left[4 a^4 x^2 + 2a^2 (4 x^2 - 1) - 3 x^4 + 4 x^2 - 2\right] }{12 x^3 a_{-}^3 a_{+}^3}\\
+&+ \frac{ \re^{-a_{-}^2 x^2} a_{-} a_{+}^3 \left[4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2\right]}{12 x^3 a_{-}^3 a_{+}^3}\\
+&+ \frac{\sqrt{\pi} \mathrm{sgn}(x) \left[-(8 a^8 - 16 a^6 + 13 a^2 - 11) a_{+} \rerfc(a_{-} |x|) + (8 a^8 + 16 a^6 - 13 a^2 - 11) a_{-}\rerfc(a_{+} |x|)\right]}{24 a_{-}^3 a_{+}^3}\\
+&= \frac{ \re^{-a_{+}^2 x^2} \left[4 a^4 x^2 + 2a^2 (4 x^2 - 1) - 3 x^4 + 4 x^2 - 2\right] }{12 x^3 a_{+}^2}\\
+&+ \frac{ \re^{-a_{-}^2 x^2} \left[4 a^4 x^2 - 2 a^2 (4 x^2 + 1) + 3 x^4 + 4 x^2 + 2\right]}{12 x^3 a_{-}^2}\\
+&+ \frac{\sqrt{\pi} \mathrm{sgn}(x) \left[-(8 a^8 - 16 a^6 + 13 a^2 - 11) a_{+} \rerfc(a_{-} |x|) + (8 a^8 + 16 a^6 - 13 a^2 - 11) a_{-}\rerfc(a_{+} |x|)\right]}{24 a_{-}^3 a_{+}^3}\\
+\int \rd v\ \re^{-a^2 v^2}i_{2}(v^2)
+&= \\
+\int \rd v\ \re^{-a^2 v^2}i_{3}(v^2)
+&= \\
+\end{split}
+\end{equation}
+
+where
+\begin{equation}
+\begin{split}
+a_{+} &= \sqrt{a^2+1}\\
+a_{-} &= \sqrt{a^2-1}\\
+\end{split}
+\end{equation}
+
+
+
+
 
 \newpage
 \section{Spherical Bessel Compensation Charge Model}\label{App:SBC}
@@ -6584,7 +6657,7 @@ In Fig.P.2, we look at unscreened Hartree, which converges terribly - only 2nd o
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nthetaHarself}
+    \includegraphics[width=0.5\textwidth]{nthetaHarself}
     \caption{The convergence of the screened Hartree self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, $n_r = 20$, $n_{\phi} = 2n_{\theta}$.} 
     \label{fig:nthetaHarself}
 \end{figure}
@@ -6593,7 +6666,7 @@ In Fig.P.3, we examine the convergence of the screened Hartree self term without
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nthetaHarwoself}
+    \includegraphics[width=0.5\textwidth]{nthetaHarwoself}
     \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nthetaHarwoself}
 \end{figure}
@@ -6603,11 +6676,11 @@ In Fig.P.4, $n_{\theta} = 5$, $n_{\phi} = 10$ achieves about 5 figures, which is
 \frac{1}{|\br-\br'-\bR_{ij}|} = \sum_{l=0}^\infty \sum_{m=-l}^l  \left( \frac{4\pi}{2l+1}\right) \left( \frac{r_{<}^{l}}{r_{>}^{l+1}} \right) Y_{lm} (\theta_1,\phi_1) Y_{lm}^* (\theta_{2},\phi_{2}) 
 \end{equation}
 
-This would work for us because of the erfc function in 3D allowing for a short range cutoff. Otherwise, this expansion is not good when $R_{ij}$ is large. Fig.P.4 also indicates the converge with $n_{\theta}$, $n_{\phi}$ does not depend on $n_r$, which is great!
+This would work for us because of the $\rerfc$ function in 3D allowing for a short range cutoff. Otherwise, this expansion is not good when $R_{ij}$ is large. Fig.P.4 also indicates the converge with $n_{\theta}$, $n_{\phi}$ does not depend on $n_r$, which is great!
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nthetaHarwoselfdiff}
+    \includegraphics[width=0.5\textwidth]{nthetaHarwoselfdiff}
     \caption{The difference between the Hartree no self term of $n_r = 20$ and $n_r = 30$. The difference is always small.} 
     \label{fig:nthetaHarwoselfdiff}
 \end{figure}
@@ -6616,7 +6689,7 @@ Fig.P.5 achieves the same conclusion as P.4 for Hartree without self.
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nrHarwoself}
+    \includegraphics[width=0.5\textwidth]{nrHarwoself}
     \caption{The convergence of the unscreened Hartree term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nrHarwoself}
 \end{figure}
@@ -6625,7 +6698,7 @@ Fig.P.6 shows that we can use very small $n_r$ for Hartree without self - so the
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{eNanalyticscr}
+    \includegraphics[width=0.5\textwidth]{eNanalyticscr}
     \caption{The convergence of the screened e-N self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
     \label{fig:eNanalyticscr}
 \end{figure}
@@ -6634,7 +6707,7 @@ Fig.P.7 screened or pseudized e-ion self term needs $n_r = 16$ to converge to 5 
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{eNanalytic}
+    \includegraphics[width=0.5\textwidth]{eNanalytic}
     \caption{The convergence of the unscreened e-N self term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$.} 
     \label{fig:eNanalytic}
 \end{figure}
@@ -6643,7 +6716,7 @@ Fig.P.8 indicates the unscreened e-ion self is hopeless, which is also consisten
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nthetaeNnoself}
+    \includegraphics[width=0.5\textwidth]{nthetaeNnoself}
     \caption{The convergence of the unscreened e-N term (self term excluded) for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nthetaeNnoself}
 \end{figure}
@@ -6652,7 +6725,7 @@ Fig.P.9 e-ion without self needs $n_{theta} = 4$ and $n_{phi} = 8$ to converge t
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nthetaElong}
+    \includegraphics[width=0.5\textwidth]{nthetaElong}
     \caption{The convergence of the long range energy term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_{\theta}$. Here, we study $n_r = 20$ and $n_r = 30$, using $n_{\phi} = 2n_{\theta}$. Here, $n_{\theta} = 20$, $n_{\phi} = 40$ are used as the ``correct answer'' for the 2 values of $n_r$.} 
     \label{fig:nthetaElong}
 \end{figure}
@@ -6661,7 +6734,7 @@ Fig.P.10 shows that the long range energy term converges superfast in $n_{\theta
 
 \begin{figure}[h!] 
     \centering
-%    \includegraphics[width=0.5\textwidth]{nrElong}
+    \includegraphics[width=0.5\textwidth]{nrElong}
     \caption{The convergence of the long range energy term for the spherical Bessel basis with $\hat {k}_{\mathrm{max}} = 1$ versus $n_r$. Here, $n_{\theta} = 10$, $n_{\phi} = 20$.} 
     \label{fig:nrElong}
 \end{figure}

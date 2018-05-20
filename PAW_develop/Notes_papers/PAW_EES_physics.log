@@ -1,0 +1,3411 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  15 MAY 2018 16:27
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**PAW_EES_physics.tex
+(./PAW_EES_physics.tex
+LaTeX2e <2017-04-15>
+Babel <3.10> and hyphenation patterns for 84 language(s) loaded.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2017/04/05 v2.0i Standard LaTeX package
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/base/t1enc.def
+File: t1enc.def 2017/04/05 v2.0i Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2017/03/15 v3.2 Provides the ifpdf switch
+)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ifvtex.sty
+Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
+Package ifvtex Info: VTeX not detected.
+)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxetex.sty
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
+)
+\Gm@cnth=\count87
+\Gm@cntv=\count88
+\c@Gm@tempcnt=\count89
+\Gm@bindingoffset=\dimen103
+\Gm@wd@mp=\dimen104
+\Gm@odd@mp=\dimen105
+\Gm@even@mp=\dimen106
+\Gm@layoutwidth=\dimen107
+\Gm@layoutheight=\dimen108
+\Gm@layouthoffset=\dimen109
+\Gm@layoutvoffset=\dimen110
+\Gm@dimlist=\toks15
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/physics/physics.sty
+Package: physics 
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+(/usr/local/texlive/2017/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2017/05/13 L3 programming layer (loader) 
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/l3kernel/expl3-code.tex
+Package: expl3 2017/05/13 L3 programming layer (code)
+\c_max_int=\count90
+\l_tmpa_int=\count91
+\l_tmpb_int=\count92
+\g_tmpa_int=\count93
+\g_tmpb_int=\count94
+\g__prg_map_int=\count95
+\c_log_iow=\count96
+\l_iow_line_count_int=\count97
+\l__iow_line_target_int=\count98
+\l__iow_one_indent_int=\count99
+\l__iow_indent_int=\count100
+\c_zero_dim=\dimen111
+\c_max_dim=\dimen112
+\l_tmpa_dim=\dimen113
+\l_tmpb_dim=\dimen114
+\g_tmpa_dim=\dimen115
+\g_tmpb_dim=\dimen116
+\c_zero_skip=\skip43
+\c_max_skip=\skip44
+\l_tmpa_skip=\skip45
+\l_tmpb_skip=\skip46
+\g_tmpa_skip=\skip47
+\g_tmpb_skip=\skip48
+\c_zero_muskip=\muskip10
+\c_max_muskip=\muskip11
+\l_tmpa_muskip=\muskip12
+\l_tmpb_muskip=\muskip13
+\g_tmpa_muskip=\muskip14
+\g_tmpb_muskip=\muskip15
+\l_keys_choice_int=\count101
+\c__fp_leading_shift_int=\count102
+\c__fp_middle_shift_int=\count103
+\c__fp_trailing_shift_int=\count104
+\c__fp_big_leading_shift_int=\count105
+\c__fp_big_middle_shift_int=\count106
+\c__fp_big_trailing_shift_int=\count107
+\c__fp_Bigg_leading_shift_int=\count108
+\c__fp_Bigg_middle_shift_int=\count109
+\c__fp_Bigg_trailing_shift_int=\count110
+\c__fp_rand_size_int=\count111
+\c__fp_rand_four_int=\count112
+\c__fp_rand_eight_int=\count113
+\l__sort_length_int=\count114
+\l__sort_min_int=\count115
+\l__sort_top_int=\count116
+\l__sort_max_int=\count117
+\l__sort_true_max_int=\count118
+\l__sort_block_int=\count119
+\l__sort_begin_int=\count120
+\l__sort_end_int=\count121
+\l__sort_A_int=\count122
+\l__sort_B_int=\count123
+\l__sort_C_int=\count124
+\c_empty_box=\box26
+\l_tmpa_box=\box27
+\l_tmpb_box=\box28
+\g_tmpa_box=\box29
+\g_tmpb_box=\box30
+\l__box_top_dim=\dimen117
+\l__box_bottom_dim=\dimen118
+\l__box_left_dim=\dimen119
+\l__box_right_dim=\dimen120
+\l__box_top_new_dim=\dimen121
+\l__box_bottom_new_dim=\dimen122
+\l__box_left_new_dim=\dimen123
+\l__box_right_new_dim=\dimen124
+\l__box_internal_box=\box31
+\l__coffin_internal_box=\box32
+\l__coffin_internal_dim=\dimen125
+\l__coffin_offset_x_dim=\dimen126
+\l__coffin_offset_y_dim=\dimen127
+\l__coffin_x_dim=\dimen128
+\l__coffin_y_dim=\dimen129
+\l__coffin_x_prime_dim=\dimen130
+\l__coffin_y_prime_dim=\dimen131
+\c_empty_coffin=\box33
+\l__coffin_aligned_coffin=\box34
+\l__coffin_aligned_internal_coffin=\box35
+\l_tmpa_coffin=\box36
+\l_tmpb_coffin=\box37
+\l__coffin_display_coffin=\box38
+\l__coffin_display_coord_coffin=\box39
+\l__coffin_display_pole_coffin=\box40
+\l__coffin_display_offset_dim=\dimen132
+\l__coffin_display_x_dim=\dimen133
+\l__coffin_display_y_dim=\dimen134
+\l__coffin_bounding_shift_dim=\dimen135
+\l__coffin_left_corner_dim=\dimen136
+\l__coffin_right_corner_dim=\dimen137
+\l__coffin_bottom_corner_dim=\dimen138
+\l__coffin_top_corner_dim=\dimen139
+\l__coffin_scaled_total_height_dim=\dimen140
+\l__coffin_scaled_width_dim=\dimen141
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/l3kernel/l3pdfmode.def
+File: l3pdfmode.def 2017/03/18 v L3 Experimental driver: PDF mode
+\l__driver_color_stack_int=\count125
+\l__driver_tmp_box=\box41
+))
+Package: xparse 2017/05/13 L3 Experimental document command parser
+\l__xparse_current_arg_int=\count126
+\g__xparse_grabber_int=\count127
+\l__xparse_m_args_int=\count128
+\l__xparse_mandatory_args_int=\count129
+\l__xparse_v_nesting_int=\count130
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2016/11/05 v2.16a AMS math features
+\@mathmargin=\skip49
+
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01 AMS text
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks16
+\ex@=\dimen142
+))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen143
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count131
+LaTeX Info: Redefining \frac on input line 213.
+\uproot@=\count132
+\leftroot@=\count133
+LaTeX Info: Redefining \overline on input line 375.
+\classnum@=\count134
+\DOTSCASE@=\count135
+LaTeX Info: Redefining \ldots on input line 472.
+LaTeX Info: Redefining \dots on input line 475.
+LaTeX Info: Redefining \cdots on input line 596.
+\Mathstrutbox@=\box42
+\strutbox@=\box43
+\big@size=\dimen144
+LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
+\macc@depth=\count136
+\c@MaxMatrixCols=\count137
+\dotsspace@=\muskip16
+\c@parentequation=\count138
+\dspbrk@lvl=\count139
+\tag@help=\toks17
+\row@=\count140
+\column@=\count141
+\maxfields@=\count142
+\andhelp@=\toks18
+\eqnshift@=\dimen145
+\alignsep@=\dimen146
+\tagshift@=\dimen147
+\tagwidth@=\dimen148
+\totwidth@=\dimen149
+\lineht@=\dimen150
+\@envbody=\toks19
+\multlinegap=\skip50
+\multlinetaggap=\skip51
+\mathdisplay@stack=\toks20
+LaTeX Info: Redefining \[ on input line 2817.
+LaTeX Info: Redefining \] on input line 2818.
+)
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vnabla with sig. '' on line 25.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \varE with sig. '' on line 29.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \ordersymbol with sig. '' on line 30.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \lparen with sig. '' on line 31.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \rparen with sig. '' on line 32.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \quantity with sig. '' on line 35.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \@quantity with sig. ' t\big t\Big t\bigg t\Bigg g o d()
+. d|| ' on line 62.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qty with sig. '' on line 63.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pqty with sig. ' l m ' on line 64.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \bqty with sig. ' l m ' on line 65.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \Bqty with sig. ' l m ' on line 66.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vqty with sig. ' l m ' on line 67.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pmqty with sig. 'm' on line 70.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \Pmqty with sig. 'm' on line 71.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \bmqty with sig. 'm' on line 72.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vmqty with sig. 'm' on line 73.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \matrixquantity with sig. '' on line 74.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \@matrixquantity with sig. ' s g o d() d|| ' on line 100.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \mqty with sig. '' on line 101.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \matrixdeterminant with sig. 'm' on line 102.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \mdet with sig. '' on line 103.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \spmqty with sig. 'm' on line 105.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \sPmqty with sig. 'm' on line 106.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \sbmqty with sig. 'm' on line 107.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \svmqty with sig. 'm' on line 108.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \smallmatrixquantity with sig. ' s g o d() d|| ' on line
+. 133.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \smqty with sig. '' on line 134.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \smallmatrixdeterminant with sig. 'm' on line 135.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \smdet with sig. '' on line 136.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \argopen with sig. 's' on line 138.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \argclose with sig. 's' on line 139.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \braces with sig. '' on line 141.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \@braces with sig. ' s t\big t\Big t\bigg t\Bigg m m m ' on
+. line 156.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \fbraces with sig. ' s t\big t\Big t\bigg t\Bigg m m m m '
+. on line 174.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \absolutevalue with sig. ' l m ' on line 176.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \abs with sig. '' on line 177.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \norm with sig. ' l m ' on line 178.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \order with sig. ' l m ' on line 179.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \evaluated with sig. ' s g d[| d(| ' on line 194.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \eval with sig. '' on line 195.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \poissonbracket with sig. ' l m m ' on line 197.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pb with sig. '' on line 198.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \commutator with sig. ' l m m ' on line 201.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \comm with sig. '' on line 202.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \anticommutator with sig. ' l m m ' on line 203.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \acommutator with sig. '' on line 204.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \acomm with sig. '' on line 205.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vectorbold with sig. ' s m ' on line 208.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vb with sig. '' on line 209.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vectorarrow with sig. ' s m ' on line 211.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \va with sig. '' on line 212.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vectorunit with sig. ' s m ' on line 214.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vu with sig. '' on line 215.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \dotproduct with sig. '' on line 217.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vdot with sig. '' on line 218.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \crossproduct with sig. '' on line 220.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \cross with sig. '' on line 221.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \cp with sig. '' on line 222.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \gradient with sig. ' g o d() ' on line 232.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \grad with sig. '' on line 233.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \divergence with sig. ' g o d() ' on line 243.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \div with sig. '' on line 246.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \curl with sig. ' g o d() ' on line 256.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \laplacian with sig. ' g o d() ' on line 266.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \principalvalue with sig. 'g' on line 274.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pv with sig. '' on line 275.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \PV with sig. 'g' on line 276.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \Re with sig. 'g' on line 277.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \Im with sig. 'g' on line 278.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \opbraces with sig. ' m g o d() ' on line 299.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \trigbraces with sig. ' m o d() ' on line 305.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \sin with sig. '' on line 309.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \cos with sig. '' on line 310.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \tan with sig. '' on line 311.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \csc with sig. '' on line 312.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \sec with sig. '' on line 313.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \cot with sig. '' on line 314.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \arcsin with sig. '' on line 316.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \arccos with sig. '' on line 317.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \arctan with sig. '' on line 318.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \arccsc with sig. '' on line 320.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \arcsec with sig. '' on line 322.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \arccot with sig. '' on line 324.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \asin with sig. '' on line 327.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \acos with sig. '' on line 329.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \atan with sig. '' on line 331.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \acsc with sig. '' on line 333.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \asec with sig. '' on line 335.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \acot with sig. '' on line 337.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \sinh with sig. '' on line 339.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \cosh with sig. '' on line 340.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \tanh with sig. '' on line 341.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \csch with sig. '' on line 343.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \sech with sig. '' on line 345.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \coth with sig. '' on line 346.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \exp with sig. '' on line 348.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \log with sig. '' on line 349.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \ln with sig. '' on line 350.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \det with sig. '' on line 351.
+.................................................
+.................................................
+. LaTeX info: "xparse/redefine-command"
+. 
+. Redefining command \Pr with sig. '' on line 352.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \tr with sig. '' on line 353.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \Tr with sig. '' on line 354.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \Res with sig. '' on line 355.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qqtext with sig. ' s m ' on line 377.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qq with sig. '' on line 378.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qcomma with sig. '' on line 380.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qc with sig. '' on line 381.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qif with sig. 's' on line 383.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qthen with sig. 's' on line 384.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qelse with sig. 's' on line 385.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qotherwise with sig. 's' on line 386.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qunless with sig. 's' on line 387.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qgiven with sig. 's' on line 388.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qusing with sig. 's' on line 389.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qassume with sig. 's' on line 390.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qsince with sig. 's' on line 391.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qlet with sig. 's' on line 392.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qfor with sig. 's' on line 393.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qall with sig. 's' on line 394.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qeven with sig. 's' on line 395.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qodd with sig. 's' on line 396.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qinteger with sig. 's' on line 397.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qand with sig. 's' on line 398.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qor with sig. 's' on line 399.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qas with sig. 's' on line 400.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qin with sig. 's' on line 401.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \qcc with sig. 's' on line 402.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \differential with sig. ' o g d() ' on line 415.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \dd with sig. '' on line 416.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \derivative with sig. ' s o m g d() ' on line 435.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \dv with sig. '' on line 436.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \partialderivative with sig. ' s o m g g d() ' on line 460.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pderivative with sig. '' on line 461.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pdv with sig. '' on line 462.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \variation with sig. ' o g d() ' on line 474.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \var with sig. '' on line 475.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \functionalderivative with sig. ' s o m g d() ' on line
+. 494.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \fderivative with sig. '' on line 495.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \fdv with sig. '' on line 496.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \bra with sig. ' s m t\ket s g ' on line 526.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \ket with sig. ' s m ' on line 533.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \innerproduct with sig. ' s m g ' on line 548.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \braket with sig. '' on line 549.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \ip with sig. '' on line 550.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \outerproduct with sig. ' s m g ' on line 565.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \dyad with sig. '' on line 566.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \op with sig. '' on line 567.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \ketbra with sig. '' on line 568.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \expectationvalue with sig. ' s s m g ' on line 587.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \expval with sig. '' on line 588.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \ev with sig. '' on line 589.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \vev with sig. ' m ' on line 590.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \matrixelement with sig. ' s s m m m ' on line 601.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \matrixel with sig. '' on line 602.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \mel with sig. '' on line 603.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \identitymatrix with sig. 'm' on line 633.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \imat with sig. '' on line 634.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \xmatrix with sig. ' s m m m ' on line 659.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \xmat with sig. '' on line 660.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \zeromatrix with sig. ' m g ' on line 662.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \zmat with sig. '' on line 663.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \paulixmatrix with sig. '' on line 665.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pauliymatrix with sig. '' on line 666.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \paulizmatrix with sig. '' on line 667.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \paulimatrix with sig. 'm' on line 678.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \pmat with sig. '' on line 679.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \diagonalmatrix with sig. 'O{} >{\SplitList {,}}m ' on line
+. 681.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \@dmat with sig. 'mmggggggg' on line 714.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \dmat with sig. '' on line 715.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \antidiagonalmatrix with sig. 'O{} >{\SplitList {,}}m ' on
+. line 717.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \@admat with sig. 'mmggggggg' on line 750.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \admat with sig. '' on line 751.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \flatfrac with sig. ' m m ' on line 754.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \homework with sig. '' on line 764.
+.................................................
+)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/babel/babel.sty
+Package: babel 2017/05/19 3.10 The Babel package
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/babel-english/english.ldf
+Language: english 2017/01/24 v3.3q English support from the babel system
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/babel/babel.def
+File: babel.def 2017/05/19 3.10 Babel common definitions
+\babel@savecnt=\count143
+\U@D=\dimen151
+)
+\l@canadian = a dialect from \language\l@american 
+\l@australian = a dialect from \language\l@british 
+\l@newzealand = a dialect from \language\l@british 
+))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2015/03/04 v2.20.2
+\thm@style=\toks21
+\thm@bodyfont=\toks22
+\thm@headfont=\toks23
+\thm@notefont=\toks24
+\thm@headpunct=\toks25
+\thm@preskip=\skip52
+\thm@postskip=\skip53
+\thm@headsep=\skip54
+\dth@everypar=\toks26
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2017/04/14 v1.1b Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 99.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2017/01/12 v0.06k Graphics/color for pdfTeX
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count144
+))
+\Gin@req@height=\dimen152
+\Gin@req@width=\dimen153
+)
+
+LaTeX Warning: Unused global option(s):
+    [paper=a4,fontsize=11pt].
+
+No file PAW_EES_physics.aux.
+\openout1 = `PAW_EES_physics.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 259.
+LaTeX Font Info:    ... okay on input line 259.
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(56.9055pt, 483.69684pt, 56.90553pt)
+* v-part:(T,H,B)=(56.9055pt, 731.23582pt, 56.90552pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=483.69684pt
+* \textheight=731.23582pt
+* \oddsidemargin=-15.36449pt
+* \evensidemargin=-15.36449pt
+* \topmargin=-52.36449pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=65.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/usr/local/texlive/2017/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count145
+\scratchdimen=\dimen154
+\scratchbox=\box44
+\nofMPsegments=\count146
+\nofMParguments=\count147
+\everyMPshowfont=\toks27
+\MPscratchCnt=\count148
+\MPscratchDim=\dimen155
+\MPnumerator=\count149
+\makeMPintoPDFobject=\count150
+\everyMPtoPDFconversion=\toks28
+) (/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2017/03/19 v0.25 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+))
+(/usr/local/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+
+(/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+38.
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 456.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+LaTeX Font Info:    Try loading font information for U+msa on input line 261.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 261.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Underfull \hbox (badness 10000) in paragraph at lines 271--272
+
+ []
+
+
+Overfull \hbox (6.81572pt too wide) in paragraph at lines 277--298
+ [] 
+ []
+
+[1
+
+{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 335--337
+
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 373--374
+
+ []
+
+
+LaTeX Warning: Reference `index1' on page 3 undefined on input line 377.
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 411--412
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 413--414
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 424--425
+
+ []
+
+[4]
+Overfull \hbox (7.17162pt too wide) in paragraph at lines 437--437
+[]\T1/cmr/bx/n/14.4 Euler Ex-po-nen-tial Spline in-ter-po-la-tion of the charge
+ den-sity $[][]\OT1/cmr/m/n/14.4 (\OT1/cmr/bx/n/14.4 g\OT1/cmr/m/n/14.4 )$ 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 439--440
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--453
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 463--464
+
+ []
+
+
+LaTeX Warning: Reference `eq:uuu' on page 5 undefined on input line 473.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 472--474
+
+ []
+
+
+LaTeX Warning: Reference `App:Dg' on page 5 undefined on input line 484.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 483--485
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 486--487
+
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 510--511
+
+ []
+
+[6]
+Overfull \hbox (52.22633pt too wide) in paragraph at lines 578--578
+[] 
+ []
+
+[7]
+
+LaTeX Warning: Reference `eq:dEEESdR' on page 8 undefined on input line 602.
+
+[8]
+Underfull \hbox (badness 10000) in paragraph at lines 651--652
+
+ []
+
+
+LaTeX Warning: Reference `eq:ZEES' on page 9 undefined on input line 656.
+
+[9]
+
+LaTeX Warning: Reference `eq:dEdps3' on page 10 undefined on input line 702.
+
+
+Overfull \hbox (71.09665pt too wide) in paragraph at lines 702--703
+[]\T1/cmr/m/n/10 To com-pute all the $\OML/cmm/m/it/10 S[]\OT1/cmr/m/n/10 ([])$
+ \T1/cmr/m/n/10 scales as $\OML/cmm/m/it/10 NN[]p[] \OMS/cmsy/m/n/10 ^^X \OML/c
+mm/m/it/10 N[]$\T1/cmr/m/n/10 , and to com-pute the $[][]\OT1/cmr/m/n/10 (\OT1/
+cmr/bx/n/10 g\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 scales as $\OML/cmm/m/it/10 N[][
+][][] \OMS/cmsy/m/n/10 ^^X
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 702--703
+
+ []
+
+
+LaTeX Warning: Reference `eq:dEdps3' on page 10 undefined on input line 708.
+
+[10]
+
+LaTeX Warning: Reference `eq:masterdR' on page 11 undefined on input line 739.
+
+
+LaTeX Warning: Reference `eq:masterdRstar' on page 11 undefined on input line 7
+39.
+
+
+LaTeX Warning: Reference `eq:dEEESdRs3' on page 11 undefined on input line 740.
+
+
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 771--772
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 795--796
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 820--821
+
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 824--825
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 845--847
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 848--850
+
+ []
+
+[13] <images/alphatable.png, id=67, 528.97626pt x 155.58125pt>
+File: images/alphatable.png Graphic file (type png)
+
+<use images/alphatable.png>
+Package pdftex.def Info: images/alphatable.png used on input line 887.
+(pdftex.def)             Requested size: 241.84842pt x 71.13142pt.
+ [14 <./images/alphatable.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 933--934
+
+ []
+
+[15]
+
+LaTeX Warning: Reference `eq:densityPAW' on page 16 undefined on input line 955
+.
+
+[16]
+
+LaTeX Warning: Reference `eq:psgdef' on page 17 undefined on input line 1038.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1039
+
+ []
+
+[17]
+
+LaTeX Warning: Reference `eq:PAWKE' on page 18 undefined on input line 1040.
+
+
+LaTeX Warning: Reference `eq:PAWKE' on page 18 undefined on input line 1074.
+
+[18]
+
+LaTeX Warning: Reference `eq:PAWKEEES' on page 19 undefined on input line 1104.
+
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1104--1105
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1112--1113
+
+ []
+
+
+LaTeX Warning: Reference `eq:masterdpsi' on page 19 undefined on input line 112
+7.
+
+
+Overfull \hbox (12.27069pt too wide) in paragraph at lines 1150--1150
+[] 
+ []
+
+[19]
+
+LaTeX Warning: Reference `eq:dKEdpsi' on page 20 undefined on input line 1181.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1185--1186
+
+ []
+
+[20]
+
+LaTeX Warning: Reference `eq:dKEdR' on page 21 undefined on input line 1245.
+
+[21] [22]
+
+LaTeX Warning: Reference `eq:densityPAW' on page 23 undefined on input line 125
+3.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1272--1273
+
+ []
+
+[23]
+Underfull \hbox (badness 10000) in paragraph at lines 1316--1319
+
+ []
+
+
+LaTeX Warning: Reference `eq:nSrfEES' on page 24 undefined on input line 1324.
+
+[24]
+
+LaTeX Warning: Reference `eq:ZSEES' on page 25 undefined on input line 1355.
+
+
+LaTeX Warning: Reference `fig:EESdot' on page 25 undefined on input line 1355.
+
+
+LaTeX Warning: Reference `eq:fmaster' on page 25 undefined on input line 1355.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1375--1376
+
+ []
+
+
+LaTeX Warning: Reference `fig:EESdot' on page 25 undefined on input line 1377.
+
+<images/EESdot.png, id=106, 722.7pt x 406.51875pt>
+File: images/EESdot.png Graphic file (type png)
+ <use images/EESdot.png>
+Package pdftex.def Info: images/EESdot.png used on input line 1382.
+(pdftex.def)             Requested size: 241.84842pt x 136.0373pt.
+
+[25 <./images/EESdot.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 1397--1398
+
+ []
+
+
+LaTeX Warning: Reference `eq:fmaster' on page 26 undefined on input line 1399.
+
+
+LaTeX Warning: Reference `fig:EESdot' on page 26 undefined on input line 1412.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1417--1418
+
+ []
+
+
+LaTeX Warning: Reference `eq:n1rfEES' on page 26 undefined on input line 1424.
+
+[26]
+
+LaTeX Warning: Reference `eq:n2rf' on page 27 undefined on input line 1481.
+
+
+Overfull \hbox (10.31403pt too wide) in paragraph at lines 1492--1492
+[] 
+ []
+
+[27]
+
+LaTeX Warning: Reference `Sec:parameters' on page 28 undefined on input line 15
+21.
+
+
+LaTeX Warning: Reference `eq:Rcdef' on page 28 undefined on input line 1546.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1546--1547
+
+ []
+
+
+LaTeX Warning: Reference `eq:locshortEES12' on page 28 undefined on input line 
+1565.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1565--1566
+
+ []
+
+[28]
+
+LaTeX Warning: Reference `eq:locshortEES12' on page 29 undefined on input line 
+1571.
+
+
+Overfull \hbox (59.49841pt too wide) in paragraph at lines 1590--1590
+[] 
+ []
+
+[29]
+
+LaTeX Warning: Reference `eq:n1rf' on page 30 undefined on input line 1643.
+
+
+LaTeX Warning: Reference `eq:n2rf' on page 30 undefined on input line 1643.
+
+
+LaTeX Warning: Reference `eq:fmaster' on page 30 undefined on input line 1654.
+
+
+Overfull \hbox (3.19685pt too wide) in paragraph at lines 1665--1665
+[] 
+ []
+
+[30]
+Overfull \hbox (6.7173pt too wide) in paragraph at lines 1708--1708
+[] 
+ []
+
+[31]
+
+LaTeX Warning: Reference `eq:ElocSEES' on page 32 undefined on input line 1751.
+
+
+
+LaTeX Warning: Reference `eq:nSg' on page 32 undefined on input line 1764.
+
+[32]
+
+LaTeX Warning: Reference `eq:Vlocs' on page 33 undefined on input line 1798.
+
+
+LaTeX Warning: Reference `eq:sgg' on page 33 undefined on input line 1806.
+
+[33]
+
+LaTeX Warning: Reference `eq:dElocdR' on page 34 undefined on input line 1831.
+
+[34]
+
+LaTeX Warning: Reference `eq:dZSDdpsi' on page 35 undefined on input line 1858.
+
+
+
+LaTeX Warning: Reference `eq:dZSDcdpsi' on page 35 undefined on input line 1858
+.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1858--1859
+
+ []
+
+
+LaTeX Warning: Reference `eq:dn1rfdp' on page 35 undefined on input line 1860.
+
+
+Overfull \hbox (41.59927pt too wide) in paragraph at lines 1871--1871
+[] 
+ []
+
+
+Overfull \hbox (29.14052pt too wide) in paragraph at lines 1880--1880
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1882--1883
+
+ []
+
+
+Overfull \hbox (50.68384pt too wide) in paragraph at lines 1893--1893
+[] 
+ []
+
+[35]
+
+LaTeX Warning: Reference `eq:dElocshortdpterms' on page 36 undefined on input l
+ine 1904.
+
+
+Overfull \hbox (16.08073pt too wide) in paragraph at lines 1905--1906
+[]\T1/cmr/m/n/10 Add up $\OT1/cmr/m/n/10 	[]([])\OML/cmm/m/it/10 ^^^[]\OT1/cmr/
+m/n/10 ([])$ \T1/cmr/m/n/10 only on the $[]$ atoms around $\OML/cmm/m/it/10 J$ 
+\T1/cmr/m/n/10 to get $\OML/cmm/m/it/10 Z[]$\T1/cmr/m/n/10 .
+ []
+
+
+LaTeX Warning: Reference `eq:dElocshortdpterms' on page 36 undefined on input l
+ine 1906.
+
+
+Overfull \hbox (31.08638pt too wide) in paragraph at lines 1907--1908
+[]\T1/cmr/m/n/10 For ev-ery KS state $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , 3DFFT
+ on $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 on the $\OT1/cmr/
+m/n/10 (	\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 grid to get $[]
+[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$\T1/cmr/m/n/10 .
+ []
+
+
+Overfull \hbox (42.08585pt too wide) in paragraph at lines 1910--1911
+[]\T1/cmr/m/n/10 For ev-ery KS state $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , FFT o
+n $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 to get $[][]\OT1/cm
+r/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$\T1/cmr/m/n/10 . $\OMS/cmsy/m/n/1
+0 ^^X [][][][] ^^X
+ []
+
+
+LaTeX Warning: Reference `eq:dn2dpsi' on page 36 undefined on input line 1916.
+
+[36]
+Overfull \hbox (17.66109pt too wide) in paragraph at lines 1943--1944
+[]\T1/cmr/m/n/10 For ev-ery KS state $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , 3DFFT
+ on $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 on the $\OT1/cmr/
+m/n/10 (	\OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 grid to get $[]
+[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$\T1/cmr/m/n/10 .
+ []
+
+
+LaTeX Warning: Reference `eq:dphishortNNdR' on page 37 undefined on input line 
+1968.
+
+[37]
+
+LaTeX Warning: Reference `eq:dElocshortdR' on page 38 undefined on input line 1
+973.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1972--1974
+
+ []
+
+
+LaTeX Warning: Reference `eq:dZdR' on page 38 undefined on input line 1990.
+
+
+Overfull \hbox (42.7708pt too wide) detected at line 2008
+\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([]) = \OMS/cmsy/m/n/10 ^^@ [] [] []\OML/cm
+m/m/it/10 w[]^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 )^^A\OML
+/cmm/m/it/10 p\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 )\OML/cmm/m/
+it/10 ^^N[][]
+ []
+
+
+LaTeX Warning: Reference `eq:dElocshortAadR' on page 38 undefined on input line
+ 2009.
+
+
+Overfull \hbox (30.30687pt too wide) in paragraph at lines 2020--2020
+[] 
+ []
+
+[38]
+Overfull \hbox (10.88618pt too wide) in paragraph at lines 2028--2028
+[] 
+ []
+
+
+LaTeX Warning: Reference `eq:dElocshortAbdR' on page 39 undefined on input line
+ 2030.
+
+
+LaTeX Warning: Reference `eq:FJbR1a' on page 39 undefined on input line 2034.
+
+
+LaTeX Warning: Reference `eq:dElocshortAadR' on page 39 undefined on input line
+ 2035.
+
+
+LaTeX Warning: Reference `eq:FJbR1b' on page 39 undefined on input line 2036.
+
+
+LaTeX Warning: Reference `eq:dElocshortAbdR' on page 39 undefined on input line
+ 2037.
+
+
+LaTeX Warning: Reference `eq:dphiNNJdR' on page 39 undefined on input line 2038
+.
+
+
+LaTeX Warning: Reference `eq:dElocshortdR' on page 39 undefined on input line 2
+039.
+
+[39]
+
+LaTeX Warning: Reference `eq:dElocshortA2dR' on page 40 undefined on input line
+ 2064.
+
+
+LaTeX Warning: Reference `eq:phiJlocdelp' on page 40 undefined on input line 20
+68.
+
+
+LaTeX Warning: Reference `eq:dElocshortA2dR' on page 40 undefined on input line
+ 2069.
+
+
+LaTeX Warning: Reference `eq:dElocshortdR' on page 40 undefined on input line 2
+070.
+
+[40]
+Overfull \hbox (6.31737pt too wide) in paragraph at lines 2104--2104
+[] 
+ []
+
+
+Overfull \hbox (64.25008pt too wide) in paragraph at lines 2122--2122
+[] 
+ []
+
+[41]
+Overfull \hbox (44.0066pt too wide) in paragraph at lines 2135--2135
+[] 
+ []
+
+[42]
+Overfull \hbox (35.96754pt too wide) in paragraph at lines 2144--2145
+[]\T1/cmr/m/n/10 For ev-ery $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , per-form a 3DF
+FT on $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 to get $[][]\OT
+1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$\T1/cmr/m/n/10 . $[][][][] \O
+MS/cmsy/m/n/10 ^^X
+ []
+
+
+Overfull \hbox (46.7813pt too wide) in paragraph at lines 2169--2169
+[] 
+ []
+
+[43]
+Overfull \hbox (57.23155pt too wide) in paragraph at lines 2183--2184
+[]\T1/cmr/m/n/10 For ev-ery KS state $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , FFT o
+n $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 to get $[][]\OT1/cm
+r/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$\T1/cmr/m/n/10 . $\OMS/cmsy/m/n/1
+0 ^^X [][][][] ^^X
+ []
+
+[44]
+Overfull \hbox (35.10953pt too wide) in paragraph at lines 2205--2205
+[] 
+ []
+
+
+Overfull \hbox (29.9373pt too wide) in paragraph at lines 2214--2214
+[] 
+ []
+
+
+Overfull \hbox (28.46672pt too wide) in paragraph at lines 2222--2223
+[]\T1/cmr/m/n/10 For ev-ery $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , per-form a 3DF
+FT on $\OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 to get $[][]\OT
+1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$ \T1/cmr/m/n/10 in $[][][][] 
+\OMS/cmsy/m/n/10 ^^X
+ []
+
+[45]
+Overfull \hbox (2.7448pt too wide) in paragraph at lines 2223--2224
+[]\T1/cmr/m/n/10 On the planewave grid, for ev-ery $\OML/cmm/m/it/10 I$ \T1/cmr
+/m/n/10 and $\OT1/cmr/bx/n/10 g$\T1/cmr/m/n/10 , mul-ti-ply $[][][]\OT1/cmr/m/n
+/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )[][](\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 
+)$ \T1/cmr/m/n/10 in $[][] \OMS/cmsy/m/n/10 ^^X
+ []
+
+
+Overfull \hbox (27.79723pt too wide) in paragraph at lines 2260--2260
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2260--2262
+
+ []
+
+[46]
+Underfull \hbox (badness 10000) in paragraph at lines 2267--2269
+
+ []
+
+
+Overfull \hbox (32.138pt too wide) in paragraph at lines 2283--2283
+[] 
+ []
+
+
+Overfull \hbox (79.07875pt too wide) in paragraph at lines 2302--2302
+[] 
+ []
+
+[47]
+Overfull \hbox (75.21652pt too wide) in paragraph at lines 2325--2325
+[] 
+ []
+
+[48]
+Overfull \hbox (55.971pt too wide) in paragraph at lines 2341--2341
+[] 
+ []
+
+[49]
+
+LaTeX Warning: Reference `eq:dEloclongAdR' on page 50 undefined on input line 2
+343.
+
+
+Overfull \hbox (28.40552pt too wide) in paragraph at lines 2357--2357
+[] 
+ []
+
+
+LaTeX Warning: Reference `eq:dEloclong2dR' on page 50 undefined on input line 2
+368.
+
+[50]
+Overfull \hbox (4.7637pt too wide) in paragraph at lines 2374--2375
+[]\T1/cmr/m/n/10 For ev-ery $\OML/cmm/m/it/10 J$\T1/cmr/m/n/10 , cal-cu-late $\
+OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/n/10 us-ing pre-vi-ously sto
+red $\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10
+ )$\T1/cmr/m/n/10 . $\OMS/cmsy/m/n/10 ^^X$ $\OT1/cmr/m/n/10 3\OML/cmm/m/it/10 N
+N[]p[] \OMS/cmsy/m/n/10 ^^X
+ []
+
+
+LaTeX Warning: Reference `eq:dEloclongAdR' on page 51 undefined on input line 2
+376.
+
+
+Overfull \hbox (8.94118pt too wide) in paragraph at lines 2383--2384
+[]\T1/cmr/m/n/10 For ev-ery $\OML/cmm/m/it/10 J$\T1/cmr/m/n/10 , cal-cu-late th
+e ``$\OT1/cmr/m/n/10 B$\T1/cmr/m/n/10 '' part of the deriva-tive by sum-ming ov
+er $\OML/cmm/m/it/10 Q[] [][] ^^^[]\OT1/cmr/m/n/10 ([])[]$
+ []
+
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 2411--2412
+
+ []
+
+
+LaTeX Warning: Reference `eq:ExccoreEES' on page 52 undefined on input line 242
+7.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2443--2444
+
+ []
+
+
+Overfull \hbox (3.22186pt too wide) in paragraph at lines 2467--2467
+[] 
+ []
+
+[52]
+Underfull \hbox (badness 10000) in paragraph at lines 2469--2470
+
+ []
+
+
+Overfull \hbox (0.23482pt too wide) in paragraph at lines 2486--2486
+[] 
+ []
+
+
+LaTeX Warning: Reference `eq:dn2dpsi' on page 53 undefined on input line 2505.
+
+[53]
+
+LaTeX Warning: Reference `eq:dnsrfdp' on page 54 undefined on input line 2522.
+
+
+LaTeX Warning: Reference `eq:dExccoredp' on page 54 undefined on input line 252
+2.
+
+
+Overfull \hbox (64.79636pt too wide) in paragraph at lines 2535--2535
+[] 
+ []
+
+
+Overfull \hbox (66.29411pt too wide) in paragraph at lines 2546--2546
+[] 
+ []
+
+[54]
+Overfull \hbox (7.2539pt too wide) in paragraph at lines 2619--2619
+[] 
+ []
+
+[55]
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 262
+1.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2621--2622
+
+ []
+
+
+LaTeX Warning: Reference `eq:dExccoredRwhere' on page 56 undefined on input lin
+e 2625.
+
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 262
+6.
+
+
+LaTeX Warning: Reference `eq:dExccoredRwhere' on page 56 undefined on input lin
+e 2627.
+
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 262
+8.
+
+
+LaTeX Warning: Reference `eq:dExccoredRwhere' on page 56 undefined on input lin
+e 2629.
+
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 263
+0.
+
+
+LaTeX Warning: Reference `eq:dExccoredRwhere' on page 56 undefined on input lin
+e 2631.
+
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 263
+2.
+
+
+LaTeX Warning: Reference `eq:dExccoredR' on page 56 undefined on input line 263
+3.
+
+[56]
+Underfull \hbox (badness 10000) in paragraph at lines 2677--2679
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2704--2705
+
+ []
+
+
+LaTeX Warning: Reference `eq:HarcombineS' on page 57 undefined on input line 27
+10.
+
+[57]
+
+LaTeX Warning: Reference `eq:fmaster' on page 58 undefined on input line 2768.
+
+
+Overfull \hbox (1.79294pt too wide) in paragraph at lines 2776--2776
+[] 
+ []
+
+[58]
+
+LaTeX Warning: Reference `eq:HSlEES' on page 59 undefined on input line 2802.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2802--2803
+
+ []
+
+[59]
+
+LaTeX Warning: Reference `eq:n1gEES' on page 60 undefined on input line 2885.
+
+
+LaTeX Warning: Reference `eq:n2gEES' on page 60 undefined on input line 2885.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 2885--2886
+
+ []
+
+
+Overfull \hbox (5.58385pt too wide) in paragraph at lines 2900--2900
+[] 
+ []
+
+[60]
+Underfull \hbox (badness 10000) in paragraph at lines 2923--2924
+
+ []
+
+
+LaTeX Warning: Reference `eq:dnSgdp' on page 61 undefined on input line 2926.
+
+[61] [62]
+
+LaTeX Warning: Reference `eq:dEHSldp' on page 63 undefined on input line 3017.
+
+
+Overfull \hbox (10.6401pt too wide) in paragraph at lines 3029--3029
+[] 
+ []
+
+
+Overfull \hbox (53.18256pt too wide) in paragraph at lines 3043--3043
+[] 
+ []
+
+
+LaTeX Warning: Reference `eq:dEHSldp' on page 63 undefined on input line 3045.
+
+[63] [64]
+Overfull \hbox (2.85089pt too wide) in paragraph at lines 3079--3080
+[]\T1/cmr/m/n/10 FFT on $\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 ([])$ \T1/cmr/m/
+n/10 to get $[][]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT1/cmr/m/n/10 )$ \T1/cmr/
+m/n/10 with cost $[][][] \OMS/cmsy/m/n/10 ^^X
+ []
+
+
+Overfull \hbox (44.27962pt too wide) in paragraph at lines 3080--3081
+[]\T1/cmr/m/n/10 IFFT $[]$ to get $\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 ([])$ 
+\T1/cmr/m/n/10 with cost $[][][] \OMS/cmsy/m/n/10 ^^X
+ []
+
+
+LaTeX Warning: Reference `dEdpHshortNN1' on page 65 undefined on input line 310
+9.
+
+[65]
+Overfull \hbox (4.6008pt too wide) in paragraph at lines 3158--3158
+[] 
+ []
+
+[66]
+
+LaTeX Warning: Reference `eq:dHccNNdp' on page 67 undefined on input line 3178.
+
+
+
+LaTeX Warning: Reference `eq:dHccNNselfdp' on page 67 undefined on input line 3
+178.
+
+[67]
+Overfull \hbox (48.01564pt too wide) in paragraph at lines 3213--3213
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3238--3239
+
+ []
+
+
+Overfull \hbox (10.6401pt too wide) in paragraph at lines 3248--3248
+[] 
+ []
+
+[68]
+Overfull \hbox (58.53502pt too wide) in paragraph at lines 3257--3257
+[] 
+ []
+
+[69] [70] [71]
+
+LaTeX Warning: Reference `eq:dHccNNdR' on page 72 undefined on input line 3404.
+
+
+
+LaTeX Warning: Reference `eq:dHccselfdR' on page 72 undefined on input line 340
+4.
+
+
+Overfull \hbox (49.86252pt too wide) in paragraph at lines 3426--3426
+[] 
+ []
+
+[72]
+Overfull \hbox (61.64592pt too wide) in paragraph at lines 3439--3439
+[] 
+ []
+
+
+LaTeX Warning: Reference `eq:HlongEES' on page 73 undefined on input line 3462.
+
+
+[73]
+
+LaTeX Warning: Reference `eq:n1gEES' on page 74 undefined on input line 3484.
+
+[74]
+Underfull \hbox (badness 10000) in paragraph at lines 3518--3519
+
+ []
+
+
+Overfull \hbox (66.97841pt too wide) in paragraph at lines 3547--3547
+[] 
+ []
+
+[75]
+
+LaTeX Warning: Reference `eq:dElongHdp' on page 76 undefined on input line 3550
+.
+
+[76]
+Overfull \hbox (30.62349pt too wide) in paragraph at lines 3583--3584
+[]\T1/cmr/m/n/10 For ev-ery $\OML/cmm/m/it/10 I$\T1/cmr/m/n/10 , use the B-Spli
+ne weighted by $\OML/cmm/m/it/10 Z[]^^^[]$ \T1/cmr/m/n/10 to get $\OML/cmm/m/it
+/10 F[]\OT1/cmr/m/n/10 ([])$\T1/cmr/m/n/10 ,
+ []
+
+
+Overfull \hbox (17.16742pt too wide) in paragraph at lines 3587--3588
+[]\T1/cmr/m/n/10 Perform a 3DFFT on $[][]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 g\OT
+1/cmr/m/n/10 )$ \T1/cmr/m/n/10 to get $\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 ([
+])$\T1/cmr/m/n/10 , in or-der $[][][] \OMS/cmsy/m/n/10 ^^X
+ []
+
+[77]
+Overfull \hbox (67.8426pt too wide) in paragraph at lines 3630--3630
+[] 
+ []
+
+[78] [79] [80] [81]
+Overfull \hbox (15.80327pt too wide) in alignment at lines 3812--3823
+ [][][] []
+ []
+
+
+Overfull \hbox (5.69505pt too wide) in alignment at lines 3826--3829
+ [][][] []
+ []
+
+[82]
+
+LaTeX Warning: Reference `App:D' on page 83 undefined on input line 3838.
+
+
+Overfull \hbox (46.66263pt too wide) in alignment at lines 3871--3880
+ [][][] []
+ []
+
+
+Overfull \hbox (14.80524pt too wide) in alignment at lines 3883--3894
+ [][][] []
+ []
+
+
+Overfull \hbox (11.2919pt too wide) in alignment at lines 3897--3911
+ [][][] []
+ []
+
+[83]
+Underfull \hbox (badness 10000) in paragraph at lines 3911--3912
+
+ []
+
+
+Overfull \hbox (3.9929pt too wide) in alignment at lines 3940--3955
+ [][][] []
+ []
+
+[84]
+Overfull \hbox (6.98158pt too wide) in alignment at lines 3958--3971
+ [][][] []
+ []
+
+[85]
+Overfull \hbox (34.17857pt too wide) in alignment at lines 4006--4012
+ [][][] []
+ []
+
+
+Overfull \hbox (24.952pt too wide) in alignment at lines 4016--4022
+ [][][] []
+ []
+
+
+Overfull \hbox (30.43912pt too wide) in alignment at lines 4025--4034
+ [][][] []
+ []
+
+[86] [87] [88]
+Overfull \hbox (31.19583pt too wide) in alignment at lines 4130--4162
+ [][][] []
+ []
+
+
+Overfull \hbox (36.12076pt too wide) in alignment at lines 4165--4182
+ [][][] []
+ []
+
+[89] [90]
+Underfull \hbox (badness 10000) in paragraph at lines 4186--4187
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4194--4196
+
+ []
+
+
+LaTeX Warning: Reference `cl:dKEdp' on page 91 undefined on input line 4197.
+
+
+LaTeX Warning: Reference `cl:dEHlongBdp' on page 91 undefined on input line 419
+7.
+
+
+LaTeX Warning: Reference `eq:groupdEdpgen' on page 91 undefined on input line 4
+197.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4215--4216
+
+ []
+
+
+LaTeX Warning: Reference `cl:dKESPAWdp' on page 91 undefined on input line 4223
+.
+
+
+LaTeX Warning: Reference `cl:dKEPAWPAWdp' on page 91 undefined on input line 42
+24.
+
+
+LaTeX Warning: Reference `cl:dElocshort1adp' on page 91 undefined on input line
+ 4225.
+
+
+LaTeX Warning: Reference `cl:dElocshort2dp' on page 91 undefined on input line 
+4226.
+
+
+LaTeX Warning: Reference `cl:dEloclong1adp' on page 91 undefined on input line 
+4227.
+
+
+LaTeX Warning: Reference `cl:dEloclong2dp' on page 91 undefined on input line 4
+228.
+
+
+LaTeX Warning: Reference `cl:dExc1Aadp' on page 91 undefined on input line 4229
+.
+
+
+LaTeX Warning: Reference `cl:dExc2Adp' on page 91 undefined on input line 4230.
+
+
+
+LaTeX Warning: Reference `cl:dEHS1Aadp' on page 91 undefined on input line 4231
+.
+
+
+LaTeX Warning: Reference `cl:dEHS2Adp' on page 91 undefined on input line 4232.
+
+
+
+LaTeX Warning: Reference `cl:dEHl1a' on page 91 undefined on input line 4233.
+
+
+LaTeX Warning: Reference `cl:dEHl2' on page 91 undefined on input line 4234.
+
+
+LaTeX Warning: Reference `cl:dEHlong1Aadp' on page 91 undefined on input line 4
+235.
+
+
+LaTeX Warning: Reference `cl:dEHlong2Adp' on page 91 undefined on input line 42
+36.
+
+[91] [92]
+Overfull \hbox (11.16997pt too wide) in alignment at lines 4277--4283
+ [][][] []
+ []
+
+
+LaTeX Warning: Reference `Psi:ssDp' on page 93 undefined on input line 4287.
+
+
+LaTeX Warning: Reference `Psi:ssDKE' on page 93 undefined on input line 4288.
+
+
+LaTeX Warning: Reference `terms:pre' on page 93 undefined on input line 4289.
+
+
+Overfull \hbox (3.58076pt too wide) detected at line 4312
+\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 ([]) = [] \OML/cmm/m/it/10 w[]\OT1/cmr/m/
+n/10 ^^A\OML/cmm/m/it/10 p\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 
+)\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 ) [
+] [](\OT1/cmr/bx/n/10 u[] \OMS/cmsy/m/n/10 ^^@ []\OT1/cmr/m/n/10 )\OML/cmm/m/it
+/10 ^^N[][]
+ []
+
+
+Overfull \hbox (47.5226pt too wide) detected at line 4317
+\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 ) = 
+\OMS/cmsy/m/n/10 ^^@\OML/cmm/m/it/10 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]
+\OT1/cmr/m/n/10 ) + \OML/cmm/m/it/10 ^^V[] [] \OT1/cmr/m/n/10 + \OML/cmm/m/it/1
+0 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 ) + \OML/cmm/m/it/1
+0 ^^^[]\OT1/cmr/m/n/10 (\OT1/cmr/bx/n/10 r[]\OT1/cmr/m/n/10 )
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4319--4320
+
+ []
+
+
+LaTeX Warning: Reference `phi:fshortNN' on page 93 undefined on input line 4323
+.
+
+
+LaTeX Warning: Reference `phi:fmuxc' on page 93 undefined on input line 4324.
+
+
+LaTeX Warning: Reference `ReEphi:fcoreSHshortinC' on page 93 undefined on input
+ line 4325.
+
+
+LaTeX Warning: Reference `phi:fHshortl' on page 93 undefined on input line 4326
+.
+
+[93]
+
+LaTeX Warning: Reference `gr:groupedshortrf' on page 94 undefined on input line
+ 4346.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4346--4347
+
+ []
+
+
+Overfull \hbox (16.34877pt too wide) in alignment at lines 4356--4362
+ [][][] []
+ []
+
+
+LaTeX Warning: Reference `phi:flongSD' on page 94 undefined on input line 4371.
+
+
+
+LaTeX Warning: Reference `phi:fHlongAD' on page 94 undefined on input line 4372
+.
+
+
+Overfull \hbox (21.9241pt too wide) in alignment at lines 4386--4393
+ [][][] []
+ []
+
+
+LaTeX Warning: Reference `gr:phiflongD' on page 94 undefined on input line 4394
+.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4393--4395
+
+ []
+
+
+LaTeX Warning: Reference `cl:dElocshort1bdp' on page 94 undefined on input line
+ 4402.
+
+
+LaTeX Warning: Reference `cl:dEloclong1bdp' on page 94 undefined on input line 
+4403.
+
+
+LaTeX Warning: Reference `cl:dExc1Abdp' on page 94 undefined on input line 4404
+.
+
+
+LaTeX Warning: Reference `cl:dEHS1Abdp' on page 94 undefined on input line 4405
+.
+
+
+LaTeX Warning: Reference `cl:dEHl1b' on page 94 undefined on input line 4406.
+
+
+LaTeX Warning: Reference `cl:dEHlong1Abdp' on page 94 undefined on input line 4
+407.
+
+[94]
+Overfull \hbox (42.10878pt too wide) in paragraph at lines 4416--4416
+[] 
+ []
+
+
+LaTeX Warning: Reference `gr:phishort1' on page 95 undefined on input line 4420
+.
+
+
+LaTeX Warning: Reference `gr:philong1' on page 95 undefined on input line 4421.
+
+
+
+LaTeX Warning: Reference `cl:dElocsdp' on page 95 undefined on input line 4428.
+
+
+
+LaTeX Warning: Reference `cl:dExcSdp' on page 95 undefined on input line 4429.
+
+
+LaTeX Warning: Reference `cl:dExcBdp' on page 95 undefined on input line 4430.
+
+
+LaTeX Warning: Reference `cl:dEHSSdp' on page 95 undefined on input line 4431.
+
+
+LaTeX Warning: Reference `cl:dEHSlBdp' on page 95 undefined on input line 4432.
+
+
+
+LaTeX Warning: Reference `cl:dEHlongBdp' on page 95 undefined on input line 443
+3.
+
+
+Overfull \hbox (3.50581pt too wide) in paragraph at lines 4450--4450
+[] 
+ []
+
+
+LaTeX Warning: Reference `gr:PsiSs' on page 95 undefined on input line 4451.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4450--4452
+
+ []
+
+
+LaTeX Warning: Reference `phi:phiSloc' on page 95 undefined on input line 4455.
+
+
+
+LaTeX Warning: Reference `phi:phixccoreDB' on page 95 undefined on input line 4
+456.
+
+[95]
+
+LaTeX Warning: Reference `phi:phiHlongB' on page 96 undefined on input line 445
+7.
+
+
+LaTeX Warning: Reference `phi:phichiS' on page 96 undefined on input line 4458.
+
+
+
+LaTeX Warning: Reference `phi:phiHshortSlDchiB' on page 96 undefined on input l
+ine 4459.
+
+
+LaTeX Warning: Reference `terms:pre' on page 96 undefined on input line 4488.
+
+
+LaTeX Warning: Reference `gr:SnEES' on page 96 undefined on input line 4489.
+
+
+LaTeX Warning: Reference `gr:nSg' on page 96 undefined on input line 4490.
+
+
+LaTeX Warning: Reference `phi:phigxcoreB' on page 96 undefined on input line 44
+91.
+
+
+LaTeX Warning: Reference `gr:ngPAWlMEES' on page 96 undefined on input line 449
+2.
+
+
+LaTeX Warning: Reference `phi:phigHshortSlB' on page 96 undefined on input line
+ 4493.
+
+
+LaTeX Warning: Reference `eq:groupdEdpgen' on page 96 undefined on input line 4
+498.
+
+
+LaTeX Warning: Reference `eq:groupdEdpgenp' on page 96 undefined on input line 
+4498.
+
+
+LaTeX Warning: Reference `gr:A1ns' on page 96 undefined on input line 4509.
+
+
+LaTeX Warning: Reference `gr:A1pEES' on page 96 undefined on input line 4510.
+
+
+LaTeX Warning: Reference `gr:groupedFDPsi' on page 96 undefined on input line 4
+511.
+
+[96]
+
+LaTeX Warning: Reference `App:F' on page 97 undefined on input line 4519.
+
+
+Overfull \hbox (22.74712pt too wide) in alignment at lines 4571--4582
+ [][][] []
+ []
+
+
+Overfull \hbox (31.2574pt too wide) in alignment at lines 4585--4591
+ [][][] []
+ []
+
+[97]
+Overfull \hbox (6.33504pt too wide) in alignment at lines 4594--4604
+ [][][] []
+ []
+
+
+Overfull \hbox (18.57198pt too wide) in alignment at lines 4607--4627
+ [][][] []
+ []
+
+
+Overfull \hbox (41.81392pt too wide) in alignment at lines 4630--4639
+ [][][] []
+ []
+
+[98]
+
+LaTeX Warning: Reference `ReEphi:rfcorelocshortNN' on page 99 undefined on inpu
+t line 4664.
+
+
+LaTeX Warning: Reference `phi:flongSDReW' on page 99 undefined on input line 46
+73.
+
+
+Overfull \hbox (21.88068pt too wide) in alignment at lines 4669--4674
+ [][][] []
+ []
+
+
+LaTeX Warning: Reference `ReEphi:fcoreSHshort' on page 99 undefined on input li
+ne 4693.
+
+
+LaTeX Warning: Reference `phi:fHshortlReW' on page 99 undefined on input line 4
+698.
+
+
+LaTeX Warning: Reference `ReWphi:fPAWlcoreHshortNN' on page 99 undefined on inp
+ut line 4699.
+
+
+LaTeX Warning: Reference `ReWphi:fPAWlcoreHshortself' on page 99 undefined on i
+nput line 4700.
+
+
+LaTeX Warning: Reference `ReEphi:ff'corecoreHshortNN' on page 99 undefined on i
+nput line 4701.
+
+
+LaTeX Warning: Reference `ReEphi:ff'corecoreHshortself' on page 99 undefined on
+ input line 4702.
+
+
+LaTeX Warning: Reference `ReEphi:ff'corecoreHshortNN' on page 99 undefined on i
+nput line 4704.
+
+
+Overfull \hbox (34.52704pt too wide) in alignment at lines 4688--4707
+ [][][] []
+ []
+
+[99]
+
+LaTeX Warning: Reference `ReWphi:fcoretotHlong' on page 100 undefined on input 
+line 4714.
+
+
+Overfull \hbox (40.94748pt too wide) in alignment at lines 4710--4715
+ [][][] []
+ []
+
+
+Overfull \hbox (14.39017pt too wide) in alignment at lines 4738--4756
+ [][][] []
+ []
+
+[100]
+Overfull \hbox (8.09709pt too wide) in alignment at lines 4759--4782
+ [][][] []
+ []
+
+[101]
+Overfull \hbox (25.08469pt too wide) in alignment at lines 4806--4820
+ [][][] []
+ []
+
+
+Overfull \hbox (8.95824pt too wide) in alignment at lines 4842--4857
+ [][][] []
+ []
+
+[102] [103]
+Underfull \hbox (badness 10000) in paragraph at lines 4863--4864
+
+ []
+
+
+LaTeX Warning: Reference `Zforces' on page 104 undefined on input line 4871.
+
+
+LaTeX Warning: Reference `BsplineR' on page 104 undefined on input line 4871.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 4870--4872
+
+ []
+
+
+LaTeX Warning: Reference `gr:dEKEdR' on page 104 undefined on input line 4899.
+
+
+LaTeX Warning: Reference `gr:dEKEdR' on page 104 undefined on input line 4900.
+
+
+LaTeX Warning: Reference `gr:dElocshosrt2AdR' on page 104 undefined on input li
+ne 4901.
+
+
+LaTeX Warning: Reference `gr:dExc2AdR' on page 104 undefined on input line 4902
+.
+
+
+LaTeX Warning: Reference `gr:dEHshortS2AdR' on page 104 undefined on input line
+ 4903.
+
+
+LaTeX Warning: Reference `gr:dEHshortcore2AdR' on page 104 undefined on input l
+ine 4904.
+
+[104]
+
+LaTeX Warning: Reference `gr:dZSdR' on page 105 undefined on input line 4924.
+
+
+LaTeX Warning: Reference `gr:dZKEdR' on page 105 undefined on input line 4925.
+
+
+LaTeX Warning: Reference `gr:dZS2dR' on page 105 undefined on input line 4926.
+
+
+LaTeX Warning: Reference `terms:pre' on page 105 undefined on input line 4927.
+
+
+LaTeX Warning: Reference `ReWphi:PAW2locshort' on page 105 undefined on input l
+ine 4928.
+
+
+LaTeX Warning: Reference `ReWphi:PAW2xcA' on page 105 undefined on input line 4
+929.
+
+
+LaTeX Warning: Reference `ReWphi:PAW2SHshortA' on page 105 undefined on input l
+ine 4930.
+
+
+LaTeX Warning: Reference `ReWphi:PAW2coreHshort' on page 105 undefined on input
+ line 4931.
+
+
+LaTeX Warning: Reference `gr:dElocshosrt1AadR' on page 105 undefined on input l
+ine 4944.
+
+
+LaTeX Warning: Reference `gr:dEloclong1AadR' on page 105 undefined on input lin
+e 4945.
+
+
+LaTeX Warning: Reference `gr:dExc1AadR' on page 105 undefined on input line 494
+6.
+
+
+LaTeX Warning: Reference `gr:dEHshortS1AadR' on page 105 undefined on input lin
+e 4947.
+
+
+LaTeX Warning: Reference `gr:dEHshortcore1AadR' on page 105 undefined on input 
+line 4948.
+
+
+LaTeX Warning: Reference `gr:dEHlong1adR' on page 105 undefined on input line 4
+949.
+
+
+LaTeX Warning: Reference `gr:dElocshosrt1AbdR' on page 105 undefined on input l
+ine 4950.
+
+
+LaTeX Warning: Reference `gr:dEloclong1AbdR' on page 105 undefined on input lin
+e 4951.
+
+
+LaTeX Warning: Reference `gr:dExc1AbdR' on page 105 undefined on input line 495
+2.
+
+
+LaTeX Warning: Reference `gr:dEHshortS1AbdR' on page 105 undefined on input lin
+e 4953.
+
+
+LaTeX Warning: Reference `gr:dEHshortcore1AbdR' on page 105 undefined on input 
+line 4954.
+
+
+LaTeX Warning: Reference `gr:dEHlong1bdR' on page 105 undefined on input line 4
+955.
+
+
+Overfull \hbox (26.34027pt too wide) in alignment at lines 4960--4962
+ [][][] []
+ []
+
+[105]
+
+LaTeX Warning: Reference `FJb:sRgrPAW1' on page 106 undefined on input line 498
+2.
+
+
+LaTeX Warning: Reference `phi:sgrPAW1' on page 106 undefined on input line 4982
+.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1locshortAa' on page 106 undefined on input 
+line 4984.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1loclongAa' on page 106 undefined on input l
+ine 4985.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1xcAa' on page 106 undefined on input line 4
+986.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1SHshortAa' on page 106 undefined on input l
+ine 4987.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1coreHshortAa' on page 106 undefined on inpu
+t line 4988.
+
+
+LaTeX Warning: Reference `FJb:sRPAW1totHlonga' on page 106 undefined on input l
+ine 4989.
+
+
+LaTeX Warning: Reference `ReWphi:phiSloc' on page 106 undefined on input line 4
+990.
+
+
+LaTeX Warning: Reference `ReWphi:flongSD' on page 106 undefined on input line 4
+991.
+
+
+LaTeX Warning: Reference `ReWphi:sPAW1xcA' on page 106 undefined on input line 
+4992.
+
+
+LaTeX Warning: Reference `ReWphi:sPAW1SHshortAa' on page 106 undefined on input
+ line 4993.
+
+
+LaTeX Warning: Reference `ReWphi:sPAW1coreHshort' on page 106 undefined on inpu
+t line 4994.
+
+
+LaTeX Warning: Reference `ReWphi:sPAW1titHlongA' on page 106 undefined on input
+ line 4995.
+
+
+LaTeX Warning: Reference `gr:dElocSEESdR' on page 106 undefined on input line 5
+006.
+
+
+LaTeX Warning: Reference `gr:dEloclongBdR' on page 106 undefined on input line 
+5007.
+
+[106]
+
+LaTeX Warning: Reference `phi:sRSloc' on page 107 undefined on input line 5024.
+
+
+
+LaTeX Warning: Reference `phi:sRcoreloclongB' on page 107 undefined on input li
+ne 5025.
+
+
+LaTeX Warning: Reference `gr:dExcBdR' on page 107 undefined on input line 5037.
+
+
+
+LaTeX Warning: Reference `gr:dEHshortSBdR' on page 107 undefined on input line 
+5038.
+
+
+LaTeX Warning: Reference `gr:dEloclong1AcdR' on page 107 undefined on input lin
+e 5039.
+
+
+LaTeX Warning: Reference `gr:dEHlong1cdR' on page 107 undefined on input line 5
+040.
+
+
+LaTeX Warning: Reference `gr:dEloclong2AdR' on page 107 undefined on input line
+ 5041.
+
+
+LaTeX Warning: Reference `gr:dEHlong2EESdR' on page 107 undefined on input line
+ 5042.
+
+
+Overfull \hbox (29.01614pt too wide) in alignment at lines 5034--5044
+ [][][] []
+ []
+
+
+LaTeX Warning: Reference `gr:nSDs' on page 107 undefined on input line 5069.
+
+
+LaTeX Warning: Reference `gr:FRxcB' on page 107 undefined on input line 5070.
+
+
+LaTeX Warning: Reference `phi:scoreSHshortchiD' on page 107 undefined on input 
+line 5071.
+
+
+LaTeX Warning: Reference `gr:FRcoreSHshortB' on page 107 undefined on input lin
+e 5072.
+
+
+LaTeX Warning: Reference `phi:slongSD' on page 107 undefined on input line 5073
+.
+
+
+LaTeX Warning: Reference `phi:scoretotHlong' on page 107 undefined on input lin
+e 5074.
+
+
+LaTeX Warning: Reference `gr:FRPAW1' on page 107 undefined on input line 5075.
+
+
+LaTeX Warning: Reference `gr:FRSZ2' on page 107 undefined on input line 5076.
+
+
+LaTeX Warning: Reference `gr:FRPAW2' on page 107 undefined on input line 5077.
+
+
+LaTeX Warning: Reference `gr:dElocshortBdR' on page 107 undefined on input line
+ 5088.
+
+
+LaTeX Warning: Reference `gr:dEHshortcoreBdR' on page 107 undefined on input li
+ne 5089.
+
+[107]
+
+LaTeX Warning: Reference `dphidR:flocshortNN' on page 108 undefined on input li
+ne 5105.
+
+
+LaTeX Warning: Reference `gr:FRcorecoreHshort' on page 108 undefined on input l
+ine 5106.
+
+
+LaTeX Warning: Reference `gr:ncorerf' on page 108 undefined on input line 5107.
+
+
+
+LaTeX Warning: Reference `eq:groupdEdRgen' on page 108 undefined on input line 
+5114.
+
+
+LaTeX Warning: Reference `gr:AJb1' on page 108 undefined on input line 5121.
+
+
+LaTeX Warning: Reference `gr:AJb2' on page 108 undefined on input line 5122.
+
+
+LaTeX Warning: Reference `gr:AJb3' on page 108 undefined on input line 5123.
+
+
+LaTeX Warning: Reference `gr:AJb4' on page 108 undefined on input line 5124.
+
+
+LaTeX Warning: Reference `gr:AJbf' on page 108 undefined on input line 5125.
+
+[108]
+Underfull \hbox (badness 10000) in paragraph at lines 5136--5138
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5136--5138
+
+ []
+
+[109]
+Underfull \hbox (badness 10000) in paragraph at lines 5211--5213
+
+ []
+
+[110] [111]
+Underfull \hbox (badness 10000) in paragraph at lines 5320--5322
+
+ []
+
+[112]
+Underfull \hbox (badness 10000) in paragraph at lines 5346--5348
+
+ []
+
+[113] [114]
+Underfull \hbox (badness 10000) in paragraph at lines 5376--5377
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5390--5392
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5396--5398
+
+ []
+
+[115]
+Underfull \hbox (badness 10000) in paragraph at lines 5429--5430
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5461--5462
+
+ []
+
+[116]
+Underfull \hbox (badness 10000) in paragraph at lines 5485--5486
+
+ []
+
+[117]
+Overfull \hbox (11.50279pt too wide) in paragraph at lines 5521--5521
+[] 
+ []
+
+[118] [119] [120]
+
+LaTeX Warning: Reference `sec:L2' on page 121 undefined on input line 5684.
+
+
+Overfull \hbox (11.10477pt too wide) in paragraph at lines 5693--5693
+[] 
+ []
+
+
+LaTeX Warning: Reference `sec:L2' on page 121 undefined on input line 5694.
+
+[121]
+Underfull \hbox (badness 10000) in paragraph at lines 5708--5709
+
+ []
+
+[122] [123]
+Underfull \hbox (badness 10000) in paragraph at lines 5805--5807
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5808--5809
+
+ []
+
+
+LaTeX Warning: Reference `App:c3D' on page 124 undefined on input line 5810.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5810--5811
+
+ []
+
+[124]
+Overfull \hbox (0.38954pt too wide) in paragraph at lines 5910--5910
+[] 
+ []
+
+[125] [126] [127] [128]
+Underfull \hbox (badness 10000) in paragraph at lines 6058--6060
+
+ []
+
+<images/error.png, id=442, 481.8pt x 361.35pt>
+File: images/error.png Graphic file (type png)
+ <use images/error.png>
+Package pdftex.def Info: images/error.png used on input line 6097.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/diffbeta.png, id=443, 481.8pt x 361.35pt>
+File: images/diffbeta.png Graphic file (type png)
+ <use images/diffbeta.png>
+Package pdftex.def Info: images/diffbeta.png used on input line 6104.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/betaconv.png, id=444, 481.8pt x 361.35pt>
+File: images/betaconv.png Graphic file (type png)
+ <use images/betaconv.png>
+Package pdftex.def Info: images/betaconv.png used on input line 6111.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/betaconvloglog.png, id=445, 481.8pt x 361.35pt>
+File: images/betaconvloglog.png Graphic file (type png)
+
+<use images/betaconvloglog.png>
+Package pdftex.def Info: images/betaconvloglog.png used on input line 6118.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/error3D.png, id=446, 481.8pt x 361.35pt>
+File: images/error3D.png Graphic file (type png)
+ <use images/error3D.png>
+Package pdftex.def Info: images/error3D.png used on input line 6125.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/conv.png, id=447, 481.8pt x 361.35pt>
+File: images/conv.png Graphic file (type png)
+ <use images/conv.png>
+Package pdftex.def Info: images/conv.png used on input line 6132.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/fconv.png, id=448, 481.8pt x 361.35pt>
+File: images/fconv.png Graphic file (type png)
+ <use images/fconv.png>
+Package pdftex.def Info: images/fconv.png used on input line 6139.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[129]
+Overfull \hbox (15.08829pt too wide) in paragraph at lines 6174--6174
+[] 
+ []
+
+[130 <./images/error.png> <./images/diffbeta.png> <./images/betaconv.png>]
+Overfull \vbox (441.72833pt too high) has occurred while \output is active []
+
+
+[131 <./images/betaconvloglog.png> <./images/error3D.png> <./images/conv.png>]
+[132 <./images/fconv.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 6203--6204
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6218--6220
+
+ []
+
+
+LaTeX Warning: Reference `eq:m1' on page 133 undefined on input line 6221.
+
+
+LaTeX Warning: Reference `App:Compc' on page 133 undefined on input line 6228.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6261--6263
+
+ []
+
+[133]
+
+LaTeX Warning: Reference `eq:m6' on page 134 undefined on input line 6264.
+
+
+LaTeX Warning: Reference `App:Compc' on page 134 undefined on input line 6271.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6270--6272
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6284--6287
+
+ []
+
+[134]
+Underfull \hbox (badness 10000) in paragraph at lines 6322--6325
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6329--6332
+
+ []
+
+[135]
+Underfull \hbox (badness 10000) in paragraph at lines 6383--6385
+
+ []
+
+[136] [137] [138] [139] <images/sBesselerror.png, id=491, 481.8pt x 361.35pt>
+File: images/sBesselerror.png Graphic file (type png)
+
+<use images/sBesselerror.png>
+Package pdftex.def Info: images/sBesselerror.png used on input line 6581.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+<images/sBesselerrorsimple.png, id=492, 481.8pt x 361.35pt>
+File: images/sBesselerrorsimple.png Graphic file (type png)
+
+<use images/sBesselerrorsimple.png>
+Package pdftex.def Info: images/sBesselerrorsimple.png used on input line 6592.
+
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+<images/nthetaHarself.png, id=493, 481.8pt x 361.35pt>
+File: images/nthetaHarself.png Graphic file (type png)
+
+<use images/nthetaHarself.png>
+Package pdftex.def Info: images/nthetaHarself.png used on input line 6601.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/nthetaHarwoself.png, id=494, 481.8pt x 361.35pt>
+File: images/nthetaHarwoself.png Graphic file (type png)
+
+<use images/nthetaHarwoself.png>
+Package pdftex.def Info: images/nthetaHarwoself.png used on input line 6610.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/nthetaHarwoselfdiff.png, id=495, 481.8pt x 361.35pt>
+File: images/nthetaHarwoselfdiff.png Graphic file (type png)
+
+<use images/nthetaHarwoselfdiff.png>
+Package pdftex.def Info: images/nthetaHarwoselfdiff.png used on input line 6624
+.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+ [140 <./images/sBesselerror.png> <./images/sBesselerrorsimple.png>] <images/nr
+Harwoself.png, id=501, 481.8pt x 361.35pt>
+File: images/nrHarwoself.png Graphic file (type png)
+
+<use images/nrHarwoself.png>
+Package pdftex.def Info: images/nrHarwoself.png used on input line 6633.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+ [141 <./images/nthetaHarself.png> <./images/nthetaHarwoself.png> <./images/nth
+etaHarwoselfdiff.png>]
+<images/eNanalyticscr.png, id=508, 481.8pt x 361.35pt>
+File: images/eNanalyticscr.png Graphic file (type png)
+
+<use images/eNanalyticscr.png>
+Package pdftex.def Info: images/eNanalyticscr.png used on input line 6642.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+<images/eNanalytic.png, id=509, 481.8pt x 361.35pt>
+File: images/eNanalytic.png Graphic file (type png)
+
+<use images/eNanalytic.png>
+Package pdftex.def Info: images/eNanalytic.png used on input line 6651.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/nthetaeNnoself.png, id=510, 481.8pt x 361.35pt>
+File: images/nthetaeNnoself.png Graphic file (type png)
+
+<use images/nthetaeNnoself.png>
+Package pdftex.def Info: images/nthetaeNnoself.png used on input line 6660.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/nthetaElong.png, id=511, 481.8pt x 361.35pt>
+File: images/nthetaElong.png Graphic file (type png)
+
+<use images/nthetaElong.png>
+Package pdftex.def Info: images/nthetaElong.png used on input line 6669.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<images/nrElong.png, id=512, 481.8pt x 361.35pt>
+File: images/nrElong.png Graphic file (type png)
+ <use images/nrElong.png>
+Package pdftex.def Info: images/nrElong.png used on input line 6678.
+(pdftex.def)             Requested size: 241.84842pt x 181.38583pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 6684--6685
+
+ []
+
+[142 <./images/nrHarwoself.png> <./images/eNanalyticscr.png>]
+
+LaTeX Warning: Text page 143 contains only floats.
+
+[143 <./images/eNanalytic.png> <./images/nthetaeNnoself.png> <./images/nthetaEl
+ong.png>] [144 <./images/nrElong.png>] (./PAW_EES_physics.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 11893 strings out of 492995
+ 208276 string characters out of 6132704
+ 275646 words of memory out of 5000000
+ 15332 multiletter control sequences out of 15000+600000
+ 23620 words of font info for 66 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 39i,23n,38p,10391b,363s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}
+</usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb><
+/usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></
+usr/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></us
+r/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr
+/local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/
+local/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/loc
+al/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local
+/texlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/tex
+live/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texli
+ve/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive
+/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/20
+17/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2017/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2017/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2017/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2017/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2017/texmf-dist/
+fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2017/texmf-d
+ist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2017/texmf-dis
+t/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2017/texmf-dist/
+fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2017/texmf-dist/fo
+nts/type1/public/cm-super/sfcc1000.pfb></usr/local/texlive/2017/texmf-dist/font
+s/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2017/texmf-dist/fonts/
+type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
+pe1/public/cm-super/sfrm2074.pfb>
+Output written on PAW_EES_physics.pdf (144 pages, 1042443 bytes).
+PDF statistics:
+ 619 PDF objects out of 1000 (max. 8388607)
+ 401 compressed objects within 5 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 101 words of extra memory for PDF output out of 10000 (max. 10000000)
+
