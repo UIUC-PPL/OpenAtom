@@ -402,9 +402,10 @@ void EpsMatrix::multiply_coulb(){
     for(int j=0;j<config.tile_cols;j++){
       int g = thisIndex.x*config.tile_rows+i;
       int gp = thisIndex.y*config.tile_cols+j;
-      if(g==gp)
+      if(g==gp && g<coulb.size())
         data[IDX_eps(i,j)] -= 1.0;
-      data[IDX_eps(i,j)] *= sqrt(coulb[g])*sqrt(coulb[gp]);
+      if(g<coulb.size() && gp<coulb.size())
+        data[IDX_eps(i,j)] *= sqrt(coulb[g])*sqrt(coulb[gp]);
     }
   }
 
