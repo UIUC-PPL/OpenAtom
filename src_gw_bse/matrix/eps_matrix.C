@@ -175,7 +175,9 @@ void EpsMatrix::bareExchange() {
         for (int l = 0; l < L; l++) {
           complex* f = f_cache->getFVec(k, i, l, thisIndex.x, eps_rows);
           for(int ii=0; ii < config.tile_rows; ii++) {
-            contribution += f[ii]*f[ii].conj()*vcoulb[thisIndex.x*eps_rows+ii];
+            int g = thisIndex.x*eps_rows+ii;
+            if(g < vcoulb.size())
+              contribution += f[ii]*f[ii].conj()*vcoulb[g];
           }
         }
         contrib_data[ik] = contribution;
