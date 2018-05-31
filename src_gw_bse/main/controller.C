@@ -146,7 +146,7 @@ PsiCache::PsiCache() {
 
   fs = new complex[L*psi_size*pipeline_stages];
   fsave = new complex[L*psi_size];
-  states = new complex[n_np*n_np*psi_size];
+  states = new complex[K*2*n_np*psi_size];
 
   umklapp_factor = new complex[psi_size];
 
@@ -282,12 +282,12 @@ void PsiCache::computeFs(PsiMessage* msg) {
 
 #define TESTING 1
 #ifdef TESTING
-  if(in_np_list(msg->state_index) && msg->state_index >= L){
+  if(in_np_list(msg->state_index) && msg->shifted==false){
 //Cache this
-    int data_size_x = psi_size;
-    complex *store_x = &states[(msg->state_index-L)*data_size_x];
+    int state_index = get_index(msg->state_index)*2*psi_size;
+    complex *store_x = &states[(ikq*2*n_np*psi_size)+ state_index];
     complex *load_x = msg->psi;
-    memcpy(store_x, load_x, data_size_x*sizeof(complex));
+    memcpy(store_x, load_x, psi_size*sizeof(complex));
   }
 #endif
 

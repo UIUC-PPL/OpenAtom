@@ -207,13 +207,16 @@ void EpsMatrix::coh(){
 
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
+  FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
 
   complex* states = psi_cache->getStates();
   int psi_size = nfft[0]*nfft[1]*nfft[2];
   std::vector<int> accept_v = f_cache->getAcceptVector();
-  std::vector<int> geps_x = f_cache->getGepsXVector();
-  std::vector<int> geps_y = f_cache->getGepsYVector();
-  std::vector<int> geps_z = f_cache->getGepsZVector();
+
+  int ga[psi_size];
+  int gb[psi_size];
+  int gc[psi_size];
+  fftidx_to_gidx(ga,gb,gc,nfft);
 
   int n = f_cache->getNSize();
   int tuple_size = K*n;
@@ -225,59 +228,89 @@ void EpsMatrix::coh(){
   int ik = 0;
   complex total_contribution = (0.0,0.0);
 
+  GWBSE *gwbse = GWBSE::get();
+  int* nfft;
+  nfft = gwbse->gw_parallel.fft_nelems;
+  GW_SIGMA *gw_sigma = &(gwbse->gw_sigma);
+  int n_np = gw_sigma->num_sig_matels;
+  int *n_list = gw_sigma->n_list_sig_matels;
+  int *np_list = gw_sigma->np_list_sig_matels;
+
+  complex *f = new complex[psi_size];
+  std::vector<int> map(psi_size);
   for (int k = 0; k < K; k++) {
-    complex *f;
     int epsilon_size = 0;
 
-    for(int g=0;g<psi_size;g++)
-      if(accept_v[g]) epsilon_size++;
+    for(int g=0;g<psi_size;g++){
+      if(accept_v[g]){
+        map[epsilon_size] = g;
+        epsilon_size++;
+      }
+    }
+    map.resize(epsilon_size);
 
-    f = new complex[epsilon_size];
+    int base_index = k*2*n*psi_size;
+
 
 //This could probably be done once per node and cached
-    int counter = 0;
     for (int i = 0; i < f_cache->getNSize(); i++){
-      for (int j = 0; j < f_cache->getNSize(); j++){
-        counter = 0;
-        for(int g=0; g < psi_size; g++){
-          if(accept_v[g]) {
-            f[counter] += states[i*psi_size + g] * states[j*psi_size + g];
-            counter++;
-          }
-        }
-        if(counter != epsilon_size) {
-          CkPrintf("\nWarning!!! %d != %d\n", counter, epsilon_size);
-          CkAbort("\nsize is not equal expected");
-        }
+      int i_index = n_list[i]-1;
+      int j_index = np_list[i]-1;
 
+      int state_index = 2*i*psi_size;
+
+      for(int g=0; g < psi_size; g++){
+        f[g] = states[base_index + state_index + g].conj() * states[base_index + state_index + g];
       }
+
+
+      fft_controller->setup_fftw_3d(nfft, -1);
+      fftw_complex* in_pointer = fft_controller->get_in_pointer();
+      fftw_complex* out_pointer = fft_controller->get_out_pointer();
+      // Pack our data, do the fft, then get the output
+      put_into_fftbox(nfft, &f[0], in_pointer);
+      fft_controller->do_fftw();
+      fftbox_to_array(psi_size, out_pointer, &f[0], 1);
     }
 
     int end_x = config.tile_rows;
     int end_y = config.tile_cols;
 
     int last_index = epsilon_size/eps_rows;
-    if(thisIndex.x == last_index-1) end_x = epsilon_size%eps_rows;
-    if(thisIndex.y == last_index-1) end_y = epsilon_size%eps_cols;
 
     for (int i = 0; i < f_cache->getNSize(); i++) {
       complex contribution = (0.0,0.0);
-      for (int j = 0; j < f_cache->getNSize(); j++) {
-        for (int r = 0; r < end_x; r++) {
-          for (int c = 0; c < end_y; c++) {
-            for(int g=0; g<epsilon_size; g++) {
-              //apply some filters on which g's should be applied
-              //if( (gppvec(1,igp) .eq. gvec(1,gidx(g)))
-              //.AND.(gppvec(2,igp) .eq. gvec(2,gidx(g))) &
-              //.AND. (gppvec(3,igp) .eq. gvec(3,gidx(g)) )) then
-              if(geps_x[thisIndex.y*eps_cols+c]-geps_x[thisIndex.x*eps_rows+r] == geps_x[g] &&
-                  geps_y[thisIndex.y*eps_cols+c]-geps_y[thisIndex.x*eps_rows+r] == geps_y[g] &&
-                  geps_z[thisIndex.y*eps_cols+c]-geps_z[thisIndex.x*eps_rows+r] == geps_z[g])
-              {
-                contribution += f[g]*data[IDX_eps(r,c)];
-              }
+      for (int r = 0; r < end_x; r++) {
+        int g1 = thisIndex.x*eps_rows+r;
+        for (int c = 0; c < end_y; c++) {
+          int g2 = thisIndex.y*eps_cols+c;
+          if(g1>=epsilon_size || g2>=epsilon_size) continue;
+
+          int gdiff[3];
+          gdiff[0] = ga[map[g1]]-ga[map[g2]];
+          gdiff[1] = gb[map[g1]]-gb[map[g2]];
+          gdiff[2] = gc[map[g1]]-gc[map[g2]];
+          // flip the value and
+          // set back to gdiff values
+
+          for (int ii=0; ii<3; ii++){
+            if (gdiff[ii] < -nfft[ii]/2){
+              gdiff[ii] += nfft[ii];
+            }
+            if (gdiff[ii] >= nfft[ii]/2){
+              gdiff[ii] -= nfft[ii]/2;
             }
           }
+
+          int gdiffIndex = -1;
+          for (int ii=0; ii<psi_size; ii++){
+            if (gdiff[0]==ga[ii] && gdiff[1]==gb[ii] && gdiff[2]==gc[ii]){
+              gdiffIndex = ii;
+              break;
+            }
+          }
+
+          contribution += f[gdiffIndex]*data[IDX_eps(r,c)];
         }
       }
       contrib_data[ik] = contribution;

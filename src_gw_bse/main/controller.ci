@@ -10,6 +10,7 @@ module controller {
   readonly CProxy_Controller controller_proxy;
 
 #define percent 25
+#define POW6 1000000
 #define REGISTER_REGIONS
 
 #define START_STEP(x)\
@@ -426,14 +427,14 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
-            CkPrintf("| COH               | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re, dx.im);
+            CkPrintf("| COH               | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], 0.5*round(dx.re*POW6)/POW6 * 27.2114, dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
             CkPrintf("-----------------------------------------------------------------\n");
           }
         }
         complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re,dx.im);
+        CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, 0.5*round(dx.re*POW6)/POW6 * 27.2114,dx.im);
         CkPrintf("|                     |   |   |   |                         \n");
         delete msg;
       }
