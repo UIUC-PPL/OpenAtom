@@ -236,7 +236,7 @@ void EpsMatrix::coh(){
   int *n_list = gw_sigma->n_list_sig_matels;
   int *np_list = gw_sigma->np_list_sig_matels;
 
-  complex *f = new complex[psi_size];
+  complex *f = new complex[n_np*psi_size];
   std::vector<int> map(psi_size);
   for (int k = 0; k < K; k++) {
     int epsilon_size = 0;
@@ -257,10 +257,11 @@ void EpsMatrix::coh(){
       int i_index = n_list[i]-1;
       int j_index = np_list[i]-1;
 
-      int state_index = 2*i*psi_size;
+      int state_index = i*2*psi_size;
+      int f_base = i*psi_size;
 
       for(int g=0; g < psi_size; g++){
-        f[g] = states[base_index + state_index + g].conj() * states[base_index + state_index + g];
+        f[f_base+g] = states[base_index + state_index + g].conj() * states[base_index + state_index + g];
       }
 
 
@@ -268,21 +269,17 @@ void EpsMatrix::coh(){
       fftw_complex* in_pointer = fft_controller->get_in_pointer();
       fftw_complex* out_pointer = fft_controller->get_out_pointer();
       // Pack our data, do the fft, then get the output
-      put_into_fftbox(nfft, &f[0], in_pointer);
+      put_into_fftbox(nfft, &f[f_base], in_pointer);
       fft_controller->do_fftw();
-      fftbox_to_array(psi_size, out_pointer, &f[0], 1);
+      fftbox_to_array(psi_size, out_pointer, &f[f_base], 1);
     }
 
-    int end_x = config.tile_rows;
-    int end_y = config.tile_cols;
-
-    int last_index = epsilon_size/eps_rows;
-
     for (int i = 0; i < f_cache->getNSize(); i++) {
+      int f_base = i*psi_size;
       complex contribution = (0.0,0.0);
-      for (int r = 0; r < end_x; r++) {
+      for (int r = 0; r < config.tile_rows; r++) {
         int g1 = thisIndex.x*eps_rows+r;
-        for (int c = 0; c < end_y; c++) {
+        for (int c = 0; c < config.tile_cols; c++) {
           int g2 = thisIndex.y*eps_cols+c;
           if(g1>=epsilon_size || g2>=epsilon_size) continue;
 
@@ -310,7 +307,7 @@ void EpsMatrix::coh(){
             }
           }
 
-          contribution += f[gdiffIndex]*data[IDX_eps(r,c)];
+          contribution += f[f_base+gdiffIndex]*data[IDX_eps(r,c)];
         }
       }
       contrib_data[ik] = contribution;
