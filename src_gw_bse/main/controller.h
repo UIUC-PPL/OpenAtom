@@ -167,6 +167,7 @@ class PsiCache : public CBase_PsiCache {
     complex*** psis_shifted;
     complex* fs;
     complex *fsave;
+    complex *f_nop;
     complex *states;
     std::vector<double> vcoulb;
     complex* umklapp_factor;

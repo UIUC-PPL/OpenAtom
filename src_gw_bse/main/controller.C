@@ -146,6 +146,7 @@ PsiCache::PsiCache() {
 
   fs = new complex[L*psi_size*pipeline_stages];
   fsave = new complex[L*psi_size];
+  f_nop = new complex[L*psi_size];
   states = new complex[K*2*n_np*psi_size];
 
   umklapp_factor = new complex[psi_size];
@@ -331,8 +332,6 @@ void PsiCache::computeFs(PsiMessage* msg) {
 
     // Ignore shifted states(q=0) for fvectors, when caching for sigma calc
     if ( qindex == 0 || msg->state_index < L) {
-      complex* f_nop;
-      f_nop = new complex[L*psi_size];
       f_packet.occ_psis = psis[ikq];
       f_packet.e_occ = e_occ[msg->spin_index][ikq];
       f_packet.fs = f_nop;

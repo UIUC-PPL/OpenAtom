@@ -150,6 +150,7 @@ void EpsMatrix::screenedExchange() {
   CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
   msg->setCallback(CkCallback(CkIndex_Controller::screenedExchangeComplete(NULL), controller_proxy));
   contribute(msg);
+  delete[] contrib_data;
 }
 
 void EpsMatrix::bareExchange() {
@@ -201,6 +202,7 @@ void EpsMatrix::bareExchange() {
   CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
   msg->setCallback(CkCallback(CkIndex_Controller::bareExchangeComplete(NULL), controller_proxy));
   contribute(msg);
+  delete[] contrib_data;
 }
 
 void EpsMatrix::coh(){
@@ -322,6 +324,8 @@ void EpsMatrix::coh(){
   CkReductionMsg* msg = CkReductionMsg::buildFromTuple(tuple_reduction, tuple_size);
   msg->setCallback(CkCallback(CkIndex_Controller::cohComplete(NULL), controller_proxy));
   contribute(msg);
+  delete[] contrib_data;
+  delete[] f;
 }
 
 void EpsMatrix::findAlpha() {
