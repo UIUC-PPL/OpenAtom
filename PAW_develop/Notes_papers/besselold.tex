@@ -1,0 +1,434 @@
+\documentclass[paper=a4, fontsize=11pt]{article} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+ 
+\usepackage{physics}
+
+
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{graphicx}
+\usepackage{parskip}
+\graphicspath{ {images/} }
+
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{20pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+\setlength{\parskip}{11pt}
+\newcommand{\p}{\partial}
+\newcommand{\wt}{\widetilde}
+\newcommand{\ol}{\overline}
+\newcommand{\bh}{{\bf{h}}}
+\newcommand{\bc}{{\bf{c}}}
+\newcommand{\bu}{{\bf{u}}}
+\newcommand{\bv}{{\bf{v}}}
+\newcommand{\bm}{{\bf{m}}}
+\newcommand{\bl}{{\bf{l}}}
+\newcommand{\bk}{{\bf{k}}}
+\newcommand{\bK}{{\bf{K}}}
+\newcommand{\bs}{{\bf{s}}}
+\newcommand{\bg}{{\bf{g}}}
+\newcommand{\bt}{{\bf{t}}}
+\newcommand{\bG}{{\bf{G}}}
+\newcommand{\br}{{\bf{r}}}
+\newcommand{\bR}{{\bf{R}}}
+\newcommand{\hs}{{\hat{\bf{s}}}}
+\newcommand{\rexp}{{\mathrm{exp}}}
+\newcommand{\rS}{{\mathrm{S}}}
+\newcommand{\rKE}{{\mathrm{KE}}}
+\newcommand{\rEES}{{\mathrm{EES}}}
+\newcommand{\rxc}{{\mathrm{xc}}}
+\newcommand{\rconv}{{\mathrm{conv}}}
+\newcommand{\rgr}{{\mathrm{group}}}
+\newcommand{\rcore}{{\mathrm{core}}}
+\newcommand{\rcut}{{\mathrm{cut}}}
+\newcommand{\rtol}{{\mathrm{tol}}}
+\newcommand{\rNN}{{\mathrm{NN}}}
+\newcommand{\rself}{{\mathrm{self}}}
+\newcommand{\re}{{\mathrm{e}}}
+\newcommand{\rCo}{{\mathrm{Coul}}}
+\newcommand{\rshort}{{\mathrm{short}}}
+\newcommand{\rcc}{{\mathrm{c.c.}}}
+\newcommand{\rlong}{{\mathrm{long}}}
+\newcommand{\rerf}{{\mathrm{erf}}}
+\newcommand{\rerfc}{{\mathrm{erfc}}}
+\newcommand{\rP}{{\mathrm{PAW}}}
+\newcommand{\rnS}{{\mathrm{nonS}}}
+\newcommand{\rd}{{\mathrm{d}}}
+\newcommand{\rKS}{{\mathrm{KS}}}
+\newcommand{\rFFT}{{\mathrm{FFT}}}
+\newcommand{\rH}{{\mathrm{H}}}
+\newcommand{\rA}{{\mathrm{A}}}
+\newcommand{\rB}{{\mathrm{B}}}
+\newcommand{\rD}{{\mathrm{D}}}
+\newcommand{\rcomp}{{\mathrm{comp}}}
+\newcommand{\rdet}{{\mathrm{det}}}
+\newcommand{\rsum}{{\mathrm{sum}}}
+\newcommand{\rcomb}{{\mathrm{comb}}}
+\newcommand{\rgrid}{{\mathrm{grid}}}
+\newcommand{\rlo}{{\mathrm{loc}}}
+\newcommand{\rl}{{\mathrm{log}}}
+\newcommand{\rtot}{{\mathrm{tot}}}
+\newcommand{\ibgR}{i\bg\cdot\bR}
+\newcommand{\ibgr}{i\bg\cdot\br}
+\newcommand{\ibgpR}{i\bg'\cdot\bR}
+\newcommand{\ibgpr}{i\bg'\cdot\br}
+\newcommand{\gc}{{\bg_c}}
+\newcommand{\gcn}{{\bg_c^{(n)}}}
+\newcommand{\gcpEES}{{\bg_c^{(\Psi,\rEES)}}}
+\newcommand{\gcnEES}{{\bg_c^{(n,\rEES)}}}
+\newcommand{\igcs}{2\pi i\gc\cdot\hat \bs}
+\newcommand{\igpcs}{2\pi i\gc'\cdot\hat \bs}
+\newcommand{\igcns}{2\pi i\gcn\cdot\hat \bs}
+\newcommand{\igpcns}{2\pi i\gcn'\cdot\hat \bs}
+\newcommand{\igcps}{2\pi i\gcpEES\cdot\hat \bs}
+\newcommand{\igpcps}{2\pi i\gcpEES'\cdot\hat \bs}
+\newcommand{\igcnEESs}{2\pi i\gcnEES\cdot\hat \bs}
+\newcommand{\igpcnEESs}{2\pi i\gcnEES'\cdot\hat \bs}
+\newcommand{\pabc}{\prod_{\alpha=a,b,c}}
+\newcommand{\al}{{\alpha}}
+\newcommand{\psigs}{{\overline \Psi_I^{(\rS)}(\bg)}}
+\newcommand{\psigsc}{{\overline \Psi_I^{(\rS)*}(\bg)}}
+\newcommand{\psigps}{{\overline \Psi_I^{(\rS)}(\bg')}}
+\newcommand{\psigpsc}{{\overline \Psi_I^{(\rS)*}(\bg')}}
+\newcommand{\psiIpgs}{{\overline \Psi_{I'}^{(\rS)}(\bg)}}
+\newcommand{\psiIpgsc}{{\overline \Psi_{I'}^{(\rS)*}(\bg)}}
+\newcommand{\psiIpgps}{{\overline \Psi_{I'}^{(\rS)}(\bg')}}
+\newcommand{\psiIpgpsc}{{\overline \Psi_{I'}^{(\rS)*}(\bg')}}
+\newcommand{\sigs}{{\overline \Psi_I(\bg)}}
+\newcommand{\sigsc}{{\overline \Psi_I^{*}(\bg)}}
+\newcommand{\sigps}{{\overline \Psi_I(\bg')}}
+\newcommand{\sigpsc}{{\overline \Psi_I^{*}(\bg')}}
+\newcommand{\siIpgs}{{\overline \Psi_{I'}(\bg)}}
+\newcommand{\siIpgsc}{{\overline \Psi_{I'}^{*}(\bg)}}
+\newcommand{\siIpgps}{{\overline \Psi_{I'}(\bg')}}
+\newcommand{\siIpgpsc}{{\overline \Psi_{I'}^{*}(\bg')}}
+\newcommand{\RJa}{{R_{J,\alpha}}}
+\newcommand{\RJb}{{R_{J,\beta}}}
+\newcommand{\NKS}{{N_{\mathrm{KS}}}}
+\newcommand{\NFFT}{{N_{\mathrm{FFT}}}}
+\newcommand{\NFFTn}{{N^{(n)}_{\mathrm{FFT}}}}
+\newcommand{\NFFTp}{{N^{\mathrm{(\Psi})}_{\mathrm{FFT}}}}
+\newcommand{\NFFTnEES}{{N^{(n,\rEES)}_{\mathrm{FFT}}}}
+\newcommand{\NFFTpEES}{{N^{\mathrm{(\Psi,\rEES})}_{\mathrm{FFT}}}}
+\newcommand{\NgKS}{{N^{\mathrm{(\Psi})}_\bg}}
+\newcommand{\Ngp}{{N^{\mathrm{(\Psi})}_\bg}}
+\newcommand{\Ngn}{{N^{(n)}_\bg}}
+\newcommand{\Rc}{{R_{\mathrm{c}}}}
+\newcommand{\Gc}{{G_{\mathrm{c}}}}
+\newcommand{\hGc}{{\frac{G_{\mathrm{c}}}{2}}}
+\newcommand{\Rpc}{{R_{\mathrm{pc}}}}
+\newcommand{\Dng}{{D^{(n)}_p(\bg)}}
+\newcommand{\Dpg}{{D^{(\Psi)}_p(\bg)}}
+\newcommand{\Dngc}{{D^{(n)*}_p(\bg)}}
+\newcommand{\Dpgc}{{D^{(\Psi)*}_p(\bg)}}
+\newcommand{\Dngp}{{D^{(n)}_p(\bg')}}
+\newcommand{\Dpgp}{{D^{(\Psi)}_p(\bg')}}
+\newcommand{\Dngcp}{{D^{(n)*}_p(\bg')}}
+\newcommand{\Dpgcp}{{D^{(\Psi)*}_p(\bg')}}
+\newcommand{\Mn}{{M_p^{(3,n)}}}
+\newcommand{\Mp}{{M_p^{(3,\Psi)}}}
+\newcommand{\FFTn}{{\mathrm{FFT}^{(n,+)}}}
+\newcommand{\FFTnEES}{{\mathrm{FFT}^{(n,+,\rEES)}}}
+\newcommand{\FFTnm}{{\mathrm{FFT}^{(n,\pm)}}}
+\newcommand{\FFTnmEES}{{\mathrm{FFT}^{(n,\pm,\rEES)}}}
+\newcommand{\FFTp}{{\mathrm{FFT}^{(\Psi,+)}}}
+\newcommand{\FFTpm}{{\mathrm{FFT}^{(\Psi,\pm)}}}
+\newcommand{\FFTpEES}{{\mathrm{FFT}^{(\Psi,+,\rEES)}}}
+\newcommand{\FFTpmEES}{{\mathrm{FFT}^{(\Psi,\pm,\rEES)}}}
+\newcommand{\IFFTn}{{\mathrm{IFFT}^{(n,+)}}}
+\newcommand{\IFFTnEES}{{\mathrm{IFFT}^{(n,+,\rEES)}}}
+\newcommand{\IFFTp}{{\mathrm{IFFT}^{(\Psi,+)}}}
+\newcommand{\IFFTpEES}{{\mathrm{IFFT}^{(\Psi,+,\rEES)}}}
+\newcommand{\IFFTnm}{{\mathrm{IFFT}^{(n,\mp)}}}
+\newcommand{\IFFTnmEES}{{\mathrm{IFFT}^{(n,\mp,\rEES)}}}
+\newcommand{\IFFTpm}{{\mathrm{IFFT}^{(\Psi,\mp)}}}
+\newcommand{\IFFTpmEES}{{\mathrm{IFFT}^{(\Psi,\mp,\rEES)}}}
+\newcommand{\FFTni}{{\mathrm{FFT}^{(n,-)}}}
+\newcommand{\FFTniEES}{{\mathrm{FFT}^{(n,-,\rEES)}}}
+\newcommand{\FFTpi}{{\mathrm{FFT}^{(\Psi,-)}}}
+\newcommand{\FFTpiEES}{{\mathrm{FFT}^{(\Psi,-,\rEES)}}}
+\newcommand{\IFFTni}{{\mathrm{IFFT}^{(n,-)}}}
+\newcommand{\IFFTniEES}{{\mathrm{IFFT}^{(n,-,\rEES)}}}
+\newcommand{\IFFTpi}{{\mathrm{IFFT}^{(\Psi,-)}}}
+\newcommand{\IFFTpiEES}{{\mathrm{IFFT}^{(\Psi,-,\rEES)}}}
+\newcommand{\bgp}{{\bg^{(\Psi)}}}
+\newcommand{\bgpEES}{{\bg^{(\Psi,\rEES)}}}
+\newcommand{\bgn}{{\bg^{(n)}}}
+\newcommand{\bgnEES}{{\bg^{(n,\rEES)}}}
+\newcommand{\bsp}{{\hat\bs^{(\Psi)}}}
+\newcommand{\bspEES}{{\hat\bs^{(\Psi,\rEES)}}}
+\newcommand{\bsn}{{\hat\bs^{(n)}}}
+\newcommand{\bsnEES}{{\hat\bs^{(n,\rEES)}}}
+\newcommand{\bgpp}{{\bg'^{(\Psi)}}}
+\newcommand{\bgppEES}{{\bg'^{(\Psi,\rEES)}}}
+\newcommand{\bgpn}{{\bg'^{(n)}}}
+\newcommand{\bgpnEES}{{\bg'^{(n,\rEES)}}}
+\newcommand{\bspp}{{\hat\bs'^{(\Psi)}}}
+\newcommand{\bsppEES}{{\hat\bs'^{(\Psi,\rEES)}}}
+\newcommand{\bspn}{{\hat\bs'^{(n)}}}
+\newcommand{\bsnpEES}{{\hat\bs'^{(n,\rEES)}}}
+\newcommand{\pz}{{(p+\zeta)^3}}
+\newcommand{\pzp}{{(p+\zeta_{\Psi})^3}}
+\newcommand{\pzn}{{(p+\zeta_n)^3}}
+\newcommand{\hsJ}{{<\hs>_{\rNN,J}}}
+\newcommand{\hsJp}{{<\hs>_{\rNN,J,\Psi,\zeta_\Psi}}}
+\newcommand{\hsJn}{{<\hs>_{\rNN,J,n,\zeta_n}}}
+\newcommand{\hsJpzr}{{<\hs>_{\rNN,J,\Psi,0}}}
+\newcommand{\hsJnzr}{{<\hs>_{\rNN,J,n,0}}}
+\newcommand{\hsinJ}{{\ \ \ \ \ \hs  \in  \hsJ}}
+\newcommand{\hsinJp}{{\ \ \ \ \ \hs  \in  \hsJp}}
+\newcommand{\hsinJn}{{\ \ \ \ \ \hs  \in  \hsJn}}
+\newcommand{\hsinJpzr}{{\ \ \ \ \ \hs  \in  \hsJpzr}}
+\newcommand{\hsinJnzr}{{\ \ \ \ \ \hs  \in  \hsJnzr}}
+\newcommand{\hspJ}{{<\hs'>_{\rNN,J}}}
+\newcommand{\hspJp}{{<\hs'>_{\rNN,J,\Psi,\zeta_\Psi}}}
+\newcommand{\hspJn}{{<\hs'>_{\rNN,J,n,\zeta_n}}}
+\newcommand{\hspJpzr}{{<\hs'>_{\rNN,J,\Psi,0}}}
+\newcommand{\hspJnzr}{{<\hs'>_{\rNN,J,n,0}}}
+\newcommand{\hspinJ}{{\ \ \ \ \ \hs'  \in  \hspJ}}
+\newcommand{\hspinJp}{{\ \ \ \ \ \hs'  \in  \hspJp}}
+\newcommand{\hspinJn}{{\ \ \ \ \ \hs'  \in  \hspJn}}
+\newcommand{\hspinJpzr}{{\ \ \ \ \ \hs'  \in  \hspJpzr}}
+\newcommand{\hspinJnzr}{{\ \ \ \ \ \hs'  \in  \hspJnzr}}
+\newcommand{\hsinpEES}{{\ \ \ \ \hs \in \NFFTpEES}}
+\newcommand{\hspinpEES}{{\ \ \ \ \hs' \in \NFFTpEES}}
+\newcommand{\hsinnEES}{{\ \ \ \ \hs \in \NFFTnEES}}
+\newcommand{\hspinnEES}{{\ \ \ \ \hs' \in \NFFTnEES}}
+\newcommand{\hsinn}{{\ \ \ \ \hs \in \NFFTn}}
+\newcommand{\hspinn}{{\ \ \ \ \hs' \in \NFFTn}}
+\newcommand{\fr}{{\nonumber \ \ \ \ \ \mathrm{From}\ \ \ }}
+\newcommand{\vs}{{\vspace{8mm}}}
+\newcommand{\ReE}{{{\bf ReE:\ }}}
+\newcommand{\ReW}{{{\bf ReW:\ }}}
+\newcommand{\ReP}{{{\bf ReP:\ }}}
+\newcommand{\ReWG}{{{\bf ReWG:\ }}}
+\newcommand{\ReR}{{{\bf ReR:\ }}}
+\newcommand{\ReRG}{{{\bf ReRG:\ }}}
+\newcommand{\bal}{{\bar{\alpha}}}
+\newcommand{\hal}{{\hat{\alpha}}}
+\newcommand{\PWerf}{\mathrm{W}^{(\mathrm{erf})}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\rgt}{r_{>}}
+\newcommand{\rlt}{r_{<}}
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\begin{document}
+\section{Partial wave expansion of the regularized Coulomb interaction}
+
+Using the more friendly modified Spherical Bessel functions,
+\begin{equation}
+\begin{split}
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}
+    \left [\sum_{l=0}^\infty (2l+1) i_{l}(2u^2 r r')P_l\left(\cos(\theta)\right)\right ] \\
+&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right)
+      \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= 8\sqrt{\pi}\
+      \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
+      \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
+  \left [ 8 \sqrt{\frac{\pi}{2rr'}}
+          \int_0^{\beta\sqrt{2rr'}}\rd x\ \re^{-x^2\left(\frac{r^2 + r'^2}{2rr'}\right)}i_{l}(x^2)
+  \right]  \\
+&=  \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
+    \frac{4\pi}{2l+1}\PWerf_l(r,r')
+\end{split}
+\end{equation}
+where
+\begin{equation}
+\PWerf_l(r,r') = \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)\left(\frac{1}{\sqrt{2rr'}}\right)
+      \int_0^{\beta\sqrt{2rr'}}\rd x\ \re^{-x^2\left(\frac{r^2 + r'^2}{2rr'}\right)}i_{l}(x^2)
+\end{equation}
+and
+\begin{equation}
+\begin{split}
+i_0(x) &= \frac{\sinh(x)}{x} \\
+i_1(x) &= \frac{x\cosh(x)-\sinh(x)}{x^2} \\
+i_2(x) &= \frac{(x^2+3)\sinh(x)-3x\cosh(x)}{x^3} \\
+i_3(x) &= \frac{(x^3+15x)\cosh(x)-(6x^2+15)\sinh(x)}{x^4}
+\end{split}
+\end{equation}
+The symbol $W$ is employed for the interaction as opposed to $\phi$ due neglect of the
+prefactor $e^2/4\pi \epsilon_0$ (or just $e^2$ in a.u.) required for the unit of the interaction to be energy.
+The $4\pi/(2l+1)$ is introduced such that the familiar form is produced when $\beta \rightarrow \infty$.
+
+The key limits for $W$ are 
+\begin{equation}
+\begin{split}
+\lim_{\beta \rightarrow \infty}\PWerf_l(r,r')
+&= \frac{\rlt^l}{\rgt^{l+1}} \\
+\lim_{\rlt \rightarrow 0}\PWerf_l(r,r')
+&= \frac{\rerf(\beta \rgt)}{\rgt}\delta_{l,0} 
+\end{split}
+\end{equation}
+where $\rgt = \mathrm{max}(r,r')$, $\rlt = \mathrm{min}(r,r')$. The first limit is the partial wave expansion of $1/|\br-\br'|$, the second limit is derived as follows:
+\begin{equation}
+\begin{split}
+\PWerf_l(r,r') &= \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)\left(\frac{1}{\sqrt{2rr'}}\right) \int_0^{\beta\sqrt{2rr'}}\rd x\ \re^{-x^2\left(\frac{r^2 + r'^2}{2rr'}\right)}i_{l}(x^2)\\
+&= \left(\frac{2(2l+1)}{\sqrt{\pi}}\right) \int_0^{\beta}\rd x\ \re^{-x^2\left(r^2 + r'^2\right)}i_{l}(2 rr' x^2)\\
+\PWerf_l(r,0) 
+&= \left(\frac{2(2l+1)}{\sqrt{\pi}}\right) \int_0^{\beta}\rd x\ \re^{-x^2 r^2 }i_{l}(0)\\
+&= \left(\frac{2(2l+1)}{\sqrt{\pi}}\right) \int_0^{\beta}\rd x\ \re^{-x^2 r^2 }\delta_{l,0}\\
+&= (2l+1) \frac{\rerf(\beta \rgt)}{\rgt}\delta_{l,0} \\
+&= \frac{\rerf(\beta \rgt)}{\rgt}\delta_{l,0}
+\end{split}
+\end{equation}
+where the $\lim_{x \rightarrow 0} i_l(x) = \delta_{l,0}$ which can be proved from Eq.1.3, or more generally, from the small argument expansion given by Abramowitz and Stegun's book with leading order term ($i_l(x) \sim x^l$) as x goes to 0.
+
+The required indefinite integrals are
+\begin{eqnarray}
+%-----------------------------------------------
+\int \rd x\ \re^{-a^2x^2}i_{0}(x^2)&=& 
+\frac{\sqrt{\pi}\sgn(x)}{2}\left [a_m \rerfc(a_m |x|) - a_p \rerfc(a_p |x|) \right ] 
+- xe^{-a^2x^2} \left [\frac{\sinh(x^2)}{x^2}\right]
+\end{eqnarray}
+
+\begin{eqnarray}
+%-----------------------------------------------
+\int \rd x\ \re^{-a^2x^2}i_{1}(x^2)&=& \frac{1}{6x^3} 
+\left [
+    \sqrt{\pi} (2 a^2 + 1)a_m x^3 \rerfc(a_m |x|)  - \sqrt{\pi} (2 a^2 - 1)a_p x^3 \rerfc(a_p|x|)
+\right. \nonumber \\
+& &  \left.  - e^{-(a^2+1) x^2} (2 a^2 (e^{2 x^2} - 1) x^2 + (e^{2 x^2} + 1) x^2 - e^{2 x^2} + 1) 
+    \right ] \nonumber \\
+%-----------------------------------------------
+&=& \frac{1}{6x^3} 
+\left [
+    \sqrt{\pi} (2 a^2 + 1)a_m x^3 \rerfc(a_m |x|)  - \sqrt{\pi} (2 a^2 - 1)a_p x^3 \rerfc(a_p|x|)
+\right. \nonumber \\
+& &  \left.  -2e^{-a^2x^2} \left [ (2a^2x^2-1)\sinh(x^2) + x^2\cosh(x^2)\right ]
+    \right ] \nonumber \\
+%-----------------------------------------------
+&=& \frac{\sqrt{\pi}}{6}\left [ (2 a^2 + 1)a_m \rerfc(a_m |x|)  - (2 a^2 - 1)a_p \rerfc(a_p|x|) \right ]
+\nonumber \\
+& &  -\frac{e^{-a^2x^2}}{3x^3}\left [ (2a^2x^2-1)\sinh(x^2) + x^2\cosh(x^2)\right ] \nonumber \\
+%-----------------------------------------------
+&=& \frac{\sqrt{\pi}}{6}\left [ (2 a^2 + 1)a_m \rerfc(a_m |x|)  - (2 a^2 - 1)a_p \rerfc(a_p|x|) 
+   \right ] \nonumber \\
+& &  -\frac{e^{-a^2x^2}}{3x}\left [ (2a^2x^2-1)\frac{\sinh(x^2)}{x^2} + \cosh(x^2)\right ]
+%-----------------------------------------------
+\end{eqnarray}
+
+\begin{eqnarray}
+%-----------------------------------------------
+  \int \rd x\ \re^{-a^2x^2}i_{2}(x^2) &=&
+  \frac{1}{10 x^5}\left [
+ -\sqrt{\pi} (4 a^4 + 2 a^2 - 1) x^4 a_m|x| \rerf(a_m|x|) 
+ +\sqrt{\pi} (4 a^4 - 2 a^2 - 1) x^4 a_p|x| \rerf(a_p|x|) \right .\nonumber \\
+& & \left .  \ \ \ \ \ \
+ +\sqrt{\pi} x^4 (2 a^2 (a_m|x| + a_p|x|) - a_m|x| + a_p|x| + 4 a^4 (a_m|x| - a_p|x|) )
+ \right . \nonumber \\
+ & & \left . \ \ \ \ \ \
+ + e^{-(a^2 - 1) x^2} ((2 a^2 + 3) x^2 + (-4 a^4 - 2 a^2 + 1) x^4 - 3)  \right. \nonumber \\
+ & & \left .  \ \ \ \ \ \
+ + e^{-(a^2 + 1) x^2} ((3 - 2 a^2) x^2 + (4 a^4 - 2 a^2 - 1) x^4 + 3) \right ]
+  \nonumber   \\
+%-----------------------------------------------
+&=&
+\frac{\mathrm{sgn}(x)}{10}\left [
+- \sqrt{\pi} (4 a^4 + 2 a^2 - 1) a_m \rerf(a_m|x|) 
+ +\sqrt{\pi} (4 a^4 - 2 a^2 - 1) a_p \rerf(a_p|x|) \right . \nonumber \\
+& &\left . \ \ \ \ \ \
+ +\sqrt{\pi} (2 a^2 (a_m + a_p) - a_m + a_p + 4 a^4 (a_m - a_p) )
+ \right ] \nonumber \\
+ &+& \frac{1}{5x^5}\left [
+ + e^{-a^2 x^2} (2 a^2  x^2 \sinh(x^2) + (-4 a^4 + 1)x^4\sinh(x^2) + (3x^2-2 a^2  x^4)\cosh(x^2) 
+  - 3\sinh(x^2))  \right ] \nonumber  \\
+%-----------------------------------------------
+&=&
+\frac{\sqrt{\pi} \mathrm{sgn}(x)}{10}\left [
+ (4 a^4 + 2 a^2 - 1) a_m \rerfc(a_m|x|) 
+ -(4 a^4 - 2 a^2 - 1) a_p \rerfc(a_p|x|) \right ] \nonumber \\
+ &+& \frac{e^{-a^2 x^2} }{5x^3}\left [
+ ( (1-4 a^4)x^4 + 2 a^2 x^2 -3)\frac{\sinh(x^2)}{x^2} + (3 - 2 a^2 x^2)\cosh(x^2) 
+\right ] 
+\end{eqnarray}
+
+
+\begin{eqnarray}
+\int \rd x\ \re^{-a^2x^2}i_{3}(x^2) &=& \nonumber \\
+\end{eqnarray}
+
+where
+\begin{equation}
+\begin{split}
+a_m &= \sqrt{a^2-1} \\
+a_p &= \sqrt{a^2+1} 
+\end{split}
+\end{equation}
+
+In order to evalute the partial waves, we insert the definition of the a's
+\begin{equation}
+\begin{split}
+a   &=  \frac{\sqrt{\rgt^2+\rlt^2}}{\sqrt{2\rgt\rlt}} \\
+a_m &=  \frac{\rgt - \rlt}{\sqrt{2\rgt\rlt}} \\
+a_p &=  \frac{\rgt + \rlt}{\sqrt{2\rgt\rlt}} 
+\end{split}
+\end{equation}
+where $\rgt = \mathrm{max}(r,r')$ and $\rlt = \mathrm{min}(r,r')$. 
+Furtheremore, since the upper and lower limits of the integral are positive semi-definite, we only need to be careful
+about the absolute value in the evalution of $a_p$ and $a_m$ and not in $x$ which is evaluted at the limits and is 
+strictly $x \geq 0$ and hence all $\sgn(x)\equiv 1$.  However, it is nontheless
+convenient to introduce $\rgt$ and $\rlt$ everywhere rather have mixed notation of $r,r'\rgt,rlt$
+
+Using the simplified form of the integrals and the definition of the a's in terms of $\rgt$ and $\rlt$,
+the coefficients of the partial wave expansion of the regularized / cutoff Coulomb interaction are written in
+a form in which the limits $\rlt=0$, $\beta\rightarrow \infty$ and $\rgt=\rlt$ can be evaluated by inspection,
+\begin{eqnarray}
+\PWerf_0(r,r') &=& 
+\frac{\rerf(\beta (\rgt+\rlt))-\rerf(\beta (\rgt-\rlt))}{2\rlt}
++ \frac{\rerf(\beta (\rgt+\rlt))+\rerf(\beta (\rgt-\rlt))}{2\rgt} \nonumber \\
+&-& \frac{2\beta}{\sqrt{\pi}}e^{-\beta^2(\rgt^2+\rlt^2)}\left [\frac{\sinh(2\beta^2 \rgt\rlt)}{2\beta^2 \rgt\rlt}\right ]
+\end{eqnarray}
+
+\begin{eqnarray}
+  \PWerf_1(r,r') &=&  
+  \frac{1}{3} \left [ \frac{1}{\rlt} + \frac{2\rlt}{\rgt^2}\right ] \nonumber \\
+  & & \nonumber
+\end{eqnarray}
+
+\begin{eqnarray}
+\PWerf_2(r,r') &=&  \nonumber \\
+\end{eqnarray}
+
+\begin{eqnarray}
+\PWerf_3(r,r') &=&  \nonumber \\
+\end{eqnarray}
+
+The alternative form of the integral is 
+\begin{eqnarray}
+\int \rd x\ \re^{-a^2x^2}i_{1}(b^2x^2)&=& \frac{1}{6b^4} 
+\left [
+  \sqrt{\pi}\left (-(a^2 + a_m^2) a_p \rerfc(x a_p)+(a^2 + a_p^2) a_m \rerfc(x a_m) \right) \right . \nonumber \\
+& & \left .
+- \frac{2b^2e^{-x^2 a^2}}{x} \left ((2 a^2 x^2 - 1)\frac{\sinh(b^2x^2)}{b^2x^2} + \cosh(b^2x^2) \right)
+\right ]
+\end{eqnarray}
+
+where
+\begin{equation}
+\begin{split}
+a   &=  \sqrt{\rgt^2+\rlt^2}\\
+b   &=  \sqrt{2\rgt\rlt} \\
+a_m &=  \rgt-\rlt \\
+a_p &=  \rgt+\rlt \\
+\end{split}
+\end{equation}
+To evaluate the partial wave, the limits are simple, $0$ and $\beta$.
+\end{document}
