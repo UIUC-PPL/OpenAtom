@@ -21,80 +21,6 @@
 //  Generate Uniform Random Numbers
 //=================================================================
 #define four_pi_inv    (1.0/(4.0*M_PI_QI))
-#define MODULUS_R    2147483647 // DON'T CHANGE THIS VALUE       
-#define MULTIPLIER_R 48271      // DON'T CHANGE THIS VALUE       
-//=================================================================
-// Random returns a pseudo-random real number uniformly distributed 
-// between 0.0 and 1.0. 
-//=================================================================
-double altRandom(long *seed){
-  long t;
-  const long Q = MODULUS_R / MULTIPLIER_R;
-  const long R = MODULUS_R % MULTIPLIER_R;
-
-  t = MULTIPLIER_R * (seed[0] % Q) - R * (seed[0] / Q);
-  if(t > 0){
-    seed[0] = t;
-  }else {
-    seed[0] = t + MODULUS_R;
-  }//endif
-  return ((double) seed[0] / MODULUS_R);
-}
-//=================================================================
-
-
-//==========================================================================
-//cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-//==========================================================================
-// Generate Gaussian Random numbers 
-//===============================================================
-void gaussran(int nran, long *seed, double *gauss)
-  //========================================================================
-{//begin routine
-  //========================================================================
-  //             Local variable declarations                                
-  int i,loop;
-  double twopi,rad2,al,r,phi,arg;
-  //========================================================================
-  // I) Constants 
-
-  twopi = 2.0*M_PI_QI;
-  rad2  = sqrt(2.0);
-  loop  = nran/2;
-
-  //========================================================================
-  // II) Make nran (or nran-1 if nran odd) Gaussian random numbers          
-  for(i=1;i<=loop;i++){
-    //------------------------------------------------------------------------
-    // A) uniform random numbers in r and phi 
-    r   = altRandom(seed); 
-    phi = altRandom(seed); 
-    r   = MAX(r,1e-30);
-    r   = MIN(r,1.0);
-    //------------------------------------------------------------------------
-    // B) Gaussify in x and y
-    al  = sqrt(-log(r))*rad2;
-    arg = twopi*phi;
-    gauss[2*i-1] = al*cos(arg);
-    gauss[2*i]   = al*sin(arg);
-  }//endfor
-  //========================================================================
-  // III) Make one more if nran is odd 
-
-  if((nran % 2)!=0){
-    r   = altRandom(seed); 
-    phi = altRandom(seed); 
-    r   = MAX(r,1e-30);
-    r   = MIN(r,1.0);
-    arg = twopi*phi;
-    al  = sqrt(-log(r))*rad2;
-    gauss[nran] = al*cos(arg);
-  }//endif
-  //------------------------------------------------------------------------
-}//end routine
-//========================================================================
-
-
 
 /*===============================================================*/
 /*  Inverse of a 3x3 */
@@ -174,8 +100,6 @@ void gethinv(double *hmat, double *hmati, double *deth, int iperd)
   /*---------------------------------------------------------------*/
 } /* gethinv */
 /*===============================================================*/
-
-
 
 //===================================================================
 //ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -388,8 +312,6 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 	double *fx0g		= atom_pos->fx0g; double *fy0g = atom_pos->fy0g; double *fz0g = atom_pos->fz0g;
 	double *fxg			= atom_pos->fxg;  double *fyg  = atom_pos->fyg;  double *fzg  = atom_pos->fzg;
 	double *q 			= atom_pos->q;    double *qt   = atom_pos->qt;
-	double *alp  = atom_pos->alp;
-	double *beta = atom_pos->beta;
 	double *Rpc  = atom_pos->Rpc;
 	double alpb   		= cell->alpb;     double *hmat = cell->hmat;	 double *hmati = cell->hmati;
 	int iperd 			= cell->iperd;
@@ -397,18 +319,15 @@ void computePAWGrid(int lmax, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 
 //===================================================================
 // local variables
-	int rorder     = fgrid[0].nr;
-	int thetaorder = fgrid[0].ntheta;
-	int phiorder   = fgrid[0].nphi;
 	int nf         = fgrid[0].nf;
 //-------------------------------------------------------------------
 // nuclear-nuclear energy is the same
-    double ENNselflongGrid = energy->ENNselflong.E;
+  double ENNselflongGrid = energy->ENNselflong.E;
 
 //===================================================================
 // zero all the energies 
-    double EeNGrid      = 0.0, EeNselfGrid = 0.0, EHarGrid = 0.0, EHarscrGrid = 0.0, EHarselfGrid = 0.0;
-    double EeNshortGrid = 0.0, EeNshortselfGrid = 0.0, EHarshortGrid = 0.0, EHarshortscrGrid = 0.0, EHarshortselfGrid = 0.0;
+  double EeNGrid      = 0.0, EeNselfGrid = 0.0, EHarGrid = 0.0, EHarscrGrid = 0.0, EHarselfGrid = 0.0;
+  double EeNshortGrid = 0.0, EeNshortselfGrid = 0.0, EHarshortGrid = 0.0, EHarshortscrGrid = 0.0, EHarshortselfGrid = 0.0;
 	double EHarshortselfscrGrid = 0.0;
 	double EHarselfscrGrid = 0.0;
 	double ENNGrid = 0.0, ENNshortGrid = 0.0;
@@ -521,15 +440,11 @@ clock_t start, end;
 //eN and Har self term
 	start = clock();
 	for (int jtyp=0; jtyp<natm_typ; jtyp++) {
-        double *wf        = fgrid[jtyp].wf;
-        double *rf        = fgrid[jtyp].rf;
-        double *xf        = fgrid[jtyp].xf;
-        double *yf        = fgrid[jtyp].yf;
-        double *zf        = fgrid[jtyp].zf;
-		double *xcostheta = fgrid[jtyp].xcostheta;
-		double *xphi      = fgrid[jtyp].xphi;
-		complex *Ylmf     = fgrid[jtyp].Ylmf;
-		double alpJ		  = fgrid[jtyp].alp;
+    double *wf        = fgrid[jtyp].wf;
+    double *rf        = fgrid[jtyp].rf;
+    double *xf        = fgrid[jtyp].xf;
+    double *yf        = fgrid[jtyp].yf;
+    double *zf        = fgrid[jtyp].zf;
 		double betaJ	  = fgrid[jtyp].beta;
 		int J = list_atm_by_typ[jtyp][0];
 		double Ncoeff = four_pi_inv;
@@ -542,81 +457,43 @@ clock_t start, end;
 			} // end if
 		} // end for f1
 
-#ifdef _FGRIDTEST_		
-		complex *Ylmf_test       = new complex [nf];
-		complex *Ylpmpf_test     = new complex [nf];
-		double atmp			 = fgrid[jtyp].alp;
-		for (int l=0; l <= lmax; l++) {
-			for (int lp = 0; lp <= lmax; lp++) {
-				for (int m=-l; m<= l; m++) {
-					for (int mp = -lp; mp <= lp ; mp++) {
-						complex result  	= complex(0.0,0.0);
-						double  result2x  	= 0.0;
-						double  result2y  	= 0.0;
-						double  result2z  	= 0.0;
-						gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, l, m, Ylmf_test);
-						gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, lp, mp, Ylpmpf_test);
-						for (int f=0; f < nf; f++) {
-							result   += wf[f]*Ylmf_test[f]*Ylpmpf_test[f].conj()*(4.0/sqrt(M_PI))*atmp*atmp*atmp;
-							result2x += wf[f]*xf[f]*xf[f];
-							result2y += wf[f]*yf[f]*yf[f];
-							result2z += wf[f]*zf[f]*zf[f];
-						} // end for f
-						PRINTF("\nfgrid test result:\n");
-						PRINTF("int Y(%d %d), Y(%d %d) exp(-a^2*r^2)r^2 = (%lf, %lf) !\n",l,m,lp,mp,result.re, result.im);
-						PRINTF("int x^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2x);
-						PRINTF("int y^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2y);
-						PRINTF("int z^2 r^2 exp(-a^2^r2)= (%lf) !\n",result2z);
-					} // end for mp
-				}// end for m
-			} // end for lp
-		} // end for l
-#endif
-		complex tmpsum = (0.0, 0.0);
-
-		for (int l=0; l <= lmax; l++) {
-			double l_re = (double) l;
-			for (int m=-l; m<=l; m++) {
-				gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, l, m, Ylmf);
-				for (int f1=0; f1 < nf; f1++) {
-					for (int f2=0; f2 < nf; f2++) {
-						double rmin = MIN(rf[f1],rf[f2]);
-						double rmax = MAX(rf[f1],rf[f2]);
-						double rrat = rmin/rmax;
-						double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-						double pref_harm = 4.0*M_PI_QI/(2.0*l_re + 1.0);
-						if (rmax > 0) {
-							double pref_r = pow(rrat,l_re)/rmax;
-							complex temp = 0.5*pref*pref_harm*pref_r*(Ylmf[f1]*Ylmf[f2].conj());
-							tmpsum += temp*wght;
-						} // end if
-					} //end for f2
-				} //end for f1
-			} //end for m
-		} //end for l
-		EHarselfGrid += tmpsum.re;
-		
-		for (int f1=0; f1 < nf; f1++) {
-			for (int f2=0; f2 < nf; f2++) {
-				double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-				if (f1 != f2) {
-					double dx   = xf[f1] - xf[f2];
-					double dy   = yf[f1] - yf[f2];
-					double dz   = zf[f1] - zf[f2];
-					double r2   = dx*dx + dy*dy + dz*dz;
-					double r    = sqrt(r2);
-					if (r > 0) { 
-						double fgerfc;
-						double gerfc_tmp = gerfc(r, betaJ, &fgerfc);
-						double gerf_tmp =  1.0 - gerfc_tmp;
-						double r_inv = 1.0/r;
-						EHarselfscrGrid += pref*gerf_tmp*r_inv;
-					} // end if r>0
-				} else {
-					EHarselfscrGrid += pref*PRE_ERFC*betaJ;
-				} // end if
-			} //end for f2
-		} //end for f1
+		int pw_Hart_self = 1;
+		if (pw_Hart_self == 0) {
+			for (int f1=0; f1 < nf; f1++) {
+				for (int f2=0; f2 < nf; f2++) {
+					double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
+					if (f1 != f2) {
+						double dx   = xf[f1] - xf[f2];
+						double dy   = yf[f1] - yf[f2];
+						double dz   = zf[f1] - zf[f2];
+						double r2   = dx*dx + dy*dy + dz*dz;
+						double r    = sqrt(r2);
+						if (r > 0) { 
+							double fgerfc;
+							double gerfc_tmp = gerfc(r, betaJ, &fgerfc);
+							double gerf_tmp =  1.0 - gerfc_tmp;
+							double r_inv = 1.0/r;
+							EHarselfscrGrid += pref*gerf_tmp*r_inv;
+							EHarselfGrid += pref*r_inv;
+						} // end if r>0
+					} else {
+						EHarselfscrGrid += pref*PRE_ERFC*betaJ;
+					} // end if
+				} //end for f2
+			} //end for f1
+		} else {
+				int lmax_tmp = 0; int nr = fgrid[jtyp].nr; int nang = fgrid[jtyp].nang;
+				double *ylm = fgrid[jtyp].ylm; double *wang = fgrid[jtyp].wang;
+				double *wr_bare = fgrid[jtyp].wr_bare;
+				double **pw_erfB = fgrid[jtyp].pw_erfB;
+				double **pw_coul = fgrid[jtyp].pw_coul;
+				double *rho_in = fgrid[jtyp].rho; double **rho_scr = fgrid[jtyp].rho_scr;
+				double *rho_lm = fgrid[jtyp].rho_lm; double vselfB = 0.0, vself_coul = 0.0;
+				screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_erfB, rho_in, rho_scr, rho_lm, &vselfB);
+				screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_coul, rho_in, rho_scr, rho_lm, &vself_coul);
+				EHarselfscrGrid += vselfB*wght*qt[J]*qt[J];
+				EHarselfGrid += vself_coul*wght*qt[J]*qt[J];
+		} // end if
 	} //end for jtyp
 	end = clock();
 	PRINTF("0D EeN and EHar self finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
@@ -644,7 +521,6 @@ clock_t start, end;
          dx0 -= hmat[1]*NINT(dx0*hmati[1]);
          dy0 -= hmat[5]*NINT(dy0*hmati[5]);
          dz0 -= hmat[9]*NINT(dz0*hmati[9]);
-         int np = 0;
          for (int nx = -nimg; nx <= nimg; nx++) {
          for (int ny = -nimg; ny <= nimg; ny++) {
          for (int nz = -nimg; nz <= nimg; nz++) {
@@ -809,12 +685,8 @@ clock_t start, end;
 		double *xf		  = fgrid[jtyp].xf;
 		double *yf		  = fgrid[jtyp].yf;
 		double *zf		  = fgrid[jtyp].zf;
-        double *wf        = fgrid[jtyp].wf;
-        double *rf        = fgrid[jtyp].rf;
-		double *xcostheta = fgrid[jtyp].xcostheta;
-		double *xphi      = fgrid[jtyp].xphi;
-		complex *Ylmf     = fgrid[jtyp].Ylmf;
-		double alpJ			= fgrid[jtyp].alp;
+    double *wf        = fgrid[jtyp].wf;
+    double *rf        = fgrid[jtyp].rf;
 		double betaJ	  	= fgrid[jtyp].beta;
 		int J = list_atm_by_typ[jtyp][0];
 		double Ncoeff = four_pi_inv;
@@ -825,65 +697,46 @@ clock_t start, end;
 			if (r > 0) { EeNshortselfGrid += -1.0*wght*Ncoeff*qt[J]*q[J]*wf[f1]*erfc(alpb*r)/r; }
 		} // end for f1
 
-		double erf_lim = alpb/sqrt(M_PI_QI);
-		for (int f1=0; f1 < nf; f1++) {
-			for (int f2=0; f2 < nf; f2++) {
-				double pref = wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-				double dx = xf[f1] - xf[f2];
-                double dy = yf[f1] - yf[f2];
-                double dz = zf[f1] - zf[f2];
-                double r2 = dx*dx + dy*dy + dz*dz;
-                double r = sqrt(r2);
-				if (f1 != f2) {
-					if (r > 0) { 
-						double fgerfc;
-						double gerfc_tmp = gerfc(r, alpb, &fgerfc);
-						double gerf_tmp =  1.0 - gerfc_tmp;
-						double r_inv = 1.0/r;
-						EHarshortselfGrid -= 0.5*pref*gerf_tmp*r_inv; 
-					}// end if r > 0
-				} else {
-					EHarshortselfGrid -= erf_lim*pref;
-				} // end if
-			} //end for f2
-		} //end for f1
-
-		for (int f1=0; f1 < nf; f1++) {
-			for (int f2=0; f2 < nf; f2++) {
-				double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-				if (f1 != f2) {
-					double dx   = xf[f1] - xf[f2];
-					double dy   = yf[f1] - yf[f2];
-					double dz   = zf[f1] - zf[f2];
-					double r2   = dx*dx + dy*dy + dz*dz;
-					double r    = sqrt(r2);
-					if (r > 0) { 
-						double fgerfc_bar, fgerfc_beta;
-						double gerfc_tmp_bar  = gerfc(r, alpb, &fgerfc_bar);
-						double gerfc_tmp_beta = gerfc(r, betaJ, &fgerfc_beta);
-						double r_inv = 1.0/r;
-						EHarshortselfscrGrid += pref*(gerfc_tmp_bar - gerfc_tmp_beta)*r_inv; 
-					}// end if r > 0
-				} else {
-					EHarshortselfscrGrid += pref*2.0*(betaJ - alpb)/sqrt(M_PI_QI);
-				} // end if
-			} //end for f2
-		} //end for f1
-
-		for (int l=0; l <= lmax; l++) {
-			for (int m=-l; m<=l; m++) {
-				gen_Ylmf (rorder, thetaorder, xcostheta, phiorder, xphi, l, m, Ylmf);
-				for (int f1=0; f1 < nf; f1++) {
-					for (int f2=0; f2 < nf; f2++) {
-						double rmin = MIN(rf[f1],rf[f2]);
-						double rmax = MAX(rf[f1],rf[f2]);
-						double pref = Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
-						complex temp = pref*(2.0*M_PI_QI)/(2*l+1)*pow(rmin,l)/pow(rmax,l+1)*(Ylmf[f1]*Ylmf[f2].conj());
-						if (rmax > 0) {EHarshortselfGrid += temp.re*wght;}
-					} //end for f2
-				} //end for f1
-			} //end for m
-		} //end for l
+		int pw_Hart_self = 1;
+		if (pw_Hart_self == 0) {
+			for (int f1=0; f1 < nf; f1++) {
+				for (int f2=0; f2 < nf; f2++) {
+					double pref = 0.5*wght*Ncoeff*Ncoeff*qt[J]*qt[J]*wf[f1]*wf[f2];
+					if (f1 != f2) {
+						double dx   = xf[f1] - xf[f2];
+						double dy   = yf[f1] - yf[f2];
+						double dz   = zf[f1] - zf[f2];
+						double r2   = dx*dx + dy*dy + dz*dz;
+						double r    = sqrt(r2);
+						if (r > 0) { 
+							double fgerfc_bar, fgerfc_beta;
+							double gerfc_tmp_bar  = gerfc(r, alpb, &fgerfc_bar);
+							double gerfc_tmp_beta = gerfc(r, betaJ, &fgerfc_beta);
+							double r_inv = 1.0/r;
+							EHarshortselfscrGrid += pref*(gerfc_tmp_bar - gerfc_tmp_beta)*r_inv; 
+							EHarshortselfGrid += pref*gerfc_tmp_bar*r_inv; 
+						}// end if r > 0
+					} else {
+						EHarshortselfscrGrid += pref*2.0*(betaJ - alpb)/sqrt(M_PI_QI);
+						EHarshortselfGrid -= pref*2.0*alpb/sqrt(M_PI_QI);
+					} // end if
+				} //end for f2
+			} //end for f1
+		} else {
+				int lmax_tmp = 0; int nr = fgrid[jtyp].nr; int nang = fgrid[jtyp].nang;
+				double *ylm = fgrid[jtyp].ylm; double *wang = fgrid[jtyp].wang;
+				double *wr_bare = fgrid[jtyp].wr_bare;
+				double **pw_erfA = fgrid[jtyp].pw_erfA;
+				double **pw_erfB = fgrid[jtyp].pw_erfB;
+				double **pw_coul = fgrid[jtyp].pw_coul;
+				double *rho_in = fgrid[jtyp].rho; double **rho_scr = fgrid[jtyp].rho_scr;
+				double *rho_lm = fgrid[jtyp].rho_lm; double vselfB = 0.0, vselfA = 0.0, vself_coul = 0.0;
+				screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_erfA, rho_in, rho_scr, rho_lm, &vselfA);
+				screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_erfB, rho_in, rho_scr, rho_lm, &vselfB);
+				screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_coul, rho_in, rho_scr, rho_lm, &vself_coul);
+				EHarshortselfscrGrid += (vselfB-vselfA)*wght*qt[J]*qt[J];
+				EHarshortselfGrid += (vself_coul-vselfA)*wght*qt[J]*qt[J];
+		} //end if
 	} //end for jtyp
 	end = clock();
 	PRINTF("3D eN and Har self finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
@@ -1107,3 +960,50 @@ inline double gerfc(double r, double a, double *fgerfc){
     return gerfc_x;
 }//end routine gerf
 //===========================================================================
+
+//================================================================================================
+void screen_self_Hartree(int lmax, int nr, int nang, double *ylm, double *wang, double *wr, double **pw_erf, double *rho_in, double **rho,
+													 double * rho_lm, double *vself_out) { 
+//================================================================================================
+	if(lmax != 0) {
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		PRINTF("lmax != 0! Die!\n");
+		PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
+		FFLUSH(stdout);
+		EXIT(1);
+	}/*endif*/
+
+//================================================================================================
+// Nicely store rho_in : used (lmax+1)^2 times below so no cost to arrange nicely for use below.
+
+  int iii = 0;
+  for(int itp=0;itp<nang;itp++){
+    for(int ir=0;ir<nr;ir++,iii++){rho[ir][itp] = rho_in[iii];} // assumes ir is inner index of rho_in
+  }//endfor
+
+//================================================================================================
+// Screened Hatree by partial waves for s wave only, no m
+  double vself = 0.0;
+  for(int il=0;il<=lmax;il++){
+    int nm = 2*il+1;
+    for(int m=0;m<nm;m++){
+     // Compute lm components of rho inside atom by theta phi integration of rho*ylm = rho_lm(r) (real)
+      for(int ir=0;ir<nr;ir++){rho_lm[ir] = 0.0;}
+      for(int ir=0;ir<nr;ir++){
+        for(int itp=0;itp<nang;itp++){rho_lm[ir] += ylm[itp]*rho[ir][itp]*wang[itp];}
+      }//endfor
+     // Compute Hartree self by inegration over r,r' and summing over lm : rho_lm(r)^2 pw_erf(r,r')
+      double pre_l     = 4.0*M_PI_QI; 
+      double pre_l_rt  = sqrt(pre_l);
+      for(int ir=0;ir<nr;ir++){rho_lm[ir]*=(pre_l_rt*wr[ir]);} // absorb weights and constant prefactor
+      double vself_now = 0.0;
+      for(int ir=0;ir<nr;ir++){
+      for(int irp=0;irp<nr;irp++){
+        vself_now += (rho_lm[ir]*pw_erf[ir][irp]*rho_lm[irp]);
+      }}//endfor: ir, irp
+      vself += (vself_now*0.5);
+      //      if(vself_now>1.e-10){printf("atm(%d) Ylm(%d %d) %g\n",iatm,il,m,vself_now*0.5);}
+    }//endfor : m
+  }//enfor: il
+  vself_out[0] = vself; // return vself
+} // end routine

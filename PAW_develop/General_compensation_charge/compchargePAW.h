@@ -45,8 +45,9 @@ typedef struct ESTRUCT{
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 //==========================================================================
 // Function prototypes
-void gaussran(int , long *, double *);
-double altRandom(long *); 
+void fillEstruct(ESTRUCT *);
+void fill_atompos_maps(char *, ATOM_MAPS *, ATOM_POS *, ATOM_POS *, CELL *, double);
+void fill_fgrid(FGRID *, ATOM_MAPS *, ATOM_POS *, CELL *, int, int, int, int);
 void gethinv(double *, double *, double *, int );
 void computePAWreal(ATOM_MAPS *, ATOM_POS *, CELL *, ESTRUCT *);
 void computePAWGrid(int, ATOM_MAPS *, ATOM_POS *, CELL *, ESTRUCT *, FGRID *);
@@ -56,4 +57,5 @@ void gen_Ylmf (int, int, double *, int, double *, int, int, complex *);
 inline double erfc_a_r_over_r(double, double, double, double);
 inline double erfc_a_r_over_r_old(double, double);
 inline double gerfc(double, double, double *);
+void screen_self_Hartree(int, int, int, double *, double *, double *, double **, double *, double **, double *, double *);
 //==========================================================================
