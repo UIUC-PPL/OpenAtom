@@ -31,7 +31,7 @@ module states {
   // where and when to send its data.
   array [3D] States {
     entry States();
-    entry void fftGtoR();
+    entry void fftGtoR(int q_index);
     entry [reductiontarget] void sendToCache();
     entry [reductiontarget] void sendToComputeF();
   };  

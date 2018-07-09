@@ -25,6 +25,7 @@ Controller::Controller() {
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   M = gwbse->gw_parallel.M;
+  Q = gwbse->gw_parallel.Q;
   Bands = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
@@ -56,6 +57,8 @@ Controller::Controller() {
   writeCB = CkCallback(CkReductionTarget(Controller, writeComplete), thisProxy);
   verifyCB = CkCallback(CkReductionTarget(Controller, verifyComplete), thisProxy);
 
+  qindexCB = CkCallback(CkReductionTarget(Controller, setQIndex), thisProxy);
+
   p_config = gwbse->gw_io.p_matrix;
   eps_config = gwbse->gw_io.epsilon;
   eps_inv_config = gwbse->gw_io.epsilon_inv;
@@ -69,8 +72,6 @@ void Controller::computeEpsDimensions() {
   b1 = gwbse->gwbseopts.b1;
   b2 = gwbse->gwbseopts.b2;
   b3 = gwbse->gwbseopts.b3;
-
-  int qindex = Q_IDX;
 
   this_q = gwbse->gwbseopts.qvec[qindex];
 
@@ -96,7 +97,6 @@ void Controller::calc_Geps() {
   a1 = gwbse->gwbseopts.a1;
   a2 = gwbse->gwbseopts.a2;
   a3 = gwbse->gwbseopts.a3;
-  int qindex = Q_IDX;
 
   this_q = gwbse->gwbseopts.qvec[qindex];
 
@@ -115,7 +115,7 @@ void Controller::got_vcoulb(std::vector<double> vcoulb_in){
   psi_cache_proxy.setVCoulb(vcoulb_in);
 }
 
-PsiCache::PsiCache() {
+PsiCache::PsiCache(int q_index) {
   GWBSE *gwbse = GWBSE::get();
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
@@ -123,7 +123,7 @@ PsiCache::PsiCache() {
   n_np = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
-  qindex = Q_IDX;
+  qindex = q_index;
   psi_size = gwbse->gw_parallel.n_elems;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
   received_psis = 0;
@@ -191,6 +191,7 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   if(qindex == 0)
     expected_psis += K*L;
   if (++received_psis == expected_psis) {
+    received_psis = 0;
     //CkPrintf("[%d]: Cache filled\n", CkMyPe());
     contribute(CkCallback(CkReductionTarget(Controller,cachesFilled), controller_proxy));
   }
@@ -286,7 +287,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
   if(in_np_list(msg->state_index) && msg->shifted==false){
 //Cache this
     int state_index = get_index(msg->state_index)*2*psi_size;
-    complex *store_x = &states[(ikq*2*n_np*psi_size)+ state_index];
+    complex *store_x = &states[(msg->k_index*2*n_np*psi_size)+ state_index];
     complex *load_x = msg->psi;
     memcpy(store_x, load_x, psi_size*sizeof(complex));
   }

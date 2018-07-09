@@ -45,6 +45,7 @@ module controller {
     entry [reductiontarget] void psiCacheReady();
     entry [reductiontarget] void fCacheReady();
     entry [reductiontarget] void cachesFilled();
+    entry [reductiontarget] void setQIndex();
     entry [reductiontarget] void registrationComplete();
     entry [reductiontarget] void psiComplete();
     entry [reductiontarget] void fftComplete();
@@ -85,6 +86,15 @@ module controller {
       /** Setup ***************************************************************/
       /************************************************************************/
       when fftControllerReady() serial {
+      }
+
+
+      for(qindex=0;qindex<Q;qindex++) {
+      serial {
+        psi_cache_proxy = CProxy_PsiCache::ckNew(qindex);
+        pmatrix2D_proxy.setQIndex(qindex, qindexCB);
+      }
+      when psiCacheReady(), setQIndex() serial {
         //precompute epsilon dimensions to enable caching necessary subsets of f-vectors
         computeEpsDimensions();
       }
@@ -97,9 +107,9 @@ module controller {
         PAD(epsilon_size);
         fvector_cache_proxy.setDim(padded_epsilon_size/eps_rows,
                                     accept,geps_x,geps_y,geps_z);
-        states_proxy.fftGtoR();
+        states_proxy.fftGtoR(qindex);
       }
-      when fftComplete(), psiCacheReady() serial {
+      when fftComplete() serial {
         #ifdef REGISTER_REGIONS
         pmatrix2D_proxy.registerTileSections();
         #endif
@@ -181,6 +191,7 @@ module controller {
         cfg2D.mat_rows = cfg2D.mat_cols = padded_epsilon_size;
         cfg2D.tile_rows = eps_rows;
         cfg2D.tile_cols = eps_cols;
+        cfg2D.qindex = qindex;
 
         CProxy_EpsMap map = CProxy_EpsMap::ckNew(cfg2D);
         CkArrayOptions opts(cfg2D.chareRows(), cfg2D.chareCols());
@@ -419,6 +430,7 @@ module controller {
         delete msg;
         s_matrix2D_proxy.coh();
       }
+
       when cohComplete(CkReductionMsg* msg) serial {
         CkReduction::tupleElement* results = NULL;
         int num_reductions = 0;
@@ -439,10 +451,13 @@ module controller {
         delete msg;
       }
 
-      serial {
-        STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
-        CkExit();
-      }
+    }//end of Q loop
+
+    serial {
+      STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
+      CkExit();
+    }
+
     }
 
     entry void formPMatrix() {
@@ -490,6 +505,9 @@ module controller {
       // Phase 1 is complete, so get more detailed timing info from the P Matrix
       // chares and the PsiCache chares.
       serial {
+        total_sent = 0;
+        total_complete = 0;
+        next_report_threshold = 0;
         STOP_STEP("P Matrix formed in real space");
         pmatrix2D_proxy.reportPTime();
         psi_cache_proxy.reportFTime();

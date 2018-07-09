@@ -307,7 +307,7 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
 
-  num_dict[0] = 7;
+  num_dict[0] = 8;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
@@ -359,19 +359,28 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   strcpy((*dict)[ind].keyword,"num_spin");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"an integer > 0");
-  //----------------------------------------------------------------------------- 
+  //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  6)\coulb_trunc_opt{}
+  //  6)\num_qpt{}
   ind =   6;
+  strcpy((*dict)[ind].keyword,"num_qpt");
+  strcpy((*dict)[ind].keyarg,"1");
+  strcpy((*dict)[ind].error_mes,"an integer > 0");
+  //----------------------------------------------------------------------------- 
+
+
+  //-----------------------------------------------------------------------------
+  //  7)\coulb_trunc_opt{}
+  ind =   7;
   strcpy((*dict)[ind].keyword,"coulb_trunc_opt");
   strcpy((*dict)[ind].keyarg,"0");
   strcpy((*dict)[ind].error_mes,"0-no truncation, 1-wire, 2-sheet, 3-molecule");
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  7)\statefile_binary_opt{}
-  ind =   7;
+  //  8)\statefile_binary_opt{}
+  ind =   8;
   strcpy((*dict)[ind].keyword,"statefile_binary_opt");
   strcpy((*dict)[ind].keyarg,"off");
   strcpy((*dict)[ind].error_mes,"off,off_gzip,on,on_gzip");
@@ -854,15 +863,22 @@ void Config::set_config_params_gen_GW  (DICT_WORD *dict, char *fun_key, char *in
   gwbseopts->nspin = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  6)\coulb_trunc_opt{}
-  ind =   6;   
+  //  6)\num_qpt{}
+  ind =   6;
+  sscanf(dict[ind].keyarg,"%d",&int_arg);
+  if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gwbseopts->nqpt = int_arg;
+
+  //-----------------------------------------------------------------------------
+  //  7)\coulb_trunc_opt{}
+  ind =   7;
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->coulb_trunc_opt = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  7)\statefile_binary_opt{}
-  ind =   7;   
+  //  8)\statefile_binary_opt{}
+  ind =   8;
 
   ifound = 0;
   if(strcasecmp(dict[ind].keyarg,"off")==0)
@@ -1828,8 +1844,6 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   } // endfor spin
 
   // shifted states eigenvalues
-  int qindex = Q_IDX;
-  if(qindex == 0)
   for (int s = 0; s < nspin; s++) {
     for (int k = 0; k < nkpt; k++) {
       sprintf(fromFile, "./STATES/Spin.%d_Kpt.0%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->eigFileName);
@@ -1850,6 +1864,7 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   gw_parallel->K = gwbseopts->nkpt;
   gw_parallel->L = gwbseopts->nocc;
   gw_parallel->M = gwbseopts->nunocc;
+  gw_parallel->Q = gwbseopts->nqpt;
 
   // =======================================================================
   // Let's determine the FFT size for the epsilon calculation

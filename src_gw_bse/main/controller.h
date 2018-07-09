@@ -82,6 +82,7 @@ class Controller : public CBase_Controller {
     int msg_received;
     int iter, maxiter;
     int iteration;
+    int qindex;
     unsigned index;
     unsigned dimension, rows;
     bool resultInsert;
@@ -92,7 +93,7 @@ class Controller : public CBase_Controller {
     complex bare_x, screen_x, coh;
     std::vector<double> vcoulb;
     double shift[3];
-    unsigned K, L, M, Bands, pipeline_stages;
+    unsigned K, L, M, Q, Bands, pipeline_stages;
     unsigned next_K, next_state, total_sent, total_complete;
     unsigned max_sends, next_report_threshold;
     unsigned p_matrix_dimension, num_p_rows;
@@ -104,7 +105,7 @@ class Controller : public CBase_Controller {
     std::vector<int> accept_result;
     Stopwatch stopwatch;
 
-    CkCallback copyCB, readCB, writeCB, verifyCB;
+    CkCallback copyCB, readCB, writeCB, verifyCB, qindexCB;
 
     IOConfig p_config, eps_config, eps_inv_config;
 
@@ -139,7 +140,7 @@ struct FComputePacket {
 
 class PsiCache : public CBase_PsiCache {
   public:
-    PsiCache();
+    PsiCache(int q_index);
 
     void receivePsi(PsiMessage*);
     void computeFs(PsiMessage*);

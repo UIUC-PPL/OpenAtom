@@ -17,7 +17,7 @@ class GW_PARALLEL{
 
   //---------------
   public:
-    unsigned K, L, M;         // Number of k points, occupied, and unoccupied psis
+    unsigned K, L, M, Q;      // Number of k points, occupied, and unoccupied psis, q points
     unsigned n_elems;         // Number of elements in psi
     unsigned pipeline_stages; // Number of stages in the M pipeline
     unsigned rows_per_chare;  // Rows per PMatrix chare
@@ -29,7 +29,7 @@ class GW_PARALLEL{
     //----------------
     //con-destruct:
     GW_PARALLEL(){
-      K = L = M = 0;
+      K = L = M = Q = 0;
       n_elems = 0;
       pipeline_stages = 0;
       rows_per_chare = 0;
@@ -43,7 +43,7 @@ class GW_PARALLEL{
     //-------------
     //pupping
     void pup(PUP::er &p){
-      p | K; p | L; p | M;
+      p | K; p | L; p | M; p | Q;
       p | n_elems;
       p | pipeline_stages;
       p | rows_per_chare;
@@ -67,6 +67,7 @@ class GW_PARALLEL{
       fprintf(fp,"K %i\n", K);
       fprintf(fp,"L %i\n", L);
       fprintf(fp,"M %i\n", M);
+      fprintf(fp,"Q %i\n", Q);
       fprintf(fp,"pipeline_stages %i\n", pipeline_stages);
       fprintf(fp,"rows_per_chare %i\n", rows_per_chare);
       fprintf(fp,"cols_per_chare %i\n", cols_per_chare);

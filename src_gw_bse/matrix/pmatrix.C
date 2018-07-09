@@ -22,7 +22,7 @@ PMatrix::PMatrix(MatrixConfig config) : CBase_PMatrix(config) {
   // Set some constants
   L = gwbse->gw_parallel.L;
   nfft = gwbse->gw_parallel.fft_nelems;
-  qindex = Q_IDX; // Eventually the controller will set this
+  qindex = qindex = config.qindex; // The controller will sets this
 
   // Grab a local pointer to the fft controller for fft-ing our rows
   // TODO: Is this guaranteed to be safe (is the local branch created for sure)?

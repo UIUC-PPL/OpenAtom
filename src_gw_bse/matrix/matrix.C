@@ -51,6 +51,7 @@ Matrix::Matrix(int mr, int mc, int tr, int tc) {
 void Matrix::initialize() {
   start_row = config.tile_rows * thisIndex.x;
   start_col = config.tile_cols * thisIndex.y;
+  qindex = config.qindex;
 
   data_received = 0;
   total_data = config.tile_rows * config.tile_cols;
@@ -123,6 +124,12 @@ void Matrix::write(string prefix, CkCallback cb) {
     outfile.close();
   }
   contribute(sizeof(bool), &result, CkReduction::logical_and_bool, cb);
+}
+
+void Matrix::setQIndex(int q_index, CkCallback cb){
+  qindex = q_index;
+  std::fill(data, data+total_data, 0.0);
+  contribute(cb);
 }
 
 void Matrix::verify(string prefix, CkCallback cb) {

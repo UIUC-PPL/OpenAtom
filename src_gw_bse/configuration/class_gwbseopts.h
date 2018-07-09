@@ -26,6 +26,7 @@ class GWBSEOPTS{
     int nunocc;                  // Num: number of unoccupied state
     int nkpt;                    // Num: number of k points
     int nspin;                   // Num: number of spin
+    int nqpt;                    // Num: number of q points
     int coulb_trunc_opt;         // Num: coulomb truncation option
                                  // 0-no truncation 1-wire 2-sheet 3-molecule
     int ibinary_opt;             // Num: binary option 1, 2, 3
@@ -50,6 +51,7 @@ class GWBSEOPTS{
       nocc            = 0;               
       nunocc          = 0;              
       nkpt            = 0;
+      nqpt            = 0;
       nspin           = 0;
       coulb_trunc_opt = 0;
       ibinary_opt     = 0;
@@ -69,6 +71,7 @@ class GWBSEOPTS{
       p | nunocc;
       p | nkpt;
       p | nspin;
+      p | nqpt;
       p | coulb_trunc_opt;
       p | ibinary_opt;
       //pupping dbles;
@@ -117,6 +120,7 @@ class GWBSEOPTS{
       fprintf(fp,"nunocc %d\n",nunocc);
       fprintf(fp,"nkpt %d\n",nkpt);
       fprintf(fp,"nspin %d\n", nspin);
+      fprintf(fp,"nqpt %d\n", nqpt);
       fprintf(fp,"coulb_trunc_opt %d\n",coulb_trunc_opt);
       fprintf(fp,"ibinary_opt %d\n",ibinary_opt);
 
