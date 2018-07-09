@@ -16,6 +16,7 @@
 #include "compchargePAW.h"
 #include "grid.h"
 #include "gen_Gauss_quad_driver_entry.h"
+int main (int, char *[]);
 
 //==========================================================================
 //cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -613,7 +614,9 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			wr_master[i] *= psi0_2[i]; // unitless
 			check += wr_master[i];
 		} // end for
+#ifdef _INTEGRATION_CHECK_
 		PRINTF("check = %g\n", check);
+#endif
 	} // end if
 	
 	if (model == 1) {
@@ -631,7 +634,9 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		} // end for
 		wr_master[0] *= 0.5; wr_master[rorder-1] *= 0.5;
 		wr_bare[0] *= 0.5; wr_bare[rorder-1] *= 0.5;
+#ifdef _INTEGRATION_CHECK_
 		PRINTF("check = %g\n", check);
+#endif
 	} // end if
 
 
@@ -757,14 +762,17 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 						pw_coul[ir][jr] = simple;
         } // end for jr
     } // end for ir
+#ifdef _INTEGRATION_CHECK_
     PRINTF("2*HartreeselfGrid_pw:        %.14g\n", result3);
 		PRINTF("2*HartreeselfGrid_pw_screen: %.14g\n", result4);
 		PRINTF("2*HartreeselfGrid_pw_Ewald:  %.14g\n", resultA);
+#endif
 
 		double gamma2_inv = 0.5/(alp_tmp*alp_tmp) + 0.25/(beta_tmp*beta_tmp);
 		double gamma = 1.0/sqrt(gamma2_inv);
+#ifdef _INTEGRATION_CHECK_
 		PRINTF("2*Hartreeself_screen: %.10g %.10g beta_tmp = %g\n", gamma/sqrt(M_PI_QI), result4, beta_tmp);
-
+#endif
 		for (int itheta=0; itheta<thetaorder; itheta++) { xcostheta[itheta] = xtheta_master[itheta];}
 		for (int iphi=0; iphi<phiorder; iphi++) { xphi[iphi] = xphi_master[iphi];}
 
@@ -789,8 +797,10 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 					iii++;
         } // end for itheta
     } // end for ir
+#ifdef _INTEGRATION_CHECK_
 		PRINTF("result5: %.10g\n", result5/(4.0*M_PI_QI));
 		PRINTF("result6: %.10g\n", result6);
+#endif
 
   } // end for i: atom type
 
@@ -806,6 +816,8 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_coul, rho_in, rho_scr, rho_lm, &vself_coul);
 		screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_erfA, rho_in, rho_scr, rho_lm, &vselfA);
 		screen_self_Hartree(lmax_tmp, nr, nang, ylm, wang, wr_bare, pw_erfB, rho_in, rho_scr, rho_lm, &vselfB);
+#ifdef _INTEGRATION_CHECK_
 		PRINTF("vself_coul, vself_screenA, vself_screenB: %.14g %.14g %.14g\n", 2.0*vself_coul, 2.0*vselfA, 2.0*vselfB);
+#endif
   } // end for i: atom type
 } // end routine
