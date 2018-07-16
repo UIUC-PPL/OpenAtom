@@ -18,13 +18,15 @@ module controller {
 
 #define STOP_STEP(x)\
   stopwatch.stopTimer(x);\
-  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));
+  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));\
+  stopwatch.resetTimer(x);
 
 #define STOP_BIG_STEP(x)\
   stopwatch.stopTimer(x);\
   CkPrintf("[CONTROLLER] ====================================================================\n");\
   CkPrintf("[CONTROLLER] ==== %-35s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));\
-  CkPrintf("[CONTROLLER] ====================================================================\n\n");
+  CkPrintf("[CONTROLLER] ====================================================================\n\n");\
+  stopwatch.resetTimer(x);
 
   // Describes and controls the main control flow of the entire computation, by
   // by coordinating communication between all other chares in the system.
@@ -90,6 +92,9 @@ module controller {
 
 
       for(qindex=0;qindex<Q;qindex++) {
+      serial {
+        START_STEP("SETUP COMPLETED");
+      }
       serial {
         psi_cache_proxy = CProxy_PsiCache::ckNew(qindex);
         pmatrix2D_proxy.setQIndex(qindex, qindexCB);
@@ -449,12 +454,13 @@ module controller {
         CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, 0.5*round(dx.re*POW6)/POW6 * 27.2114,dx.im);
         CkPrintf("|                     |   |   |   |                         \n");
         delete msg;
+        STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
       }
 
     }//end of Q loop
 
     serial {
-      STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
+    //All computation finished
       CkExit();
     }
 

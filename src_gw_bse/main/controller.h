@@ -45,6 +45,10 @@ class Stopwatch {
       times[key].stop = CmiWallTimer();
       times[key].stopped = true;
     }
+    void resetTimer(std::string key) {
+      times[key].started = false;
+      times[key].stopped = false;
+    }
     double getEnd(std::string key) {
       if (!times[key].stopped) {
         CkPrintf("Warning: Timer not stopped for %s\n", key.c_str());
