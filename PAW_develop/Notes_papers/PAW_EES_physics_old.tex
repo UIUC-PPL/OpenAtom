@@ -238,21 +238,6 @@
 \newcommand{\ReRG}{{{\bf ReRG:\ }}}
 \newcommand{\bal}{{\bar{\alpha}}}
 \newcommand{\hal}{{\hat{\alpha}}}
-\newcommand{\PWerf}{\mathrm{W}^{(\mathrm{erf})}}
-\newcommand{\sgn}{\mathrm{sgn}}
-\newcommand{\sinhc}{\mathrm{sinhc}}
-\newcommand{\rgt}{r_{>}}
-\newcommand{\rlt}{r_{<}}
-\newcommand{\brgt}{\bar{r}_{>}}
-\newcommand{\brlt}{\bar{r}_{<}}
-\newcommand{\Derfp}{\mathrm{D}^{(\mathrm{erf})}_p}
-\newcommand{\Derfm}{\mathrm{D}^{(\mathrm{erf})}_m}
-\newcommand{\tDerfmS}{\tilde{\mathrm{D}}^{(\mathrm{erf,2})}_m}
-\newcommand{\tDerfmF}{\tilde{\mathrm{D}}^{(\mathrm{erf,4})}_m}
-\newcommand{\Derfcp}{\mathrm{D}^{(\mathrm{erfc})}_p}
-\newcommand{\Derfcm}{\mathrm{D}^{(\mathrm{erfc})}_m}
-\newcommand{\erfcp}{\mathrm{E}^{(\mathrm{erfc})}_p}
-\newcommand{\erfcm}{\mathrm{E}^{(\mathrm{erfc})}_m}
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -5995,276 +5980,73 @@ E_{\rH}^{(\rcomp,\mathrm{screen, self, grid})}
 
 We now perform an error analysis with generalized Gaussian quadrature weights and nodes based on half-space Hermite polynomials for the $\br$-space integration, Gauss Legendre for $cos(\theta)$ and equally spaced points for $\phi$. Due to the symmetry, you need very few points for $\theta$ and $\phi$. The idea is to choose an error bound for a given grid size, select the largest $\beta$ consistent with this error bound. In practice, we choose a $\beta$ for each atom type $\beta_{J} = \beta_{\mathrm{universal}} \alpha_{J}$.
 
-The partial wave expansion of the regularized / screened Coulomb interaction can
-be expressed as
-\begin{equation}
-\label{eq:modBerfPw}
-\begin{split}
-\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|} &= \left(\frac{2}{\sqrt{\pi}}\right)\frac{1}{|\br-\br'|}
-\int_0^{\beta|\br-\br'|} \rd u\ \re^{-u^2} \\
-&=  \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}\re^{2u^2rr'\cos(\theta)} \\
-&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}
-    \left [\sum_{l=0}^\infty (2l+1) i_{l}(2u^2 r r')P_l\left(\cos(\theta)\right)\right ] \\
-&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right)
-      \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
-&= 8\sqrt{\pi}\
-      \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
-      \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
-&= \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
-  \left [ 8 \sqrt{\frac{\pi}{2rr'}}
-          \int_0^{\beta\sqrt{2rr'}}\rd x\ \re^{-x^2\left(\frac{r^2 + r'^2}{2rr'}\right)}i_{l}(x^2)
-  \right]  \\
-&=  \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right)
-    \left(\frac{4\pi}{2l+1}\right)\PWerf_l(r,r';\beta)
-\end{split}
-\end{equation}
-where
-\begin{equation}
-\label{eq:ScrPw}
-\PWerf_l(r,r';\beta) = \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)\left(\frac{1}{\sqrt{2rr'}}\right)
-      \int_0^{\beta\sqrt{2rr'}}\rd x\ \re^{-x^2\left(\frac{r^2 + r'^2}{2rr'}\right)}i_{l}(x^2),
-\end{equation}
-the $i_l$ are the modified spherical Bessel function of the 1st kind, here, given up to f-wave
+We now present the partial way expansion of the screened Coulomb interaction,
 \begin{equation}
 \begin{split}
-i_0(x) &= \frac{\sinh(x)}{x} = \sinhc(x)\\
-i_1(x) &= \frac{x\cosh(x)-\sinh(x)}{x^2} = \frac{\cosh(x)-\sinhc(x)}{x} \\\\
-i_2(x) &= \frac{(x^2+3)\sinh(x)-3x\cosh(x)}{x^3} = \frac{(x^2+3)\sinhc(x)-3\cosh(x)}{x^2} \\\\
-i_3(x) &= \frac{(x^3+15x)\cosh(x)-(6x^2+15)\sinh(x)}{x^4} = \frac{(x^2+15)\cosh(x)-(6x^2+15)\sinhc(x)}{x^3} 
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(\br-\br')^2}\\
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}\re^{2u^2 r r' \cos(\theta)} \\
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \left\{\sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{4u^2 r r'}}I_{l+\frac{1}{2}}(2u^2 r r')\right]P_l\left(\cos(\theta)\right)\right\} \\
+&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \sqrt{\frac{\pi}{4u^2 r r'}}I_{l+\frac{1}{2}}(2u^2 r r')\\
+&= \frac{1}{\sqrt{r r'}} \sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{I_{l+\frac{1}{2}}(2u^2 r r')}{u}\\
+&= \frac{4\pi}{\sqrt{r r'}} \sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{I_{l+\frac{1}{2}}(2u^2 r r')}{u}\\
 \end{split}
 \end{equation}
-and the expansion of the exponential of the cosine of the angle between the vectors $\br$ and $\br'$, $\cos(\theta)$,
-in terms of the $i_l$ and the Legendre polynomials is taken from formula 10.2.36 of Abramowitz and Stegun.
-The symbol $W$ is employed for the interaction as opposed to $\phi$ due neglect of the
-prefactor $e^2/4\pi \epsilon_0$ (or just $e^2$ in a.u.) required for the unit of the interaction to be energy.
-The factor $4\pi/(2l+1)$ is introduced such that in the first key limit,
-$\lim_{\beta\rightarrow\infty}\PWerf_l(r,r';\beta)=\rlt^l/\rgt^{l+1}$, the familiar partial wave expansion of
-$1/|\br-\br'|$ emerges, where $\rgt = \mathrm{max}(r,r')$ and $\rlt = \mathrm{min}(r,r')$.  The second key limit,
-$\lim_{r'\rightarrow 0}\PWerf_l(r,r';\beta)=(\rerf(\beta r)/r)\delta_{l,0}=(\rerf(\beta \rgt)/\rgt)\delta_{l,0}$
-while obvious from Eq. (\ref{eq:modBerfPw}) can proved in the integral form as follows
-\begin{eqnarray}
-\lim_{r'\rightarrow 0} \PWerf_l(r,r';\beta) &=& \lim_{r'\rightarrow 0}\left(\frac{2(2l+1)}{\sqrt{\pi}}\right)
-\int_0^{\beta}\rd x\ \re^{-x^2\left(r^2 + r'^2\right)}i_{l}(2rr'x^2) \nonumber\\
-&=& \lim_{r'\rightarrow 0}\left(\frac{2(2l+1)}{\sqrt{\pi}}\right)
-\int_0^{\beta}\rd x\ \re^{-x^2 r^2}i_{l}(0) \nonumber \\
-&=& \lim_{r'\rightarrow 0}\left(\frac{2(2l+1)}{\sqrt{\pi}}\right)
-\int_0^{\beta}\rd x\ \re^{-x^2r^2}\delta_{l,0} \nonumber \\
-&=& \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)\int_0^{\beta}\rd x\ \re^{-x^2r^2}\delta_{l,0} \nonumber \\
-&=& (2l+1) \frac{\erf(\beta r)}{r}\delta_{l,0} = \frac{\erf(\beta \rgt)}{\rgt}\delta_{l,0}
-\end{eqnarray}
-The result, $\lim_{y\rightarrow 0}i_{l}(y)=y^l/(2l+1)!!=\delta_{l,0}$, given in formula (10.2.5) of
-Abramowitz and Stegun and the definition of $\{\rgt,\rlt\}$ have been applied.
 
-In order to proceed, the required indefinite integrals are evaluated in closed form
-\begin{eqnarray}
-%-----------------------------------------------
-\int \rd x\ \re^{-a^2x^2}i_{0}(x^2)&=& 
-\frac{\sqrt{\pi}\sgn(x)}{2}\left [a_m \rerfc(a_m |x|) - a_p \rerfc(a_p |x|) \right ] 
-- xe^{-a^2x^2} \left [\sinhc(x^2)\right] \hspace*{4in}
-\end{eqnarray}
-
-\begin{eqnarray}
-%-----------------------------------------------
-\int \rd x\ \re^{-a^2x^2}i_{1}(x^2)&=& 
-   \frac{\sqrt{\pi}\mathrm{sgn}(x)}{6}\left [ (2 a^2 + 1)a_m \rerfc(a_m |x|)  - (2 a^2 - 1)a_p \rerfc(a_p|x|) 
-   \right ] \hspace*{4in} \nonumber \\
-& &  -\frac{e^{-a^2x^2}}{3x}\left [ (2a^2x^2-1)\sinhc(x^2) + \cosh(x^2)\right ]
-%-----------------------------------------------
-\end{eqnarray}
-
-\begin{eqnarray}
-%-----------------------------------------------
-  \int \rd x\ \re^{-a^2x^2}i_{2}(x^2) &=&
-\frac{\sqrt{\pi} \mathrm{sgn}(x)}{10}\left [
- (4 a^4 + 2 a^2 - 1) a_m \rerfc(a_m|x|) 
- -(4 a^4 - 2 a^2 - 1) a_p \rerfc(a_p|x|) \right ] \hspace*{4in} \nonumber \\
- &-& \frac{e^{-a^2 x^2} }{5x^3}\left [
- ( (4 a^4-1)x^4 - 2 a^2 x^2 + 3)\sinhc(x^2) + (2 a^2 x^2 - 3)\cosh(x^2)
-  \right ] 
-\end{eqnarray}
-
-\begin{eqnarray}
-\int \rd x\ \re^{-a^2x^2}i_{3}(x^2) &=&
-\frac{\sqrt{\pi}\mathrm{sgn}(x)}{14}\left [
-  (8 a^6 + 4 a^3 - 4a^2 - 1) a_m \rerfc(a_m|x|) 
- -(8 a^6 - 4 a^2 - 4a^2 + 1) a_p \rerfc(a_p|x|) \right ] \hspace*{4in} \nonumber \\
- &-& \frac{e^{-a^2 x^2} }{7x^5}\left [
-      ((-8a^4 + 4)a^2x^6  + (+4a^4 + 4)x^4 - 6a^2x^2 + 15 )\sinhc(x^2) \right .\nonumber \\
-& & \left . \hspace*{1.5in}
-     +((-4a^4 + 1)x^4  + 6a^2x^2 - 15)\cosh(x^2) 
-  \right ] 
-\end{eqnarray}
-where
+Using the more friendly modified Spherical Bessel functions,
 \begin{equation}
 \begin{split}
-a_m &= \sqrt{a^2-1} \\
-a_p &= \sqrt{a^2+1} 
+\frac{\rerf(\beta|\br-\br'|)}{|\br-\br'|}
+&= \frac{2}{\sqrt{\pi}}\int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)} \left\{\sum_{l=0}^\infty (2l+1) i_{l}(2u^2 r r')P_l\left(\cos(\theta)\right)\right\} \\
+&= \frac{2}{\sqrt{\pi}}\sum_{l=0}^\infty (2l+1)P_l\left(\cos(\theta)\right) \int_0^\beta \rd u \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= 8\sqrt{\pi}\sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \int_0^\beta \rd u\ \re^{-u^2(r^2 + r'^2)}i_{l}(2u^2 r r') \\
+&= 8\sqrt{\pi}\sum_{l=0}^\infty \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \frac{1}{\sqrt{2rr'}} \int_0^{\sqrt{2rr'}\beta} \rd v\ \re^{-\left(\frac{r^2 + r'^2}{2rr'}\right)v^2}i_{l}(v^2) \\
 \end{split}
 \end{equation}
-The integrals are presented such that they are relatively easy to check by differentiation wrt to x.\\
 
-In order to place the partial waves of Eq. (\ref{eq:ScrPw}) in simplified form, it is first helpful to recognize
-that $\lim \beta\rightarrow \infty$ can only be realized if the lower limit of the integrals above
-when combined with the prefactor yields $\rlt^l/\rgt^{l+1}$.
-Second, since the upper and lower limits of the integrals are positive semi-definite ($x \geq 0$),
-the absolute value of $x$ in the closed form expressions above is not necessary and we can set 
-simply set $\sgn(x)=1$ and $|x|=x$.
-The necessity of defining $\rgt= \mathrm{max}(r,r')$ and $\rlt= \mathrm{min}(r,r')$ arises from
-the definition a's in terms of the r's
+Here we have used 2 identities, the spherical harmonics addition theorem and the partial wave expansion of a decaying exponential,
 \begin{equation}
 \begin{split}
-a   &=  \frac{\sqrt{r^2+{r'}^2}}{\sqrt{2rr'}} = \frac{\sqrt{\rgt^2+\rlt^2}}{\sqrt{2\rgt\rlt}} \\
-a_m &=  \frac{|r - r'|}{\sqrt{2rr'}}            = \frac{\rgt - \rlt}{\sqrt{2\rgt\rlt}} \\
-a_p &=  \frac{r + r'}{\sqrt{2rr'}}             = \frac{\rgt + \rlt}{\sqrt{2\rgt\rlt}} 
+P_l(\cos(\gamma)) &= \frac{4\pi}{2l + 1} \sum_{m=-l}^{l} Y_{lm}\left(\cos(\theta),\phi\right)Y_{lm}^*\left(\cos(\theta'),\phi'\right) \\
+\re^{z \cos(\theta)} &= \sum_{l=0}^\infty (2l+1)\left[\sqrt{\frac{\pi}{2z}}I_{l+1/2}(z)\right]P_l(\cos(\theta)) \\
+&= \sum_{l=0}^\infty (2l+1) i_{l}(z) P_l(\cos(\theta)) \\
 \end{split}
 \end{equation}
-Below, the partial waves are written in terms $\{\rgt,\rlt\}$ in the standard way, as opposed 
-to retaining the $\{r,r'\}$ form which requires explicitly referencing max and min functions.
 
-Using the simplified form of the integrals above and the definition of the a's in terms of $\rgt$ and $\rlt$,
-the coefficients of the partial wave expansion of the regularized / cutoff / screened Coulomb interaction can be
-written in
-a form in which the limits $\rlt\rightarrow 0$, and $\beta\rightarrow \infty$
-can be evaluated by inspection,
-\begin{eqnarray}
-\PWerf_0(r,r';\beta) &=& 
-\Derfp(\rlt,\rgt;\beta)\left[\frac{1}{\rgt}\right] 
-+\left[\Derfm(\rlt,\rgt;\beta)-\tDerfmS(\rlt,\rgt;\beta)\right]\left[\frac{1}{\rlt}\right] \hspace*{4in}\\
-&-& G_H(\rlt,\rgt,\beta)
-   \left [\sinhc(2\brgt\brlt)-1\right ] \nonumber
-\end{eqnarray}
-%
-\begin{eqnarray}
-  \PWerf_1(r,r';\beta) &=&
-   \Derfp(\rlt,\rgt;\beta) \left [\frac{\rlt}{\rgt^2} \right] 
-+  \left [\Derfm(\rlt,\rgt;\beta)-\tDerfmS(\rlt,\rgt;\beta)\right]
-   \left [\frac{\rgt}{\rlt^2} \right] \hspace*{6.in}\\
-&-&  G_H(\rlt,\rgt,\beta)
-    \left [(2(\brgt^2+\brlt^2)-1)\sinhc(2\brgt\brlt) 
-          + \cosh(2\brgt\brlt)- 2\brgt^2\right]\left[\frac{1}{2\brgt\brlt}\right ]
-\nonumber 
-\end{eqnarray}
-%
-\begin{eqnarray}
-\PWerf_2(r,r';\beta) &=&   
-    \Derfp(\rlt,\rgt;\beta) \left [\frac{\rlt^2}{\rgt^3} \right] 
-+  \left[\Derfm(\rlt,\rgt;\beta) -\tDerfmF(\rlt,\rgt;\beta) \right]
-   \left [\frac{\rgt^2}{\rlt^3} \right] \hspace*{6.in}\nonumber \\
-&-&  G_H(\rlt,\rgt,\beta)
-    \Bigl [(4(\brgt^4+\brlt^4+\brgt^2\brlt^2)-2(\brgt^2+\brlt^2) + 3)\sinhc(2\brgt\brlt)
-\Bigr . \nonumber \\ 
-& &       \hspace*{2.1in}  + (2(\brgt^2+\brlt^2) - 3)\cosh(2\brgt\brlt)  \nonumber \\
-& &\Bigl .\hspace*{0.8in}  - 4\brgt^4 \left(1+\frac{2\brlt^2(\brgt^2+1)}{3}\right) \Bigr ]
-   \left [\frac{1}{4\brgt^2\brlt^2}\right ] \nonumber
-\end{eqnarray}
 
-\begin{eqnarray}
-\PWerf_3(r,r';\beta) &=&    \Derfp(\rlt,\rgt;\beta) \left [\frac{\rlt^3}{\rgt^4} \right] 
-+  \left[\Derfm(\rlt,\rgt;\beta) -\tDerfmF(\rlt,\rgt;\beta) \right]
-   \left [\frac{\rgt^3}{\rlt^4} \right] \hspace*{6.in}\nonumber \\
-&-&  G_H(\rlt,\rgt,\beta)
-    \Bigl [(-15 + 6(\brgt^2+\brlt^2) - 4(\brgt^4 + \brlt^4 + 6\brgt^2\brlt^2) \Bigr . \nonumber \\
-& &     \hspace*{1.6in}  
-           + 8(\brgt^6 + \brlt^4\brgt^2 + \brlt^2\brgt^4 + \brlt^6))\sinhc(2\brgt\brlt) \nonumber \\ 
-& &    \hspace*{0.9in}  
-       + (15 - 6(\brgt^2+\brlt^2) + 4(\brgt^4 + \brlt^4 + \brlt^2\brgt^2))\cosh(2\brgt\brlt)  \nonumber \\
-& &\Bigl .\hspace*{0.9in}  - 8\brgt^6\left(1 + \frac{2\brlt^2(\brgt^2+1)}{3} \right) \Bigr ]
-   \left [\frac{1}{8\brgt^3\brlt^3}\right ] 
-\end{eqnarray}
-Here, for convenience, the functions,
+For spherical charge distributions, we only need $l=0$ due to orthogonality of the spherical harmonics. Therefore, let's just evaluate the $l=0, m=0$ term using 
 \begin{equation}
 \begin{split}
-  \rgt &= \mathrm{max}(r,r') \\
-  \rlt &= \mathrm{min}(r,r') \\
-  \brgt &= \beta\rgt \\
-  \brlt &= \beta\rlt \\
-  \Derfp(\rlt,\rgt;\beta) &=\frac{1}{2}\left[\rerf(\brgt+\brlt)+\rerf(\brgt-\brlt)\right]\\
-  \Derfm(\rlt,\rgt;\beta) &=\frac{1}{2}\left[\rerf(\brgt+\brlt)-\rerf(\brgt-\brlt)\right] \\
-  G_H(\rlt,\rgt,\beta) &= \left(\frac{2\beta}{\sqrt{\pi}}\right) e^{-(\brgt^2+\brlt^2)} \\
-  \tDerfmS(\rlt,\rgt;\beta) &= G_H(\rlt,\rgt,\beta)\rlt \\
-  \tDerfmF(\rlt,\rgt;\beta) &= G_H(\rlt,\rgt,\beta)\rlt\left(1 + \frac{2\brlt^2(\brgt^2+1)}{3} \right)
+I_{1/2}(z) &= \sqrt{\frac{2}{(\pi z)}} \mathrm{sinh}(z)\\
+i_0(z) &= \frac{\mathrm{sinh}(z)}{z}
 \end{split}
 \end{equation}
-have been defined where the max and min function are now referenced implicitly through $\{\rgt,\rlt\}$
-and the subscript $H$ on the Gausian function denotes the half-space normalization. The functions
-$\tDerfmS(\rlt,\rgt;\beta)$ and $\tDerfmF(\rlt,\rgt;\beta)$ are 2nd and 4th order small $\rlt$ approximations
-to $\Derfm(\rlt,\rgt;\beta)$ respectively. The above expressions are problematic to evaluate numerically
-for large $2\brgt\brlt$ as written. To
-treat these cases, $\exp(2\brgt\brlt)$ is factored out of the $\sinh(2\brgt\brlt)$ and $\cosh(2\brgt\brlt)$ terms
-and combined with the Gaussian, an exact rewriting stable at large $2\brgt\brlt$. Similarly, at small $2\brgt\brlt$, it is
-convenient to insert the small argument expression of $\cosh()$ and $\sinhc()$ and simplify while at small $\brlt$ the small argument expansion of $\Derfm(\rlt,\rgt;\beta)$ is inserted followed by simplification. In this regard,
-a useful Taylor series expansion is
-\begin{eqnarray}
-\frac{\erf(x+y)-\erf(x-y)}{2y} &=& \frac{2e^{-x^2}}{\sqrt{\pi}} \left [
-  1 +  \frac{(2 x^2 - 1) y^2}{3} + \frac{(4 x^4 - 12 x^2 + 3) y^4}{30}
-    + \frac{(8 x^6 - 60 x^4 + 90 x^2 - 15) y^6}{630} \right . \nonumber \\
-& & \left .  \hspace*{0.75in}
-  + \frac{(16x^8 - 224x^6 + 840x^4 - 840x^2 + 105) y^8}{22680} 
-  \right] + {\cal O}(y^{10}) 
-\end{eqnarray}
-\\
-It is straightfoward to apply the partial wave expansion given above to compute the regularized / screened
-Hartree self-interaction of an atomic density,$\rho^{(\mathrm{atom})}(\br)$, on a domain of radius $R_{pc}$ centered
-at the origin,
-\begin{eqnarray}
-E_H^{(\mathrm{self,screened})} &=&  \frac{e^2}{2} \int_{D(R_{pc})} \rd \br \int_{D(R_{pc})}\rd \br' 
-      \rho^{(\mathrm{atom})}(\br)  \frac{\erf(\beta|\br-\br'|)}{|\br-\br'|} \rho^{(\mathrm{atom})}(\br') \\
- &=& \frac{e^2}{2} \sum_{l=0}^\infty\sum_{m=-l}^{l}\left(\frac{4\pi}{2l+1}\right) 
-     \int_0^{R_{pc}} \rd r\int_0^{R_{pc}} \rd r' \left \{ \left ( r^2  
-     \int \rd \Omega \rho^{(\mathrm{atom})}(r,\Omega)Y_{lm}(\Omega) \right)\PWerf_l(r,r';\beta) \right .\nonumber \\
- & & \hspace*{2.3in}\left . \times  \left( r'^2 \int \rd \Omega' \rho^{(\mathrm{atom})}(r',\Omega')Y_{lm}(\Omega')
-                 \right ) \right \}\nonumber \\
- &=& \frac{e^2}{2}  \sum_{l=0}^\infty\sum_{m=-l}^{l}\left(\frac{4\pi}{2l+1}\right) 
-     \int_0^{R_{pc}}\rd r \int_0^{R_{pc}}  \rd r'\left \{
-           r^2  \rho^{(\mathrm{atom})}_{lm}(r)\PWerf_l(r,r';\beta)r'^2 \rho^{(\mathrm{atom})}_{lm}(r')\right \} 
-\end{eqnarray}
-where
-\begin{equation}
-\rho^{(\mathrm{atom})}_{lm}(r) = \int \rd \Omega \rho^{(\mathrm{atom})}(r,\Omega)Y_{lm}(\Omega)\ \ \ .
-\end{equation}
-Since the number of $l$ with non-zero $\rho^{(\mathrm{atom})}_{lm}(r)$ is finite ($l\leq l_{max}$)
-(assuming a hydrogenic filling), the partial wave form has much lower computational complexity when
-evaluated by numerical integration, $(l_{max}+1)^2 (n_{\Omega}n_r + n_r^2)$ than the original, $n_{\Omega}^2n_r^2$.
-That is, in the partial wave expansion, 
-the $\Omega$-integrals are seperable although $l_{max}^2$ of them must be performed and only the $r'r$ integration
-is non-seperable - coupled through the partial wave coefficients, $\PWerf_l(r,r';\beta)$. More concretely, taking
-$n_r\sim n^{1/3}$, $n_{\Omega}\sim n^{2/3}$ such that $n_rn_{\Omega}\sim n$, then
-the partial wave method scales like $n$ and the brute force method like $n^2$.
-Since atom size and hydrogenic filling are independent of system size, $n \sim {\cal O}(N^0)$.
-In addition, the partial wave
-expansion requires fewer angular integration points as the expression is truncated at $l_{max}$ while in the full
-form, many angular integration points are used to essentially compute the neglible (zero) contribution
-from high angular momentum components accurately.\\
 
-For $l>3$, the partial waves can be generated by numerical integration using recursion relations, small value expansions and asymptotic series to generate the $i_l$ for arbitrary $l$ as follows. Introducing a quadrature the expression
-for the $l^{\mathrm{th}}$ partial wave becomes
-\begin{eqnarray}
-\PWerf_l(r,r';\beta) &=& \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)
-\int_0^{\beta}\rd x\ \re^{-x^2\left(r^2 + r'^2\right)}i_{l}(2rr'x^2) \nonumber\\
-&\approx& \left(\frac{2(2l+1)}{\sqrt{\pi}}\right)
-\sum_i w_i\re^{-x_i^2\left(r^2 + r'^2\right)}i_{l}(2rr'x^2_i) \nonumber
-\end{eqnarray}
-which is fairly straightforward to implement.  In order to generate the $i_l(y)$ numerically,
-the recursion relation,
+Inserting the expression for the modified Bessel function of $1/2$ order into (L.61), the $l=0, m=0$ term is
 \begin{equation}
-i_{l+1}(y) = i_{l-1}(y) - \frac{(2l+1)i_{l}(y)}{y}
+\begin{split}
+\frac{4\pi}{\sqrt{r r'}} Y_{00}\left(\cos(\theta),\phi\right)Y_{00}\left(\cos(\theta'),\phi'\right) \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{1}{u}\sqrt{\frac{1}{(\pi u^2 r r')}} \mathrm{sinh}(2 u^2 r r') =\\
+\frac{1}{\sqrt{r r'}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{1}{u}\sqrt{\frac{1}{(\pi u^2 r r')}} \mathrm{sinh}(2 u^2 r r') =\\
+\frac{1}{r r'} \frac{1}{\sqrt{\pi}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{\mathrm{sinh}(2 u^2 r r')}{u^2}  =\\
+\frac{2}{\sqrt{\pi}} \int_{0}^\beta \rd u\ \re^{-u^2(r^2 + r'^2)} \frac{\mathrm{sinh}(2 u^2 r r')}{2u^2 r r'}  =\\
+\sqrt{\frac{2}{\pi r r'}} \int_{0}^{\beta\sqrt{2r r'}} \rd v\ \re^{-\frac{v^2(r^2 + r'^2)}{2r r'}} \frac{\mathrm{sinh}(v^2)}{v^2}  =\\
+\end{split}
 \end{equation}
-can be employed, which is completely general. The recusion relation however, becomes numerically unstable at both small
-and large $y$. At small $y$, the ascending series expansion given in (10.2.5) of Abramowitz and Stegun
+When the smoke clears (see appendix O), the $r, r'$ dependence of the $l=0, m=0$ term emerges.
 \begin{equation}
-  i_{l}(y) = \frac{y^l}{1\cdot 3 \cdot 5 \cdot (2l+1)}
-             \left [ 1 + \frac{y^2}{1!(2l+3)2} + \frac{y^4}{2!(2l+3)(2l+5)4} + \ldots\right ]
-\end{equation}  
-can be applied while at large $y$ the asymptotic series expanion of DMLF formulae 10.40.1 and 10.17.1
-\begin{equation}
-i_{l}(y) = \frac{e^y}{2}\sum_{k=0}^\infty (-1)^k\frac{a_k\left(l+\frac{1}{2}\right)}{y^k}
+\frac{\re^{-\beta^2(r_>+r_<)^2 }-\re^{-\beta^2(r_>-r_<)^2 }}{2\beta \sqrt{\pi}r_> r_< } + \frac{(r_> - r_<)\rerfc\left(\beta(r_> - r_<)\right) - (r_> + r_<)\rerfc\left(\beta(r_> + r_<)\right)}{2 r_>r_<} + \frac{1}{r_>}
 \end{equation}
-where
-\begin{eqnarray}
-  a_0(\nu) &=& 1 \nonumber \\
-  a_k(\nu) &=& \frac{(4v^2-1^2)(4v^2-3^2) \ldots (4v^2-(2k-1)^2)}{k!8^k} 
-\end{eqnarray}
-is employed.
+L.65 is surprisingly complicated. In the limit $\beta \rightarrow \infty$, the result is $1/r_>$, which is correct. The limit $r_< \rightarrow 0$ should simply be the error function over r,
+\begin{equation}
+\frac{\rerf(\beta r_>)}{r_>},
+\end{equation}
+which it is! A further check is taking the limit $r_> \rightarrow 0$, which is $2\beta/\sqrt{\pi}$. Last, $r_> = r_< = r$, 
+\begin{equation}
+\frac{\re^{-4\beta^2r^2} - 1}{2\beta\sqrt{\pi}r^2} + \frac{\rerf\left(2\beta r\right)}{r}
+\end{equation}
+$r_> = r_< $ does not cancel any of the $\cos(\gamma) = \br \cdot \br'/(r_> r_<)$ dependence, so it is more complicated than a single error function. In the limit $r \rightarrow 0$, L.67 is zero, which heals the cusp. We verified L.65 for Gaussian spherical charges.\\
+
+The advantage of using the explicit partial wave expansion of the screened Coulomb is in convergence with the angular grid. A large number of angular grid points maybe necessary to essentially generate zero for the large angular momentum. Thus, grinding out using Wolfram up to $l=3$ will reduce the grid size required to converge Hartree self.
 
 \begin{table}[h!]
 \caption{\label{index} Largest $\beta_{\mathrm{universal}}$ for each grid size to achieve the desired tolerance per atom in $E_{\rH}^{(\rcomp,\mathrm{screen, self, 0D, grid})}$.}
