@@ -84,12 +84,13 @@ class Controller : public CBase_Controller {
   private:
     bool do_output;
     int msg_received;
-    int iter, maxiter;
+    int iter, maxiter, qpts;
     int iteration;
     int qindex;
     unsigned index;
     unsigned dimension, rows;
     bool resultInsert;
+    bool all_qpts;
     double epsCut;
     double tol_iter_mtxinv;
     double alat;
@@ -97,7 +98,7 @@ class Controller : public CBase_Controller {
     complex bare_x, screen_x, coh;
     std::vector<double> vcoulb;
     double shift[3];
-    unsigned K, L, M, Q, Bands, pipeline_stages;
+    unsigned K, L, M, *Q, Bands, pipeline_stages;
     unsigned next_K, next_state, total_sent, total_complete;
     unsigned max_sends, next_report_threshold;
     unsigned p_matrix_dimension, num_p_rows;

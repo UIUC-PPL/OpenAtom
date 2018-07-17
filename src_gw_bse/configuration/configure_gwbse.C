@@ -307,7 +307,7 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
 
-  num_dict[0] = 8;
+  num_dict[0] = 9;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
@@ -362,25 +362,32 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  6)\num_qpt{}
+  //  6)\num_qpt_all{}
   ind =   6;
-  strcpy((*dict)[ind].keyword,"num_qpt");
-  strcpy((*dict)[ind].keyarg,"1");
-  strcpy((*dict)[ind].error_mes,"an integer > 0");
+  strcpy((*dict)[ind].keyword,"num_qpt_all");
+  strcpy((*dict)[ind].keyarg,"on");
+  strcpy((*dict)[ind].error_mes,"on,off");
   //----------------------------------------------------------------------------- 
 
+  //-----------------------------------------------------------------------------
+  //  7)\qpt{}
+  ind =   7;
+  strcpy((*dict)[ind].keyword,"qpt");
+  strcpy((*dict)[ind].keyarg,"");
+  strcpy((*dict)[ind].error_mes,"0,2,..");
+  //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  7)\coulb_trunc_opt{}
-  ind =   7;
+  //  8)\coulb_trunc_opt{}
+  ind =   8;
   strcpy((*dict)[ind].keyword,"coulb_trunc_opt");
   strcpy((*dict)[ind].keyarg,"0");
   strcpy((*dict)[ind].error_mes,"0-no truncation, 1-wire, 2-sheet, 3-molecule");
   //-----------------------------------------------------------------------------
 
   //-----------------------------------------------------------------------------
-  //  8)\statefile_binary_opt{}
-  ind =   8;
+  //  9)\statefile_binary_opt{}
+  ind =   9;
   strcpy((*dict)[ind].keyword,"statefile_binary_opt");
   strcpy((*dict)[ind].keyarg,"off");
   strcpy((*dict)[ind].error_mes,"off,off_gzip,on,on_gzip");
@@ -863,22 +870,52 @@ void Config::set_config_params_gen_GW  (DICT_WORD *dict, char *fun_key, char *in
   gwbseopts->nspin = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  6)\num_qpt{}
+  //  6)\num_qpt_all{}
   ind =   6;
-  sscanf(dict[ind].keyarg,"%d",&int_arg);
-  if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
-  gwbseopts->nqpt = int_arg;
+
+  ifound = 0;
+  if(strcasecmp(dict[ind].keyarg,"off")==0)
+    {gwbseopts->nqpt_opt = 0;ifound++;}
+  if(strcasecmp(dict[ind].keyarg,"on")==0)
+    {gwbseopts->nqpt_opt = 1;ifound++;}
+  if(ifound == 0) keyarg_barf(dict,input_name,fun_key,ind);
 
   //-----------------------------------------------------------------------------
-  //  7)\coulb_trunc_opt{}
+  //  7)\qpt{}
   ind =   7;
+
+  gwbseopts->qpts = new int[gwbseopts->nkpt];
+  char *value = dict[ind].keyarg;
+  char *orig = dict[ind].keyarg;
+  int prev = 0;
+  int len = 0;
+  char* substr = (char *)cmalloc(10*sizeof(char),"");
+  while(*value) {
+    if(*value==','){
+      strncpy(substr, orig+prev, len-prev);
+      gwbseopts->qpts[gwbseopts->nqpt++] = atoi(substr);
+      CkPrintf("\nsubstr=%s\n", substr);
+      prev = len+1;
+    }
+    len++;
+    value++;
+  }
+  strncpy(substr, orig+prev, len-prev);
+  if(atoi(substr)>=0)
+    gwbseopts->qpts[gwbseopts->nqpt++] = atoi(substr);
+
+  if(gwbseopts->nqpt_opt==0 && gwbseopts->nqpt==0) keyarg_barf(dict,input_name,fun_key,ind);
+
+  //-----------------------------------------------------------------------------
+  //  8)\coulb_trunc_opt{}
+  ind =   8;
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<0){keyarg_barf(dict,input_name,fun_key,ind);}     
   gwbseopts->coulb_trunc_opt = int_arg;
 
   //-----------------------------------------------------------------------------
-  //  8)\statefile_binary_opt{}
-  ind =   8;
+  //  9)\statefile_binary_opt{}
+  ind =   9;
 
   ifound = 0;
   if(strcasecmp(dict[ind].keyarg,"off")==0)
@@ -1864,7 +1901,17 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   gw_parallel->K = gwbseopts->nkpt;
   gw_parallel->L = gwbseopts->nocc;
   gw_parallel->M = gwbseopts->nunocc;
-  gw_parallel->Q = gwbseopts->nqpt;
+
+  // =======================================================================
+  // Share all Q points enable disable
+  if(gwbseopts->nqpt_opt==1)
+    gw_parallel->n_qpt = gwbseopts->nkpt;
+  else {
+    gw_parallel->n_qpt = gwbseopts->nqpt;
+    gw_parallel->Q = new unsigned[gw_parallel->n_qpt];
+    for(int i=0;i<gwbseopts->nqpt;i++)
+      gw_parallel->Q[i] = gwbseopts->qpts[i];
+  }
 
   // =======================================================================
   // Let's determine the FFT size for the epsilon calculation

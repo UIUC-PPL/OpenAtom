@@ -25,7 +25,14 @@ Controller::Controller() {
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   M = gwbse->gw_parallel.M;
-  Q = gwbse->gw_parallel.Q;
+
+  qpts = gwbse->gw_parallel.n_qpt;
+  all_qpts = false;
+  if(gwbse->gw_parallel.n_qpt >= K)
+    all_qpts = true;
+  else
+    Q = gwbse->gw_parallel.Q;
+
   Bands = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;

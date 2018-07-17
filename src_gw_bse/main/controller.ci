@@ -91,9 +91,14 @@ module controller {
       }
 
 
-      for(qindex=0;qindex<Q;qindex++) {
+      for(index=0;index<qpts;index++) {
       serial {
+        if(all_qpts)
+          qindex = index;
+        else
+          qindex = Q[index];
         START_STEP("SETUP COMPLETED");
+        CkPrintf("\n[CONTROLLER] Q Index = %d\n", qindex);
       }
       serial {
         psi_cache_proxy = CProxy_PsiCache::ckNew(qindex);
