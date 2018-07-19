@@ -3,11 +3,12 @@ module psi_cache {
   readonly CProxy_PsiCache psi_cache_proxy;
 
   nodegroup PsiCache {
-    entry PsiCache(int q_index);
+    entry PsiCache();
     entry [exclusive] void receivePsi(PsiMessage*);
     entry [exclusive] void computeFs(PsiMessage*);
     entry void reportFTime();
     entry void setVCoulb(std::vector<double>);
+    entry void setQIndex(int qindex);
     entry void reportInfo();
   };
 };

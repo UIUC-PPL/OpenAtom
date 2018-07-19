@@ -101,7 +101,8 @@ module controller {
         CkPrintf("\n[CONTROLLER] Q Index = %d\n", qindex);
       }
       serial {
-        psi_cache_proxy = CProxy_PsiCache::ckNew(qindex);
+        if(index>0)
+          psi_cache_proxy.setQIndex(qindex);
         pmatrix2D_proxy.setQIndex(qindex, qindexCB);
       }
       when psiCacheReady(), setQIndex() serial {
@@ -749,7 +750,8 @@ module controller {
           matrixCopy(eps_matrix2D_X1_proxy, eps_matrix2D_X_proxy, copyCB);
         }
         when copyComplete(bool success) serial {
-          thisProxy.transpose_complete();
+          if(iteration < maxiter-1)
+            thisProxy.transpose_complete();
         }
       } //end of for loop
 

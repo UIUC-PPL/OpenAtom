@@ -145,7 +145,7 @@ struct FComputePacket {
 
 class PsiCache : public CBase_PsiCache {
   public:
-    PsiCache(int q_index);
+    PsiCache();
 
     void receivePsi(PsiMessage*);
     void computeFs(PsiMessage*);
@@ -157,6 +157,7 @@ class PsiCache : public CBase_PsiCache {
     complex* getStates(){return states;}
     bool in_np_list(int n_index);
     int get_index(int n_index);
+    void setQIndex(int q_index);
     void setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols);
     void reportInfo();
 

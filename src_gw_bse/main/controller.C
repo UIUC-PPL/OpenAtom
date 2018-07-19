@@ -122,7 +122,7 @@ void Controller::got_vcoulb(std::vector<double> vcoulb_in){
   psi_cache_proxy.setVCoulb(vcoulb_in);
 }
 
-PsiCache::PsiCache(int q_index) {
+PsiCache::PsiCache() {
   GWBSE *gwbse = GWBSE::get();
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
@@ -130,7 +130,10 @@ PsiCache::PsiCache(int q_index) {
   n_np = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
-  qindex = q_index;
+  qindex = 0;
+  if(gwbse->gw_parallel.n_qpt < K){
+    qindex = gwbse->gw_parallel.Q[0];
+  }
   psi_size = gwbse->gw_parallel.n_elems;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
   received_psis = 0;
@@ -157,6 +160,41 @@ PsiCache::PsiCache(int q_index) {
   states = new complex[K*2*n_np*psi_size];
 
   umklapp_factor = new complex[psi_size];
+
+  // Variables for chare region registration
+  min_row = INT_MAX;
+  min_col = INT_MAX;
+  max_row = INT_MIN;
+  max_col = INT_MIN;
+  tile_lock = CmiCreateLock();
+
+  total_time = 0.0;
+  contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
+}
+
+void PsiCache::setQIndex(int q_index){
+
+  qindex = q_index;
+  received_psis = 0;
+  received_chunks = 0;
+  for (int k = 0; k < K; k++) {
+    for (int l = 0; l < L; l++) {
+      std::fill(psis[k][l], psis[k][l]+psi_size, 0.0);
+    }
+  }
+  // shifted k grid psis. Need this for qindex=0
+  for (int k = 0; k < K; k++) {
+    for (int l = 0; l < L; l++) {
+      std::fill(psis_shifted[k][l], psis_shifted[k][l]+psi_size, 0.0);
+    }
+  }
+
+  std::fill(fs, fs+L*psi_size*pipeline_stages, 0.0);
+  std::fill(fsave, fsave+L*psi_size, 0.0);
+  std::fill(f_nop, f_nop+L*psi_size, 0.0);
+  std::fill(states, states+K*2*n_np*psi_size, 0.0);
+
+  std::fill(umklapp_factor, umklapp_factor+psi_size, 0.0);
 
   // Variables for chare region registration
   min_row = INT_MAX;
