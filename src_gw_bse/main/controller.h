@@ -96,6 +96,7 @@ class Controller : public CBase_Controller {
     double alat;
     double vol;
     complex bare_x, screen_x, coh;
+    complex **bare_x_final, **screen_x_final, **coh_final;
     std::vector<double> vcoulb;
     double shift[3];
     unsigned K, L, M, *Q, Bands, pipeline_stages;

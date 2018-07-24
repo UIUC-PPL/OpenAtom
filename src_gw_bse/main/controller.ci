@@ -407,15 +407,12 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            bare_x_final[k][ib] += dx;
             CkPrintf("-----------------------------------------------------------------\n");
             CkPrintf("| Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114,dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
           }
         }
-        complex dx = *(complex*)results[ik].data;
-        CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
-        CkPrintf("|                               |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.screenedExchange();
       }
@@ -429,15 +426,12 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            screen_x_final[k][ib] += dx;
             CkPrintf("-----------------------------------------------------------------\n");
             CkPrintf("| Screen Exchange     | %d | %d | %d | %11.8f + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114, dx.im);
             CkPrintf("|                     |   |   |   |                         \n");
           }
         }
-        complex dx = *(complex*)results[ik].data;
-        CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
-        CkPrintf("|                                 |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.coh();
       }
@@ -450,6 +444,7 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            coh_final[k][ib] += dx;
             CkPrintf("| COH               | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], 0.5*round(dx.re*POW6)/POW6 * 27.2114, dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
             CkPrintf("-----------------------------------------------------------------\n");
@@ -457,10 +452,25 @@ module controller {
         }
         complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, 0.5*round(dx.re*POW6)/POW6 * 27.2114,dx.im);
-        CkPrintf("|                     |   |   |   |                         \n");
         delete msg;
         STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
+      }
+
+      serial {
+        if(index==qpts-1)
+        for(int k=0;k<K;k++){
+          for(int ib=0;ib<Bands;ib++){
+            CkPrintf("-----------------------------------------------------------------\n");
+            CkPrintf("| Accumulated Bare Exchange       | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], bare_x_final[k][ib].re*27.2114,bare_x_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], screen_x_final[k][ib].re*27.2114,screen_x_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("| Accumulated COH                 | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], 0.5*round(coh_final[k][ib].re*POW6)/POW6 * 27.2114,coh_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("-----------------------------------------------------------------\n");
+          }
+        }
+
       }
 
     }//end of Q loop

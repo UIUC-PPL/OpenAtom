@@ -34,6 +34,21 @@ Controller::Controller() {
     Q = gwbse->gw_parallel.Q;
 
   Bands = gw_sigma->num_sig_matels;
+
+  bare_x_final = new complex*[K];
+  screen_x_final = new complex*[K];
+  coh_final = new complex*[K];
+
+  for ( int i=0; i<K; i++) {
+    bare_x_final[i] = new complex[Bands];
+    screen_x_final[i] = new complex[Bands];
+    coh_final[i] = new complex[Bands];
+    for( int j=0; j<Bands; j++) {
+      bare_x_final[i][j] = (0.0,0.0);
+      screen_x_final[i][j] = (0.0,0.0);
+      coh_final[i][j] = (0.0,0.0);
+    }
+  }
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
