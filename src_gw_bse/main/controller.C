@@ -397,6 +397,9 @@ void PsiCache::computeFs(PsiMessage* msg) {
       f_packet.e_occ = e_occ[msg->spin_index][ikq];
       f_packet.fs = f_nop;
 
+      if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+      else { f_packet.umklapp_factor = NULL; }
+
 #ifdef USE_CKLOOP
       CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
 #else
