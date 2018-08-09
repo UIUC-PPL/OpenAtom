@@ -1,0 +1,43 @@
+Read in the fast_atoms (in OA, or atom_pos in the old code), so we get used to how it's stored
+	same thing for atom_maps
+The current code only does compensation charge, next steps:
+ 1. Do the compensation charge where the model density never changes
+ 2. Make some mockup chare array, where rho^(tot)_J is created
+ 3. We will use 1. and 2. to compute an energy
+ 4. To try and create (core, 1), (core, 2) densities from a bunch of states with modeled Z's
+ 		We know the analytical answers (for Gaussians) to compare
+ 5. We figure out what the next steps are once 1-4 is done.
+
+We assume a 1D chare array of size NatmChunk, each chare array element will be assigned some
+	number of PAW atoms,
+	n = Natm/NatmChunk
+	r = Natm%NatmChunk
+	if thisIndex < r, n++
+
+	eg. Natm = 14, NatmChunk = 4, n = 3, r = 2,
+			coreAtm[0] has 4 atoms[0-3]
+			coreAtm[1] has 4 atoms[4-7]
+			coreAtm[2] has 3 atoms[8-10]
+			coreAtm[3] has 3 atoms[11-13]
+			total is 14.
+	
+	on each guy, we will assume we have ncore1[J], ncore2[J], nsmooth[J], phismooth[J]. These will
+	depend on nf, so they are really 2D arrays. It might be nicer to have a structure of 1D arrays,
+	so we might have PAWRho class local to each chare, and it will be of length n. The class data
+	will have 
+
+	int iatm, itamTrue;
+	double *ncore1, *ncore2, *nsmooth, *phismooth, (may be some other phis);
+	
+	eg. thisIndex = 3, n = 3,
+			iatm = 0, iatmTrue = 11 for element 0
+			iatm = 1, iatmTrue = 12 for element 1
+			iatm = 2, iatmTrue = 13 for element 2
+
+Our first mission in this code is to make a 1D array of length NatmChunk. We have the cleanExit
+	array and we can leave it alone (change its name from test1D to cleanExit). We will modify the
+	cleanExit so that when all core atom arrays have reported to their processors that they are
+	done, cleanExit will clean exit.
+
+We are going to make a new class for the serial routine (like cp_eke.C). Then connect it with the
+	fixed parallel routine.

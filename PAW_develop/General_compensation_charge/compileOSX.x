@@ -16,13 +16,13 @@ rm -rf model_PAW.x *.o
 #/bin/rm ./../ggev_quad_pkg/compile/libqggev.a 
 
 #=============================================
-g++-5 -Wall -g -c -O2 grid.C 
-g++-5 -Wall -g -c -O2 gen_Gauss_quad.C 
-g++-5 -Wall -g -c -O2 gen_Gauss_quad_driver.C
-g++-5 -Wall -g -c -O2 gen_Ylmf.C 
-g++-5 -Wall -g -c -O2 quad_rule.C 
-g++-5 -Wall -g -c -O2 compchargePAW.C
-g++-5 -Wall -g -O2 -D$1 -o model_PAW.x model_PAW.C \
+g++ -Wall -g -c -O2 grid.C 
+g++ -Wall -g -c -O2 gen_Gauss_quad.C 
+g++ -Wall -g -c -O2 gen_Gauss_quad_driver.C
+g++ -Wall -g -c -O2 gen_Ylmf.C 
+g++ -Wall -g -c -O2 quad_rule.C 
+g++ -Wall -g -c -O2 compchargePAW.C
+g++ -Wall -g -O2 -D$1 -o model_PAW.x model_PAW.C \
 	 gen_Gauss_quad.o gen_Gauss_quad_driver.o compchargePAW.o \
 	 gen_Ylmf.o grid.o quad_rule.o \
 	 libqggev.a -lblas -llapack -lm -lgfortran -lquadmath

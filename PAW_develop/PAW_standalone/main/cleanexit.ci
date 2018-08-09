@@ -1,0 +1,13 @@
+module cleanexit {
+  array [1D] cleanexit {
+    entry cleanexit(void);
+    entry void SayHi(int );
+		entry void recvPAWrhoMsg();
+		entry void bcastPAWrhoDone();
+		entry void recvAtmsGrpMsg();
+		entry void bcastAtmsGrpDone();
+    entry void PAWcharmCleanExitSelf(CkReductionMsg *);
+    entry void PAWcharmCleanExitRho(CkReductionMsg *);
+		entry void PAWcharmCleanExitAtmsGrp(CkReductionMsg *);
+  };
+};

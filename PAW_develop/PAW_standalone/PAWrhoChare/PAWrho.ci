@@ -1,0 +1,7 @@
+module PAWrho {
+	extern module cleanexit;
+  array [1D] PAWrho {
+		entry PAWrho(void);
+    entry void PAWrhoConstructed(CkReductionMsg *);
+  };
+};

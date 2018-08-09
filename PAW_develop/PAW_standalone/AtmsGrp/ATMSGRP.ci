@@ -1,0 +1,16 @@
+module ATMSGRP {
+   message ATMSGRPMSG  {                
+		double x[];
+		double y[];
+		double z[];            // no masses or velocities cause these are working vectors
+		double q[];
+		double qt[];           // charges
+		double alp[];          // Gaussian parameter for the core 
+		double beta[];         // beta screener beta[J]
+		double Rpc[];          // Rpc
+  };
+  group ATMSGRP {
+    entry ATMSGRP(ATMSGRPMSG *);
+		entry void AtmsGrpConstructed(CkReductionMsg *);
+  };
+};

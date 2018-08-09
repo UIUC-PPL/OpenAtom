@@ -1,0 +1,32 @@
+Scalar routines we need:
+	1. Exc (LDA)
+	2. Hartree short
+	3. e-N short
+	4. long range (g space) will be later
+
+For 3. e-N short, for myAtms, compute phi_J(rf) <-- a structure
+	we can compute the energy of each atom by summing over rf, we
+	also need the self term by using the partial wave expansion.
+
+For 2. Har short, compute the phi_J(rf) which requires sending
+	around nearest neighbor core densities.
+
+For 1. Exc, everything is local, you just need the density in
+	the core, which includes the smooth density.
+
+New variables for PAWINFO class:
+	 i) number of PAW atoms
+	ii) list of PAW atoms
+ iii) the list of PAW atom types
+	iv) for each type, we need a FGRID (copy it from the old dir/),
+			and we will make a pup for it, so it can be a substructure
+			of PAWINFO (PAWINFO will probably pick up a number of sub-
+			structures, FGRID will be the 1st one)
+	 v) number of PAW atom types
+
+In PAWrhoChare, the constructor will make model densities, and we
+	will send them to our scalar routines, and compare the results
+	to the original model compensation charge. After that, we can try
+	a model real density combined with the model compensation charge
+	density. Once that works, we will take n-partitions and create
+	the densities. If all that works, we shove it into OpenAtom.

@@ -1,0 +1,14 @@
+mainmodule pawmain {
+  extern module cleanexit; // since the main module launches cleanexit, it has to know about cleanexit
+  extern module ATMSGRP; // since the main module launches atmsGrp, it has to know about atmsGrp
+  extern module PAWrho; // since the main module launches PAWrho, it has to know about PAWrho
+  readonly PAWINFO readonly_pawinfo; // fill PAWINFO in the main module, and invokes its pups
+  readonly CProxy_cleanexit cleanexit_Proxy; // same as line2
+  readonly CProxy_ATMSGRP ATMSGRP_Proxy; // same as line3
+  readonly CProxy_PAWrho PAWrho_Proxy; // same as line4
+
+  mainchare main {
+    entry main(CkArgMsg *m); // the main module does not do anything in parallel except get launched
+  };
+
+};

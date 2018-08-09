@@ -33,7 +33,7 @@ int main (int argc, char *argv[]){
 
 	int iperd;
 	int rorder;
-	int thetaorder; 
+	int thetaorder;
 	int phiorder;    // grid sizes
 	int lmax;									// maximum angular momentum
 	int nimg;			// number of images
@@ -44,10 +44,10 @@ int main (int argc, char *argv[]){
 	ESTRUCT energy;		// compensation charge energy terms stored nicely
 #ifdef _FORCECHECK_
 	double delta = 1.0e-5;
-	ESTRUCT *energy_plus  = new ESTRUCT [3]; 		
-	ESTRUCT *energy_minus = new ESTRUCT [3]; 		
+	ESTRUCT *energy_plus  = new ESTRUCT [3];
+	ESTRUCT *energy_minus = new ESTRUCT [3];
 #endif
-	
+
 	fillEstruct(&energy);
 
 	char fnameIn[MAXLINE];
@@ -61,7 +61,7 @@ int main (int argc, char *argv[]){
 	PRINT_LINE_DASH
 
   //=========================================================================
-  //             Check for input file                                 
+  //             Check for input file
 
   if(argc < 9) {
     PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
@@ -95,7 +95,7 @@ int main (int argc, char *argv[]){
    	FFLUSH(stdout);
    	EXIT(1);
 	} // end if
-	
+
 	//========================================================================
 	// reading file input for atom positions and parameters
 	strcpy(fnameIn, argv[1]);
@@ -107,37 +107,37 @@ int main (int argc, char *argv[]){
 	int natm_typ = atom_maps.natm_typ;
 
 	//========================================================================
-	// compute the grids 
+	// compute the grids
 	if (model == 1) { rorder++; }
 	FGRID *fgrid = new FGRID [natm_typ];      // fgrid structure
-	fill_fgrid(fgrid, &atom_maps, &atom_pos, &cell, rorder, thetaorder, phiorder, model); 
+	fill_fgrid(fgrid, &atom_maps, &atom_pos, &cell, rorder, thetaorder, phiorder, model);
 
   //========================================================================
   // Compute the real space energy analytically
- 
+
 	clock_t start, end;
 	PRINTF("Computing the PAW energy analytically with a Gaussian basis set for 0D and short range 3D:\n");
-	start = clock(); 
+	start = clock();
 	computePAWreal(&atom_maps, &atom_pos, &cell, &energy);
-	end = clock(); 
+	end = clock();
 	PRINTF("step1 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
   //========================================================================
   // Compute the long range energy analytically and on grid
 
 	PRINTF("Computing the 3D long range PAW energy with grid and Gaussian basis analytically:\n");
-	start = clock(); 
+	start = clock();
 	computePAWlong(&atom_maps, &atom_pos, &cell, &energy, fgrid);
-	end = clock(); 
+	end = clock();
 	PRINTF("step2 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
   //========================================================================
   // Compute the real space energy on grid
 
 	PRINTF("Computing the 0D and 3D short range PAW energy with grid:\n");
-	start = clock(); 
+	start = clock();
 	computePAWGrid(lmax, &atom_maps, &atom_pos, &cell, &energy, fgrid);
-	end = clock(); 
+	end = clock();
 	PRINTF("step3 finishes in (%lf seconds) \n",((double) end-start)/CLOCKS_PER_SEC);
 
 	energy.Etot0D.E           = energy.ENN.E + energy.EeN.E + energy.EHar.E;
@@ -157,7 +157,7 @@ int main (int argc, char *argv[]){
 	PRINT_LINE_DASH;
 	PRINTF("Energy                |    Analytic   |   Grid       |  Diff       |  %%Diff\n");
 	PRINT_LINE_DASH;
-	//----------------------------------------- 
+	//-----------------------------------------
 	//Printing the 0D energies
 	energy.ENN.pres();
 	energy.EeN.pres();
@@ -166,7 +166,7 @@ int main (int argc, char *argv[]){
 	energy.EHarself.pres();
 	energy.EHarscr.pres();
 	energy.EHarselfscr.pres();
-	//----------------------------------------- 
+	//-----------------------------------------
 	//Printing the 3D short range energies
 	PRINT_LINE_DASH;
 	energy.ENNshort.pres();
@@ -176,12 +176,12 @@ int main (int argc, char *argv[]){
 	energy.EHarshortself.pres();
 	energy.EHarshortscr.pres();
 	energy.EHarshortselfscr.pres();
-	//----------------------------------------- 
+	//-----------------------------------------
 	//Printing the 3D long range energies
 	PRINT_LINE_DASH;
 	energy.ENNselflong.pres();
 	energy.Elong.pres();
-	//----------------------------------------- 
+	//-----------------------------------------
 	//Printing the 0D and 3D total energies
 	PRINT_LINE_DASH;
 	energy.Etot0D.pres();
@@ -212,7 +212,7 @@ int main (int argc, char *argv[]){
   PRINTF("\n");
 
 #ifdef _FORCECHECK_
-  
+
 	int check_grid = 1;
 	double * xd = atom_pos_dummy.x;
 	double * yd = atom_pos_dummy.y;
@@ -240,14 +240,14 @@ int main (int argc, char *argv[]){
 
   for (int i=0; i<2; i++) {
 	for (int j=0; j<3; j++) {
-		switch (i) { 
-			case 0: deltau = delta;  edummy = &energy_plus[j]; break; 
+		switch (i) {
+			case 0: deltau = delta;  edummy = &energy_plus[j]; break;
 			case 1: deltau = -delta; edummy = &energy_minus[j]; break;
 		} // end switch i
-		switch (j) { 
-			case 0: xd[iii] = x[iii] + deltau; break; 
-			case 1: yd[iii] = y[iii] + deltau; break; 
-			case 2: zd[iii] = z[iii] + deltau; break; 
+		switch (j) {
+			case 0: xd[iii] = x[iii] + deltau; break;
+			case 1: yd[iii] = y[iii] + deltau; break;
+			case 2: zd[iii] = z[iii] + deltau; break;
 		} // end switch j
    		computePAWreal(&atom_maps, &atom_pos_dummy, &cell, edummy);
    		computePAWlong(&atom_maps, &atom_pos_dummy, &cell, edummy, fgrid);
@@ -255,16 +255,16 @@ int main (int argc, char *argv[]){
   		edummy->Etot0D.E     = edummy->ENN.E + edummy->EeN.E + edummy->EHar.E;
   		edummy->Etot0D.EGrid = edummy->ENN.EGrid + edummy->EeN.EGrid + edummy->EHar.EGrid;
   		edummy->Etot3D.E     = edummy->ENNshort.E + edummy->EeNshort.E + edummy->EHarshort.E + edummy->Elong.E - edummy->ENNselflong.E;
-  		edummy->Etot3D.EGrid = edummy->ENNshort.EGrid + edummy->EeNshort.EGrid + edummy->EHarshort.EGrid 
+  		edummy->Etot3D.EGrid = edummy->ENNshort.EGrid + edummy->EeNshort.EGrid + edummy->EHarshort.EGrid
 								+ edummy->Elong.EGrid - edummy->ENNselflong.EGrid;
-		switch (j) { 
-			case 0: xd[iii] = x[iii]; break; 
-			case 1: yd[iii] = y[iii]; break; 
-			case 2: zd[iii] = z[iii]; break; 
+		switch (j) {
+			case 0: xd[iii] = x[iii]; break;
+			case 1: yd[iii] = y[iii]; break;
+			case 2: zd[iii] = z[iii]; break;
 		} // end switch j
 	} // end for j
   }// end for i
-  
+
   double * fdummy = new double [3];
 	for (int j=0; j<3; j++) {
 		if (check_grid == 1) {
@@ -367,7 +367,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 	int **list_atm_by_typ;// list of atoms sorted by atom type
 	NAME *atm_typ;	    // names of the atom types
 	double alpb;			// Ewald alpha
-	double gcut;		    // state g space cutoff 
+	double gcut;		    // state g space cutoff
 	double Gcut;		    // density g space cutoff = 2*gcut
 	double Ecut, Rcut;
 
@@ -383,7 +383,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 		atm_typ = new NAME [natm_typ];
 		natm_atm_typ = new int [natm_typ];
 		int natm_atm_typ_max = 0;
-		for (int i=0; i<natm_typ; i++) { 
+		for (int i=0; i<natm_typ; i++) {
 			int j;
 			fscanf(fp,"%d %d %s", &j, &natm_atm_typ[i], atm_typ[i]); readtoendofline(fp);
 			if (j != i) {
@@ -392,7 +392,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 				PRINTF("@@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
 				FFLUSH(stdout);
 				EXIT(1);
-			} //end if 
+			} //end if
 			natm_atm_typ_max = MAX(natm_atm_typ_max,natm_atm_typ[i]);
 			PRINT_LINE_DASH;
 			PRINTF("Number of atom %s: %d\n",atm_typ[i], natm_atm_typ[i]);
@@ -429,7 +429,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 	gcut = sqrt(Ecut); // gcut = sqrt(2*me*Ecut/hbar^2) = sqrt(2*Ecut) in atomic units, for Ecut in Ryd, gcut = sqrt(Ecut)
 	Gcut = 2.0*gcut; // the density g cutoff is twice the pw g cutoff
 	double gammasq = gcut*Rcut; // Gcut = 2*gcut, so Gcut^2/4 = gcut^2 = Ecut (in Ryd) = gamma^4/Rcut^2; gamma^2 = gcut*Rcut
-	double gamma_conv = sqrt(gammasq); 
+	double gamma_conv = sqrt(gammasq);
 	alpb = gamma_conv/Rcut;
 	double gcuthat = gcut*hmat[1]/(2.0*M_PI_QI); // this is the state g space
 	double Gcuthat = 2.0*gcuthat; // this is the density g space
@@ -501,7 +501,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 	fxd[i]   = 0; fyd[i]   = 0; fzd[i]   = 0;
 	fx0gd[i] = 0; fy0gd[i] = 0; fz0gd[i] = 0;
 	fxgd[i]  = 0; fygd[i]  = 0; fzgd[i]  = 0;
-	
+
 	xd[i]   = x[i]; yd[i]   = y[i]; zd[i]   = z[i];
 	qd[i]   = q[i]; qtd[i]  = qt[i];
     alpd[i] = alp[i];
@@ -512,7 +512,7 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 
   //========================================================================
   // store the atom information: this is safe because the dummy has its own memory
- 
+
 	atom_pos->natm = natm;
 	atom_pos->x    = x;   atom_pos->y 	 = y;    atom_pos->z   = z;
 	atom_pos->q    = q;
@@ -544,45 +544,45 @@ void fill_atompos_maps(char *fnameIn, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, 
 
 	int *natm_typ_now = new int[natm_typ];
 	for (int i=0; i<natm_typ; i++) { natm_typ_now[i] = 0; }
-	for (int i=0; i<natm; i++) { 
+	for (int i=0; i<natm; i++) {
 		int ityp = index_atm_typ[i];
 		list_atm_by_typ[ityp][natm_typ_now[ityp]] = i;
-		natm_typ_now[ityp]++; 
+		natm_typ_now[ityp]++;
 	} // end for
 	delete [] natm_typ_now;
 	atom_maps->natm_typ 			  = natm_typ;
-	atom_maps->natm				      = natm;		 
-	atom_maps->index_atm_typ    = index_atm_typ;	
+	atom_maps->natm				      = natm;
+	atom_maps->index_atm_typ    = index_atm_typ;
 	atom_maps->natm_atm_typ     = natm_atm_typ;
 	atom_maps->list_atm_by_typ  = list_atm_by_typ;
-	atom_maps->atm_typ			    = atm_typ;	    
+	atom_maps->atm_typ			    = atm_typ;
 	atom_maps->natm_atm_typ_max = natm_atm_typ_max;
 
 	gethinv(hmat, hmati, &volume, iperd);
 
 	//========================================================================
-	// store the simulation cell information 
-	cell->iperd = iperd;		
-	cell->alpb	= alpb;			
-	cell->gcut	= gcut;		   
+	// store the simulation cell information
+	cell->iperd = iperd;
+	cell->alpb	= alpb;
+	cell->gcut	= gcut;
 	cell->Gcut	= Gcut;
 	cell->Rcut	= Rcut;
 	cell->nimg  = nimg;
 	cell->animg = animg;
 
 	for (int i=1; i<10; i++) {
-		cell->hmat[i]	= hmat[i];				 
-	}				 
+		cell->hmat[i]	= hmat[i];
+	}
 	gethinv(hmat, hmati, &volume, iperd);
 	for (int i=1; i<10; i++) {
 		cell->hmati[i] = hmati[i];
-	}				 
+	}
 	cell->volume = volume;
 } // end subroutine
 
 
 //========================================================================
-void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, int rorder, int thetaorder, int phiorder, int model) { 
+void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *cell, int rorder, int thetaorder, int phiorder, int model) {
 //========================================================================
 	int nf = rorder*thetaorder*phiorder;
 	int natm_typ = atom_maps->natm_typ;
@@ -597,9 +597,9 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 	double * xphi_master = new double [phiorder]; double * wphi_master = new double [phiorder];
 	double * xtheta_master = new double [thetaorder]; double * wtheta_master = new double [thetaorder];
 	double * psi0_2 = new double [rorder];
- 
+
 	int kind = 1; double aaa = -1; double bbb = 1;
-	control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre 
+	control_quad_rule(kind, thetaorder, aaa, bbb, wtheta_master, xtheta_master); // Legendre
 
 	if (model == 2) {
 		int type = 2; int iopt = 0;
@@ -618,7 +618,7 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 		PRINTF("check = %g\n", check);
 #endif
 	} // end if
-	
+
 	if (model == 1) {
 		double Rpc_master = 1.0;
 		double delta_master = Rpc_master/((double) (rorder - 1));
@@ -642,7 +642,7 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 
   genphigrid(phiorder,wphi_master,xphi_master); // Fourier (equal space)
 
- 
+
   //---------------------------------------------------------------------
   // use the master quadratures to create the full fgrid
 
@@ -720,7 +720,7 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 			wr[ir] = wr_master[ir];
 			wr_bare_tmp[ir] = wr_bare[ir];
 		} // end for ir
-	
+
     double result4 = 0.0, resultA = 0.0;
     double result3 = 0.0;
     double beta2 = beta_tmp*beta_tmp;
@@ -807,7 +807,7 @@ void fill_fgrid(FGRID *fgrid, ATOM_MAPS *atom_maps, ATOM_POS *atom_pos, CELL *ce
 	for (int i=0; i<natm_typ; i++) {
 		int lmax_tmp = 0; int nr = fgrid[i].nr; int nang = fgrid[i].nang;
 		double *ylm = fgrid[i].ylm; double *wang = fgrid[i].wang;
-		double *wr_bare = fgrid[i].wr_bare; 
+		double *wr_bare = fgrid[i].wr_bare;
 		double **pw_coul = fgrid[i].pw_coul;
 		double **pw_erfA = fgrid[i].pw_erfA;
 		double **pw_erfB = fgrid[i].pw_erfB;

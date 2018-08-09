@@ -90,30 +90,30 @@ typedef struct ATOM_MAPS{
 // ATOM_POS structure
 typedef struct ATOM_POS{
 	int natm;
-	double *x,*y,*z;			// atom coordinates
-	double *vx,*vy,*vz;			// atom velocities
-	double *fx0,*fy0,*fz0;		// atom forces iperd = 0 from analytical model
-	double *fx,*fy,*fz;			// atom forces iperd = 3 from analytical model
+	double *x,*y,*z;			      // atom coordinates
+	double *vx,*vy,*vz;			    // atom velocities
+	double *fx0,*fy0,*fz0;		  // atom forces iperd = 0 from analytical model
+	double *fx,*fy,*fz;			    // atom forces iperd = 3 from analytical model
 	double *fx0g,*fy0g,*fz0g;   // atom forces iperd = 0 from the grid
 	double *fxg,*fyg,*fzg;      // atom forces iperd = 3 from the grid
-	double *q,*qt;				// charges
-	double *alp;  		    	// Gaussian parameter for the core 
-	double *beta;		  // beta screener beta[J]
-	double *Rpc;				// Rpc
+	double *q,*qt;				      // charges
+	double *alp;  		    	    // Gaussian parameter for the core 
+	double *beta;		            // beta screener beta[J]
+	double *Rpc;				        // Rpc
 }ATOM_POS;
 
 //==========================================================================
 // CELL structure
 typedef struct CELL{
-	int iperd;  			        // periodicity
+	int iperd;  			  // periodicity
 	int nimg;						// number of images
-	double animg;					// (double) nimg
-	double alpb;          			// Ewald alpha
-	double Rcut;					// Ewald cutoff real space
-	double gcut;          			// state g space
-	double Gcut;					// density g cutoff, twice gcut
-	double hmat[10];                   // the simulation box
-	double hmati[10];                  // inverse simulation box
-	double volume;                  // simulation box volume
+	double animg;				// (double) nimg
+	double alpb;        // Ewald alpha
+	double Rcut;				// Ewald cutoff real space
+	double gcut;        // state g space
+	double Gcut;				// density g cutoff, twice gcut
+	double hmat[10];    // the simulation box
+	double hmati[10];   // inverse simulation box
+	double volume;      // simulation box volume
 }CELL;
 

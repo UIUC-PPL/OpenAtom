@@ -1,0 +1,18 @@
+================================================
+cccccccccccccccccccccccccccccccccccccccccccccccc
+================================================
+~ProjectorAugmentedWave_def[
+	\pawOn{On}       ERR:Off or On
+	\numRadialPoints{10}       ERR:a number > 0
+	\numCosthetaPoints{6}       ERR:a number > 0
+	\UnitlessScreeningLength{3.0}       ERR:a number > 0
+	\CompensationModelType{Gaussian}       ERR:Gaussian or sphericalBessel
+	\AtomInputFileName{Cu222.in}
+	\RealSpaceImages{1}
+	\RealSpaceRadialCutoff{4.64}       ERR:a number > 0 in bohr
+	\PlaneWaveEnergyCutoff{40.0}       ERR:a number > 0 in Rydberg
+	\Periodicity{3}       ERR:periodicity of the atomic supercell, 0/1/2/3
+]
+================================================
+
+
