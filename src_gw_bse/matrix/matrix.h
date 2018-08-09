@@ -4,7 +4,9 @@
 struct MatrixConfig {
   unsigned int mat_rows, mat_cols;
   unsigned int tile_rows, tile_cols;
+  int qindex;
 
+  MatrixConfig(): qindex(0) { }
   inline unsigned int chareRows() const { return mat_rows/tile_rows; }
   inline unsigned int chareCols() const { return mat_cols/tile_cols; }
 };
@@ -41,6 +43,7 @@ class Matrix : public CBase_Matrix {
     complex* data;
 
     bool busy, result;
+    int qindex;
     unsigned int data_received, total_data;
     void (Matrix::*dataHandler)(DataMessage*);
 
@@ -62,6 +65,7 @@ class Matrix : public CBase_Matrix {
     void write(std::string prefix, CkCallback cb);
     void verify(std::string prefix, CkCallback cb);
     void sendData(CProxy_Matrix dest, int dest_rows, int dest_cols);
+    void setQIndex(int q_index, CkCallback cb);
 };
 
 #endif

@@ -17,7 +17,9 @@ class GW_PARALLEL{
 
   //---------------
   public:
-    unsigned K, L, M;         // Number of k points, occupied, and unoccupied psis
+    unsigned K, L, M;      // Number of k points, occupied, and unoccupied psis
+    unsigned n_qpt;          // Number of q points
+    unsigned *Q;              // Discrete q points
     unsigned n_elems;         // Number of elements in psi
     unsigned pipeline_stages; // Number of stages in the M pipeline
     unsigned rows_per_chare;  // Rows per PMatrix chare
@@ -31,10 +33,12 @@ class GW_PARALLEL{
     GW_PARALLEL(){
       K = L = M = 0;
       n_elems = 0;
+      n_qpt = 0;
       pipeline_stages = 0;
       rows_per_chare = 0;
       cols_per_chare = 0;
       transpose_stages = 0;
+      Q = new unsigned[1];
       for (int i; i<3; i++){ fft_nelems[i] = 0; }
     };
     ~GW_PARALLEL(){};
@@ -45,12 +49,14 @@ class GW_PARALLEL{
     void pup(PUP::er &p){
       p | K; p | L; p | M;
       p | n_elems;
+      p | n_qpt;
       p | pipeline_stages;
       p | rows_per_chare;
       p | cols_per_chare;
       p | transpose_stages;
 
       PUParray(p, fft_nelems, 3);
+      PUParray(p, Q, n_qpt);
       
 #ifdef _PARALLEL_DEBUG_        
       if (p.isUnpacking())
@@ -67,6 +73,7 @@ class GW_PARALLEL{
       fprintf(fp,"K %i\n", K);
       fprintf(fp,"L %i\n", L);
       fprintf(fp,"M %i\n", M);
+      fprintf(fp,"Q %i\n", Q);
       fprintf(fp,"pipeline_stages %i\n", pipeline_stages);
       fprintf(fp,"rows_per_chare %i\n", rows_per_chare);
       fprintf(fp,"cols_per_chare %i\n", cols_per_chare);

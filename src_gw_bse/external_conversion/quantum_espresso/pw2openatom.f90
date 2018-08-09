@@ -429,18 +429,23 @@ subroutine write_eig_occ( ispin, ik, nstate, eig, occ, shift_flag )
       endif
    endif   
    
-   
+   ! eigenvalues are written in eigenvalues.in
    fname = 'eigenvalues.in'
-   
-   
-   ! open file
-   
    open(iunit, file=trim(fdir)//trim(fname), form='formatted', status='unknown')
-   
    do i = 1, nstate
       write(iunit,*) eig(i)  !, occ(i) ! openatom won't read occupation 
    enddo
    close(iunit)
+
+
+   ! occupations are written in occupations.in
+   fname = 'occupations.in'
+   open(iunit,file=trim(fdir)//trim(fname), form='formatted',status='unknown')
+   do i = 1, nstate
+      write(iunit,*) occ(i)
+   enddo
+   close(iunit)
+
 
 end subroutine
 

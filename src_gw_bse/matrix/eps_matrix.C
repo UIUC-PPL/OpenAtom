@@ -36,7 +36,8 @@ EpsMatrix::EpsMatrix() {
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   nfft = gwbse->gw_parallel.fft_nelems;
-  qindex = Q_IDX; // Eventually the controller will set this
+  qindex = 0; // The controller will set this
+  CkPrintf("\nWarning!! The controller should set this q-point!\n");
 
   data_received = 0;
   total_time = 0.0;
@@ -51,7 +52,7 @@ EpsMatrix::EpsMatrix(MatrixConfig config) : CBase_EpsMatrix(config) {
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   nfft = gwbse->gw_parallel.fft_nelems;
-  qindex = Q_IDX; // Eventually the controller will set this
+  qindex = config.qindex; // The controller sets this
 
   total_time = 0.0;
   data_received = 0;
@@ -112,7 +113,6 @@ void EpsMatrix::scalar_multiply(double alpha) {
 
 void EpsMatrix::screenedExchange() {
 
-
   FVectorCache* f_cache = fvector_cache_proxy.ckLocalBranch();
   int n = f_cache->getNSize();
   int tuple_size = K*n;
@@ -167,7 +167,8 @@ void EpsMatrix::bareExchange() {
   contrib_data = new complex[tuple_size];
   int ik = 0;
   std::vector<double> vcoulb = psi_cache->getVCoulb();
-  vcoulb[0] = 0.38343474/2.0;
+  if(qindex==0)
+    vcoulb[0] = 0.38343474/2.0;
 
   if(thisIndex.x == thisIndex.y) {
     for (int k = 0; k < K; k++) {
@@ -432,7 +433,8 @@ void EpsMatrix::multiply_coulb(){
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
   std::vector<double> coulb = psi_cache->getVCoulb();
 
-  coulb[0] = 0.38343474/2.0;
+  if(qindex==0)
+    coulb[0] = 0.38343474/2.0;
 
   for(int i=0;i<config.tile_rows;i++){
     for(int j=0;j<config.tile_cols;j++){

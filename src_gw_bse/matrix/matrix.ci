@@ -15,6 +15,7 @@ module matrix {
     entry void write(std::string prefix, CkCallback cb);
     entry void verify(std::string prefix, CkCallback cb);
     entry void sendData(CProxy_Matrix, int, int);
+    entry void setQIndex(int qindex, CkCallback cb);
 
     entry void receiveData(DataMessage* msg);
     entry void waitForData(CkCallback cb) {

@@ -18,13 +18,15 @@ module controller {
 
 #define STOP_STEP(x)\
   stopwatch.stopTimer(x);\
-  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));
+  CkPrintf("[CONTROLLER] %-40s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));\
+  stopwatch.resetTimer(x);
 
 #define STOP_BIG_STEP(x)\
   stopwatch.stopTimer(x);\
   CkPrintf("[CONTROLLER] ====================================================================\n");\
   CkPrintf("[CONTROLLER] ==== %-35s @%.2fs (%.2fs elapsed)\n", x, stopwatch.getEnd(x), stopwatch.getElapsed(x));\
-  CkPrintf("[CONTROLLER] ====================================================================\n\n");
+  CkPrintf("[CONTROLLER] ====================================================================\n\n");\
+  stopwatch.resetTimer(x);
 
   // Describes and controls the main control flow of the entire computation, by
   // by coordinating communication between all other chares in the system.
@@ -45,6 +47,7 @@ module controller {
     entry [reductiontarget] void psiCacheReady();
     entry [reductiontarget] void fCacheReady();
     entry [reductiontarget] void cachesFilled();
+    entry [reductiontarget] void setQIndex();
     entry [reductiontarget] void registrationComplete();
     entry [reductiontarget] void psiComplete();
     entry [reductiontarget] void fftComplete();
@@ -85,6 +88,24 @@ module controller {
       /** Setup ***************************************************************/
       /************************************************************************/
       when fftControllerReady() serial {
+      }
+
+
+      for(index=0;index<qpts;index++) {
+      serial {
+        if(all_qpts)
+          qindex = index;
+        else
+          qindex = Q[index];
+        START_STEP("SETUP COMPLETED");
+        CkPrintf("\n[CONTROLLER] Q Index = %d\n", qindex);
+      }
+      serial {
+        if(index>0)
+          psi_cache_proxy.setQIndex(qindex);
+        pmatrix2D_proxy.setQIndex(qindex, qindexCB);
+      }
+      when psiCacheReady(), setQIndex() serial {
         //precompute epsilon dimensions to enable caching necessary subsets of f-vectors
         computeEpsDimensions();
       }
@@ -97,9 +118,9 @@ module controller {
         PAD(epsilon_size);
         fvector_cache_proxy.setDim(padded_epsilon_size/eps_rows,
                                     accept,geps_x,geps_y,geps_z);
-        states_proxy.fftGtoR();
+        states_proxy.fftGtoR(qindex);
       }
-      when fftComplete(), psiCacheReady() serial {
+      when fftComplete() serial {
         #ifdef REGISTER_REGIONS
         pmatrix2D_proxy.registerTileSections();
         #endif
@@ -181,6 +202,7 @@ module controller {
         cfg2D.mat_rows = cfg2D.mat_cols = padded_epsilon_size;
         cfg2D.tile_rows = eps_rows;
         cfg2D.tile_cols = eps_cols;
+        cfg2D.qindex = qindex;
 
         CProxy_EpsMap map = CProxy_EpsMap::ckNew(cfg2D);
         CkArrayOptions opts(cfg2D.chareRows(), cfg2D.chareCols());
@@ -385,15 +407,12 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            bare_x_final[k][ib] += dx;
             CkPrintf("-----------------------------------------------------------------\n");
             CkPrintf("| Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114,dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
           }
         }
-        complex dx = *(complex*)results[ik].data;
-        CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Bare Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
-        CkPrintf("|                               |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.screenedExchange();
       }
@@ -407,18 +426,16 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            screen_x_final[k][ib] += dx;
             CkPrintf("-----------------------------------------------------------------\n");
             CkPrintf("| Screen Exchange     | %d | %d | %d | %11.8f + %fi\t|\n", k, n_list[ib], np_list[ib], dx.re*27.2114, dx.im);
             CkPrintf("|                     |   |   |   |                         \n");
           }
         }
-        complex dx = *(complex*)results[ik].data;
-        CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, dx.re*27.2114,dx.im);
-        CkPrintf("|                                 |   |   |   |                         \n");
         delete msg;
         s_matrix2D_proxy.coh();
       }
+
       when cohComplete(CkReductionMsg* msg) serial {
         CkReduction::tupleElement* results = NULL;
         int num_reductions = 0;
@@ -427,6 +444,7 @@ module controller {
         for(int k=0;k<K;k++){
           for(int ib=0;ib<Bands;ib++){
             complex dx = *(complex*)results[ik++].data;
+            coh_final[k][ib] += dx;
             CkPrintf("| COH               | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], 0.5*round(dx.re*POW6)/POW6 * 27.2114, dx.im);
             CkPrintf("|                   |   |   |   |                         \n");
             CkPrintf("-----------------------------------------------------------------\n");
@@ -434,15 +452,34 @@ module controller {
         }
         complex dx = *(complex*)results[ik].data;
         CkPrintf("-----------------------------------------------------------------\n");
-        CkPrintf("| Accumulated COH     | %d | %d | %d | %lf + %fi\t|\n", 0, 0, 0, 0.5*round(dx.re*POW6)/POW6 * 27.2114,dx.im);
-        CkPrintf("|                     |   |   |   |                         \n");
         delete msg;
+        STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
       }
 
       serial {
-        STOP_BIG_STEP("SELF ENERGY COMPUTATIONS COMPLETED");
-        CkExit();
+        if(index==qpts-1)
+        for(int k=0;k<K;k++){
+          for(int ib=0;ib<Bands;ib++){
+            CkPrintf("-----------------------------------------------------------------\n");
+            CkPrintf("| Accumulated Bare Exchange       | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], bare_x_final[k][ib].re*27.2114,bare_x_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("| Accumulated Screen Exchange     | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], screen_x_final[k][ib].re*27.2114,screen_x_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("| Accumulated COH                 | %d | %d | %d | %lf + %fi\t|\n", k, n_list[ib], np_list[ib], 0.5*round(coh_final[k][ib].re*POW6)/POW6 * 27.2114,coh_final[k][ib].im);
+            CkPrintf("|                                 |   |   |   |                         \n");
+            CkPrintf("-----------------------------------------------------------------\n");
+          }
+        }
+
       }
+
+    }//end of Q loop
+
+    serial {
+    //All computation finished
+      CkExit();
+    }
+
     }
 
     entry void formPMatrix() {
@@ -490,6 +527,9 @@ module controller {
       // Phase 1 is complete, so get more detailed timing info from the P Matrix
       // chares and the PsiCache chares.
       serial {
+        total_sent = 0;
+        total_complete = 0;
+        next_report_threshold = 0;
         STOP_STEP("P Matrix formed in real space");
         pmatrix2D_proxy.reportPTime();
         psi_cache_proxy.reportFTime();
@@ -720,7 +760,8 @@ module controller {
           matrixCopy(eps_matrix2D_X1_proxy, eps_matrix2D_X_proxy, copyCB);
         }
         when copyComplete(bool success) serial {
-          thisProxy.transpose_complete();
+          if(iteration < maxiter-1)
+            thisProxy.transpose_complete();
         }
       } //end of for loop
 

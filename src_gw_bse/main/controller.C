@@ -25,7 +25,30 @@ Controller::Controller() {
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
   M = gwbse->gw_parallel.M;
+
+  qpts = gwbse->gw_parallel.n_qpt;
+  all_qpts = false;
+  if(gwbse->gw_parallel.n_qpt >= K)
+    all_qpts = true;
+  else
+    Q = gwbse->gw_parallel.Q;
+
   Bands = gw_sigma->num_sig_matels;
+
+  bare_x_final = new complex*[K];
+  screen_x_final = new complex*[K];
+  coh_final = new complex*[K];
+
+  for ( int i=0; i<K; i++) {
+    bare_x_final[i] = new complex[Bands];
+    screen_x_final[i] = new complex[Bands];
+    coh_final[i] = new complex[Bands];
+    for( int j=0; j<Bands; j++) {
+      bare_x_final[i][j] = (0.0,0.0);
+      screen_x_final[i][j] = (0.0,0.0);
+      coh_final[i][j] = (0.0,0.0);
+    }
+  }
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
@@ -56,6 +79,8 @@ Controller::Controller() {
   writeCB = CkCallback(CkReductionTarget(Controller, writeComplete), thisProxy);
   verifyCB = CkCallback(CkReductionTarget(Controller, verifyComplete), thisProxy);
 
+  qindexCB = CkCallback(CkReductionTarget(Controller, setQIndex), thisProxy);
+
   p_config = gwbse->gw_io.p_matrix;
   eps_config = gwbse->gw_io.epsilon;
   eps_inv_config = gwbse->gw_io.epsilon_inv;
@@ -69,8 +94,6 @@ void Controller::computeEpsDimensions() {
   b1 = gwbse->gwbseopts.b1;
   b2 = gwbse->gwbseopts.b2;
   b3 = gwbse->gwbseopts.b3;
-
-  int qindex = Q_IDX;
 
   this_q = gwbse->gwbseopts.qvec[qindex];
 
@@ -96,7 +119,6 @@ void Controller::calc_Geps() {
   a1 = gwbse->gwbseopts.a1;
   a2 = gwbse->gwbseopts.a2;
   a3 = gwbse->gwbseopts.a3;
-  int qindex = Q_IDX;
 
   this_q = gwbse->gwbseopts.qvec[qindex];
 
@@ -123,7 +145,10 @@ PsiCache::PsiCache() {
   n_np = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
-  qindex = Q_IDX;
+  qindex = 0;
+  if(gwbse->gw_parallel.n_qpt < K){
+    qindex = gwbse->gw_parallel.Q[0];
+  }
   psi_size = gwbse->gw_parallel.n_elems;
   pipeline_stages = gwbse->gw_parallel.pipeline_stages;
   received_psis = 0;
@@ -150,6 +175,41 @@ PsiCache::PsiCache() {
   states = new complex[K*2*n_np*psi_size];
 
   umklapp_factor = new complex[psi_size];
+
+  // Variables for chare region registration
+  min_row = INT_MAX;
+  min_col = INT_MAX;
+  max_row = INT_MIN;
+  max_col = INT_MIN;
+  tile_lock = CmiCreateLock();
+
+  total_time = 0.0;
+  contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
+}
+
+void PsiCache::setQIndex(int q_index){
+
+  qindex = q_index;
+  received_psis = 0;
+  received_chunks = 0;
+  for (int k = 0; k < K; k++) {
+    for (int l = 0; l < L; l++) {
+      std::fill(psis[k][l], psis[k][l]+psi_size, 0.0);
+    }
+  }
+  // shifted k grid psis. Need this for qindex=0
+  for (int k = 0; k < K; k++) {
+    for (int l = 0; l < L; l++) {
+      std::fill(psis_shifted[k][l], psis_shifted[k][l]+psi_size, 0.0);
+    }
+  }
+
+  std::fill(fs, fs+L*psi_size*pipeline_stages, 0.0);
+  std::fill(fsave, fsave+L*psi_size, 0.0);
+  std::fill(f_nop, f_nop+L*psi_size, 0.0);
+  std::fill(states, states+K*2*n_np*psi_size, 0.0);
+
+  std::fill(umklapp_factor, umklapp_factor+psi_size, 0.0);
 
   // Variables for chare region registration
   min_row = INT_MAX;
@@ -191,6 +251,7 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   if(qindex == 0)
     expected_psis += K*L;
   if (++received_psis == expected_psis) {
+    received_psis = 0;
     //CkPrintf("[%d]: Cache filled\n", CkMyPe());
     contribute(CkCallback(CkReductionTarget(Controller,cachesFilled), controller_proxy));
   }
@@ -286,7 +347,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
   if(in_np_list(msg->state_index) && msg->shifted==false){
 //Cache this
     int state_index = get_index(msg->state_index)*2*psi_size;
-    complex *store_x = &states[(ikq*2*n_np*psi_size)+ state_index];
+    complex *store_x = &states[(msg->k_index*2*n_np*psi_size)+ state_index];
     complex *load_x = msg->psi;
     memcpy(store_x, load_x, psi_size*sizeof(complex));
   }
@@ -335,6 +396,9 @@ void PsiCache::computeFs(PsiMessage* msg) {
       f_packet.occ_psis = psis[ikq];
       f_packet.e_occ = e_occ[msg->spin_index][ikq];
       f_packet.fs = f_nop;
+
+      if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+      else { f_packet.umklapp_factor = NULL; }
 
 #ifdef USE_CKLOOP
       CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);

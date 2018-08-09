@@ -26,10 +26,13 @@ class GWBSEOPTS{
     int nunocc;                  // Num: number of unoccupied state
     int nkpt;                    // Num: number of k points
     int nspin;                   // Num: number of spin
+    int nqpt_opt;                // Num: number of q - all or specific
     int coulb_trunc_opt;         // Num: coulomb truncation option
                                  // 0-no truncation 1-wire 2-sheet 3-molecule
     int ibinary_opt;             // Num: binary option 1, 2, 3
     double latt;                 // lattice parameter
+    int nqpt;                    // Num: q points, if discrete
+    int *qpts;                   // Q points, if discrete
     double a1[3], a2[3], a3[3];  // Num: lattice vectors (read it from lattice.dat)
     double b1[3], b2[3], b3[3];  // Num: reciprocal lattice vectors (read it from lattice.dat)
     double **kvec;               // Num: klists (read it from klist.dat)
@@ -50,9 +53,11 @@ class GWBSEOPTS{
       nocc            = 0;               
       nunocc          = 0;              
       nkpt            = 0;
+      nqpt_opt        = 1;
       nspin           = 0;
       coulb_trunc_opt = 0;
       ibinary_opt     = 0;
+      nqpt            = 0;
     };
     ~GWBSEOPTS(){};
 
@@ -69,12 +74,15 @@ class GWBSEOPTS{
       p | nunocc;
       p | nkpt;
       p | nspin;
+      p | nqpt_opt;
       p | coulb_trunc_opt;
       p | ibinary_opt;
+      p | nqpt;
       //pupping dbles;
       p | latt;
 
       if(p.isUnpacking()) {
+         qpts = new int[nqpt];
          kvec   = new double* [nkpt];
 	 kwt = new double [nkpt];
          qvec = new double* [nkpt];
@@ -83,7 +91,8 @@ class GWBSEOPTS{
            qvec[i] = new double [3];
           }
       }
-      //pupping 1d dble arrays;
+      //pupping 1d dble and int arrays;
+      PUParray(p,qpts,nqpt);
       PUParray(p,a1,3);
       PUParray(p,a2,3);
       PUParray(p,a3,3);
@@ -117,8 +126,16 @@ class GWBSEOPTS{
       fprintf(fp,"nunocc %d\n",nunocc);
       fprintf(fp,"nkpt %d\n",nkpt);
       fprintf(fp,"nspin %d\n", nspin);
+      fprintf(fp,"nqpt_opt %d\n", nqpt_opt);
       fprintf(fp,"coulb_trunc_opt %d\n",coulb_trunc_opt);
       fprintf(fp,"ibinary_opt %d\n",ibinary_opt);
+
+      if(nqpt_opt==0 && nqpt>0) {
+        fprintf(fp,"q points \n");
+        for (int i=0; i<nqpt; i++){
+          fprintf(fp, "%d\n", qpts[i]);
+        }
+      }
 
       fprintf(fp,"lattice vectors \n");
       fprintf(fp,"%lg   %lg   %lg\n",a1[0],a1[1],a1[2]);

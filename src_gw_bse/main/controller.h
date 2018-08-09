@@ -45,6 +45,10 @@ class Stopwatch {
       times[key].stop = CmiWallTimer();
       times[key].stopped = true;
     }
+    void resetTimer(std::string key) {
+      times[key].started = false;
+      times[key].stopped = false;
+    }
     double getEnd(std::string key) {
       if (!times[key].stopped) {
         CkPrintf("Warning: Timer not stopped for %s\n", key.c_str());
@@ -80,19 +84,22 @@ class Controller : public CBase_Controller {
   private:
     bool do_output;
     int msg_received;
-    int iter, maxiter;
+    int iter, maxiter, qpts;
     int iteration;
+    int qindex;
     unsigned index;
     unsigned dimension, rows;
     bool resultInsert;
+    bool all_qpts;
     double epsCut;
     double tol_iter_mtxinv;
     double alat;
     double vol;
     complex bare_x, screen_x, coh;
+    complex **bare_x_final, **screen_x_final, **coh_final;
     std::vector<double> vcoulb;
     double shift[3];
-    unsigned K, L, M, Bands, pipeline_stages;
+    unsigned K, L, M, *Q, Bands, pipeline_stages;
     unsigned next_K, next_state, total_sent, total_complete;
     unsigned max_sends, next_report_threshold;
     unsigned p_matrix_dimension, num_p_rows;
@@ -104,7 +111,7 @@ class Controller : public CBase_Controller {
     std::vector<int> accept_result;
     Stopwatch stopwatch;
 
-    CkCallback copyCB, readCB, writeCB, verifyCB;
+    CkCallback copyCB, readCB, writeCB, verifyCB, qindexCB;
 
     IOConfig p_config, eps_config, eps_inv_config;
 
@@ -151,6 +158,7 @@ class PsiCache : public CBase_PsiCache {
     complex* getStates(){return states;}
     bool in_np_list(int n_index);
     int get_index(int n_index);
+    void setQIndex(int q_index);
     void setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols);
     void reportInfo();
 

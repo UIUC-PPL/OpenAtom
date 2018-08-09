@@ -16,6 +16,7 @@ class States : public CBase_States {
   int ikpt;        // index for k point
   int ispin;       // index for spin
   int istate;      // index for state
+  int qindex;
   bool shifted;    // if states are shifted or not
   
   int ibinary_opt; // binary file option to read state file
@@ -31,7 +32,7 @@ class States : public CBase_States {
   States(CkMigrateMessage *msg);
 
   /// Entry Methods ///                                                                         
-  void fftGtoR();
+  void fftGtoR(int q_index);
   void sendToCache();
   void sendToComputeF();
 
