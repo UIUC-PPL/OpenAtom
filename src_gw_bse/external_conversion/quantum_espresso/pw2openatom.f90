@@ -39,6 +39,7 @@ Program converter
    
    character(256) :: work_dir, prefix, dirname, filename, fsysname
    logical :: shift_flag ! whether wavefunctions are shifted or not
+   logical :: write_fsys
    integer :: nk ! it should be decided at first
    integer :: nspin
 
@@ -90,7 +91,8 @@ Program converter
 
    integer :: stdin = 5
 
-   NAMELIST /INPUT/ prefix, work_dir, fsysname, doublepack, shift_flag, gpp_flag, Vxc_flag, nbandschunk
+   NAMELIST /INPUT/ prefix, work_dir, fsysname, doublepack, shift_flag, &
+                    gpp_flag, Vxc_flag, nbandschunk, write_fsys
 
 !---------------------------------------------------------------------
 ! starts here
@@ -104,6 +106,8 @@ Program converter
    Vxc_flag = .false.
    fname_vxc = 'Vxcr.dat'
    nbandschunk = 0
+   fsysname = 'sysinfo.dat'  ! this file is to run serial GW code
+   write_fsys = .false.      ! turn on when run serial GW
 
    read( stdin, INPUT, iostat=ierr )
 
@@ -267,13 +271,14 @@ Program converter
    if ( .not. doublepack) ngoa = ngkpt
 
 
-   if ( shift_flag .eqv. .false.) then
-      ! Write system information
-      call write_system_info( cell, ngoa, xk, wk, &
+   if ( write_fsys .eqv. .true. ) then
+      if ( shift_flag .eqv. .false. ) then 
+         ! Write system information
+         call write_system_info( cell, ngoa, xk, wk, &
                        nspin, nk, nb, fftsize, fsysname )
-   else
-      continue
+      endif
    endif
+
 
    ! write eigenvalues and occupation numbers
    do ispin = 1, nspin
