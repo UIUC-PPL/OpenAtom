@@ -88,7 +88,7 @@ Main::Main(CkArgMsg* msg) {
 
   // -------------------------------------------------------------------
   // Create the controller chares
-  controller_proxy = CProxy_Controller::ckNew();
+  controller_proxy = CProxy_Controller::ckNew(0);
   fft_controller_proxy = CProxy_FFTController::ckNew();
   psi_cache_proxy = CProxy_PsiCache::ckNew();
   fvector_cache_proxy = CProxy_FVectorCache::ckNew();
