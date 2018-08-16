@@ -1,0 +1,420 @@
+\documentclass[letterpaper,12pt]{article}
+ 
+ \usepackage{helvet}
+ \usepackage{courier}
+ \usepackage{xcolor}
+ \usepackage{enumerate} 
+ \usepackage{braket}
+ \usepackage[bottom]{footmisc}
+ 
+ \textwidth = 6.5 in
+ \textheight = 9 in
+ \oddsidemargin = 0.0 in
+ \evensidemargin = 0.0 in
+ \topmargin = 0.0 in
+ \headheight = 0.0 in
+ \headsep = 0.0 in
+ \parskip = 0.2in
+ \parindent = 0.0in
+ 
+ \newcommand{\openatom}{\textsc{OpenAtom}}
+ \renewcommand\labelitemi{\textendash}
+ 
+\newcommand{\note}[1]{{\bf \large \color{red} #1}}
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\minjung}{\color{gray}}
+\newcommand{\black}{\color{black}}
+ 
+ \title{\fontfamily{phv}\selectfont{\openatom\ for GW calculations}}
+ %\author{\fontfamily{phv}\selectfont{Minjung Kim}}
+ \date{}
+ 
+ \begin{document}
+ \maketitle
+
+Currently, Quantum Espresso can be used as DFT input for \openatom\ GW calculations.
+How to convert Quantum Espresso wavefunctions and eigenvalues is described in \verb+src_gw_bse/external_conversion/quantum_espresso+ directory. 
+%\red
+%If you have any questions regarding to \openatom\ GW, please send an email to xxx.
+%\black
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Input files}
+
+There are 4 input files required to run \openatom\ GW. 
+\begin{itemize}
+\item Simulation keyword file
+\item klist.dat
+\item lattice.dat
+\item band\_list.dat
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Simulation keyword file}
+
+An example of simulation keyword file can be downloaded from the repository. Look for the file name `config'.\\
+\verb+git clone https://charm.cs.illinois.edu/gerrit/datasets/gwbse/Si2+ 
+\\
+\verb+git clone https://charm.cs.illinois.edu/gerrit/datasets/gwbse/GaAs2+
+\black
+
+The simulation keyword file contains 5 subsections (we call them meta-keywords):
+\begin{verbatim}
+~gen_GW[ ]
+~GW_epsilon[ ]
+~GW_sigma[ ]
+~GW_file[ ]
+~GW_parallel[]
+\end{verbatim}
+
+Each meta-keyword requires keywords and key-arguments. 
+
+If multiple options are available, bold is a default option.
+
+%======================================================================
+\newpage
+\subsubsection*{\bf \~{}gen\_GW [7 keywords]}
+\begin{enumerate}
+
+
+ \vspace{0.15in}
+ \item   \textbackslash{}num\_tot\_state\{1\} : \\   
+  Total number of states including occupied and unoccupied (also known as the number of bands in other software approaches). In direct reference to the next two options, note that num\_tot\_state = num\_occ\_state + num\_unocc\_state
+
+ \vspace{0.15in}
+ \item   \textbackslash{}num\_occ\_state\{1\} : \\   
+  Number of occupied states (i.e., number of valence bands)
+
+ \vspace{0.15in}
+ \item   \textbackslash{}num\_unocc\_state\{1\} : \\   
+  Number of unoccupied states (i.e., number of conduction bands)
+
+ \vspace{0.15in}
+ \item   \textbackslash{}num\_kpoint\{1\} : \\   
+  Number of k points.
+
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}num\_qpt\_all\{{\bf on},off\} : If on, calculate epsilon matrix for all q points. If off, it will look for \textbackslash{}qpt\{\} keywords.
+
+
+\vspace{0.15in}
+\item \textbackslash{}qpt\{0,2,3\} : If \textbackslash{}num\_qpt\_all\{off\}, user asked to select which q points of epsilon matrix are calculated. No default value for this keyword.
+
+
+ \vspace{0.15in}
+ \item   \textbackslash{}statefile\_binary\_opt\{{\bf off},on,off\_gzip,on\_gzip\} : \\ 
+ How the wavefunction coefficients are written in states files. If you have converted the wavefunctions from Quantum Espresso, the option should be {\bf off}. \\
+% \red 
+ %Do we mean the format they are in the files that we read?  Or the format we write them in (I assume the former...)
+ \black
+ \begin{itemize}
+   \item off : plain ASCII text format
+   \item on : binary
+   \item off\_gzip : plane ASCII but compressed by gzip
+   \item on\_gzip : binary and compressed by gzip
+ \end{itemize}
+
+
+
+ \vspace{0.15in}
+{\it 
+--- planned for the near future---\\
+\textbackslash{}num\_spin : number of spin\\
+\textbackslash{}coulb\_trunc\_opt : Coulomb truncation options.
+%  \begin{itemize}
+%    \item 0 : no truncation
+%    \item 1 : wire
+%    \item 2 : sheet
+%    \item 3 : molecule
+%  \end{itemize}
+
+ }
+
+
+
+
+   
+\end{enumerate}
+
+%======================================================================
+\newpage
+\subsubsection*{\bf \~{}GW\_epsilon [4 keywords]}
+\begin{enumerate}
+
+ \vspace{0.15in}
+ \item   \textbackslash{}EcutFFT\{1\} : \\ 
+ Wavefunctions are fast-Fourier transformed (FFTed) from reciprocal to real space for computation of the polarizability. This energy cutoff (in Ryd) determines the spatial resolution used and thus the size of the FFT grid.  This is a physical convergence parameter.
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}Ecuteps\{1\} : \\
+ Energy cutoff for epsilon matrix (in Ryd).  Determines the size of the epsilon matrix. This number has to be less than or equal to EcutFFT.\\
+
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}tol\_iter\_mtxinv\{0.001\} : \\ 
+ We invert $\epsilon$ matrix using an iterative matrix inversion method.\footnote{Adi Ben-Israel. An iterative method for computing the generalized inverse of an arbitrary matrix. Math. Comp., 19:452--455, 1965.}
+ The code compares all of the matrix elements between $N^{th}$ and $N+1^{th}$ iteration, and if the largest difference is below this tolerance, matrix inversion routine terminates. 
+
+ 
+ \vspace{0.15in}
+ \item 
+ \textbackslash{}max\_iter\{100\}: \\
+ Maximum number of iteration for the matrix inversion. If maximum number of iteration used, it does not perform iteration even if the tolerance is not achieved. 
+
+ 
+% \vspace{0.15in}
+% \item   \textbackslash{}state\_eigen\_value\_file\{eigenvalues.in\} : \\ 
+% A file containing \verb+num_tot_state+ eigenvalues. This file is automatically generated by \openatom\ or  the state converter (e.g. pw2openatom.x).
+% This file locates in \verb+STATES+ directory.\\
+ %\red Is this one single file or a file for each k-point?  Is it in the states directory? What is its format?  Or is it generated by the converter and we just are saying where it is?  If by converter, we should just briefly say it was generated by converter.
+ 
+\end{enumerate}
+
+%======================================================================
+\newpage
+\subsubsection*{\bf \~{}GW\_sigma [0 keyword]}
+
+%\note{Are there really no such options?  Or there are some and we forgot as of 6/12/2018}
+
+
+% \begin{enumerate}
+% \vspace{0.15in}
+ %\item   \textbackslash{}nnp\_list\_file\{1\} : \\
+%\red We need an explanation of this file and its contents/format.  Or that information is elsewhere, then a pointer (but better to explain it right here).  I assume it is a text file?
+%\black 
+% \vspace{0.15in}
+ %\item   \textbackslash{}bare\_coulomb\_cutoff\{1\} : \\
+ %{\it Not sure to be implemented...}\\
+ %\red Let's check to see if it is implemented but does nothing or it is not even existing \black
+%\end{enumerate}
+
+ {\it
+ --- planned for the near future---\\
+\textbackslash{}screened\_coulomb\_cutoff\{1\} : Energy cutoff for screened coulomb interaction (in Ryd).\\
+\textbackslash{}PP\_num\_mode\{1\} : number of Plasmon-Pole modes to be summed over\\
+}
+
+
+
+
+%======================================================================
+\newpage
+\subsubsection*{\bf \~{}GW\_io [18 keywords]}
+\begin{enumerate}
+
+ \vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_read\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_read\_prefix\{PMatrixIn\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_write\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_write\_prefix\{PMatrixOut\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_verify\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}p\_matrix\_verify\_prefix\{PMatrixIn\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_read\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_read\_prefix\{EpsIn\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_write\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_write\_prefix\{EpsOut\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_verify\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_verify\_prefix\{EpsIn\} : \\
+ 
+  \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_read\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_read\_prefix\{EpsInvIn\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_write\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_write\_prefix\{EpsInvOut\} : \\
+
+ \vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_verify\{on,{\bf off}\} : \\
+ 
+\vspace{0.15in}
+ \item   \textbackslash{}epsilon\_inv\_verify\_prefix\{EpsInvIn\} : \\
+
+\end{enumerate}
+
+%======================================================================
+\newpage
+\subsubsection*{\bf \~{}GW\_parallel [4 keywords]}
+
+%\note{Is this up to date as of 6/12/2018?} : yes it is
+
+
+\begin{enumerate}
+
+ \vspace{0.15in}
+ \item   \textbackslash{}pipeline\_stages\{1\} : \\
+ Number of unoccupied states to concurrently send during P matrix computation. Increasing the number of stages should yield better CPU utilization, however each additional stage requires memory equal to the size of all occupied states. After a certain number of stages the benefit diminishes as the CPU gets saturated.
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}rows\_per\_chare\{1\} : \\
+ Parameter controlling the decomposition of the P matrix. Each chare holds a tile of the matrix with this many rows. Larger tiles reduces some scheduling overhead but allows for less overlap of communication and computation. May also effect cache utilization. Creating enough tiles to have 4-16 per core is a good starting point.
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}cols\_per\_chare\{1\} : \\
+ See \textbackslash{}rows\_per\_chare.
+ 
+ \vspace{0.15in}
+ \item   \textbackslash{}transpose\_stages\{1\} : when transposing the P matrix, how many slices to cut the P matrix into in order to do the transposition in pieces to avoid memory overflow.\\
+
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{klist.dat}
+
+This file tells the code how many k points are used and what they actually are. 
+The format of this file:
+
+
+$nk$\\
+$k^1_x$ $k^1_y$ $k^1_z$ $w_{k^1}$\\
+...\\
+$k^{nk}_x$ $k^{nk}_y$ $k^{nk}_z$ $w_{k^{nk}}$\\
+$s_x$ $s_y$ $s_z$\\
+$nk_1$ $nk_2$ $nk_3$
+
+nk - number of k points\\
+k$_x$ k$_y$ k$_z$ - k point coordinates (crystal coordinates)\\
+w$_k$ - weight\\
+s - shift vector (crystal coordinates)\\
+nk$_1$ nk$_2$ nk$_3$ - density of k grid (number of k grid in each lattice vector)\\ 
+
+Example of \verb+klist.dat+ file with 8 k points:
+
+\verb+8+\\
+\verb+0.000000000  0.000000000  0.000000000     0.125+\\
+\verb+0.000000000  0.000000000  0.500000000     0.125+\\
+\verb+0.000000000  0.500000000  0.000000000     0.125+\\
+\verb+0.000000000  0.500000000  0.500000000     0.125+\\
+\verb+0.500000000  0.000000000  0.000000000     0.125+\\
+\verb+0.500000000  0.000000000  0.500000000     0.125+\\
+\verb+0.500000000  0.500000000  0.000000000     0.125+\\
+\verb+0.500000000  0.500000000  0.500000000     0.125+\\
+\verb+0.0          0.0          0.001+\\
+\verb+2            2            2+\\
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{lattice.dat}
+
+This file tells the shape of the simulation cell and reciprocal lattice vector. 
+The for mat of this file:
+
+$l_a$\\
+$a1_x$ $a1_y$ $a1_z$\\
+$a2_x$ $a2_y$ $a2_z$\\
+$a3_x$ $a3_y$ $a3_z$\\
+$b1_x$ $b1_y$ $b1_z$\\
+$b2_x$ $b2_y$ $b2_z$\\
+$b3_x$ $b3_y$ $b3_z$\\
+
+$l_a$ - lattice parameter ($Bohr$ unit)\\
+$a1$, $a2$, $a3$ : lattice vector (unit of $l_a$)\\
+$b1$, $b2$, $b3$ : reciprocal lattice vector (cartesian coordinates in unit  $\frac{2\pi}{l_a}$)
+
+%\note{Are the $b$ reciprocal lattice vectors really in xyz units or in lattice units?  Someone check.} : It is the same as quantum espresso output.  (reciprocal axes: (cart. coord. in units 2 pi/alat))
+
+Example of \verb+lattice.dat+ file:
+
+\verb+10.2612+\\
+\verb+0.000000000   0.500000000   0.500000000+\\
+\verb+0.500000000   0.000000000   0.500000000+\\
+\verb+0.500000000   0.500000000   0.000000000+\\
+\verb+ -1.000000    1.000000    1.000000+\\
+\verb+  1.000000   -1.000000    1.000000+\\
+\verb+  1.000000    1.000000   -1.000000+\\
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{band\_list.dat}
+
+This file indicates which $\Sigma$ elements will be calculated (e.g., $\braket{\psi_l|\Sigma|\psi_m}$ ). The format of this file is: 
+
+$n_{lm}$\\
+$l_1$ $m_1$\\
+$l_2$ $m_2$\\
+...\\
+$l_{n_{lm}}$ $m_{n_{lm}}$\\
+
+$n_{lm}$ : How many $lm$ pair that a user wants to calculate\\
+$l$ : band index of $\psi_l$\\
+$m$ : band index of $\psi_m$ \\
+
+Example of \verb+band_list.dat+ file:
+
+\verb+2+\\
+\verb+4 4+\\
+\verb+5 5+\\
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\newpage
+%\section{Output files}
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Vxc}
+Currently, we do not have a converter that calculates $V_{xc}$ elements. For $V_{xc}$ element, we encourage users to run \verb+pw2bgw.x+ with vxc flag on. In our next release, we will provide the converter which calculates $V_{xc}$ elements.\\ 
+Here is a few steps to get $V_{xc}$ element:
+
+\begin{enumerate}
+\item Go to \verb+PP/src+ directory in Quantum Espresso package.
+\item type \verb+make pw2bgw.x+ 
+\item run pw2bgw.x in your working directory with these input options:
+\begin{itemize}
+\item \verb+vxc_flag = .true.+
+\item \verb+vxc_diag_nmin = n1+
+\item \verb+vxc_diag_nmax = n2+
+\end{itemize}
+\end{enumerate}
+
+If off diagonal elements are desired, use \verb+vxc_offdiag_nmin+ and \verb+vxc_offdiag_nmax+ keywords instead. 
+
+
+
+
+
+
+
+\end{document}
