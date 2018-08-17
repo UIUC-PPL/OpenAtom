@@ -129,12 +129,12 @@ void Controller::calc_Geps() {
   FFTController* fft_controller = fft_controller_proxy.ckLocalBranch();
 
   //output - vcoulb
-  fft_controller->calc_vcoulb(this_q, a1, a2, a3, b1, b2, b3, shift, alat, gwbse->gwbseopts.nkpt, qindex);
+  fft_controller->calc_vcoulb(this_q, a1, a2, a3, b1, b2, b3, shift, alat, gwbse->gwbseopts.nkpt, qindex, gwbse->gwbseopts.nk);
 }
 
-void Controller::got_vcoulb(std::vector<double> vcoulb_in){
+void Controller::got_vcoulb(std::vector<double> vcoulb_in, double vcoulb0){
   vcoulb = vcoulb_in;
-  psi_cache_proxy.setVCoulb(vcoulb_in);
+  psi_cache_proxy.setVCoulb(vcoulb_in, vcoulb0);
 }
 
 PsiCache::PsiCache() {
@@ -450,13 +450,18 @@ complex* PsiCache::getStates() {
   return states;
 }
 
-void PsiCache::setVCoulb(std::vector<double> vcoulb_in){
+void PsiCache::setVCoulb(std::vector<double> vcoulb_in, double vcoulb0){
   vcoulb = vcoulb_in;
+  vcoulb_0 = vcoulb0;
   contribute(CkCallback(CkReductionTarget(Controller,prepare_epsilon), controller_proxy));
 }
 
 std::vector<double> PsiCache::getVCoulb() {
   return vcoulb;
+}
+
+double PsiCache::getVCoulb0() {
+  return vcoulb_0;
 }
 
 // TODO: improve this to only be called when REGISTER_REGIONS is active

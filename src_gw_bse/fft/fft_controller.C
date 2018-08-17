@@ -2,6 +2,9 @@
 #include "fft_routines.h"
 #include "controller.h"
 
+#define DEBUG(x) /*CkPrintf x*/
+#define FLUSHDEBUG() /*fflush(stdout);*/
+
 static CmiNodeLock fft_plan_lock;
 void init_plan_lock() {
   fft_plan_lock = CmiCreateLock();
@@ -48,9 +51,103 @@ double calc_vol(double* a1, double* a2, double* a3){
   return vol;
 }
 
+double FFTController::compute_average_mbz(const double pa,const double pb,const double pc,
+                   double *hmatik,
+                   const int Na,const int Nb,const int Nc,const int n)
+{
+  // make sure n is even
+  if (n%2 != 0 or n < 2 ) {
+    CkPrintf("\naverage_integral() : n=%d is not even or less than 2!!\n\n",n);
+    CkExit(1);
+  }
+
+  // do the integral of size n x n x n
+  const double twopi = 2.0*M_PI;
+  const double fourpi = 4.0*M_PI;
+  double avg = 0.0;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      for (int k = 0; k < n; k++) {
+        // how much grid point (i,j,k) deviates from (pa,pb,pc)
+        double dai = (-0.5 + (2.0*(double)i+1.0)/(2.0*(double)n))/(double)Na;
+        double dbj = (-0.5 + (2.0*(double)j+1.0)/(2.0*(double)n))/(double)Nb;
+        double dck = (-0.5 + (2.0*(double)k+1.0)/(2.0*(double)n))/(double)Nc;
+        // add deviation to (pa,pb,pc) to get current point
+        double pai = pa + dai;
+        double pbj = pb + dbj; // PB&J!
+        double pck = pc + dck;
+        // convert lattice (pa,pb,pc) to physical (px,py,pz) vectorx
+        double px = (pai*hmatik[1] + pbj*hmatik[2] + pck*hmatik[3]) * twopi;
+        double py = (pai*hmatik[4] + pbj*hmatik[5] + pck*hmatik[6]) * twopi;
+        double pz = (pai*hmatik[7] + pbj*hmatik[8] + pck*hmatik[9]) * twopi;
+        // squared length of (px,py,pz)
+        double plen  = sqrt( px*px + py*py + pz*pz );
+        // accumulate avearge of 4pi/|p|^2
+        avg += fourpi / ( plen*plen );
+      } // k loop
+    } // jloop
+  } // i loop
+
+  // divide by number of grid points to get final average
+  avg /= (double)(n*n*n);
+  return avg;
+}
+
+double FFTController::average_mbz(double pa,double pb,double pc,double *hmatik,
+                   int Na,int Nb,int Nc,double tol)
+{
+  DEBUG(("pa=%g pb=%g pc=%g tol=%g : n avg\n",pa,pb,pc,tol));
+  // we are going to make a table of computed results as we go
+  // actually, only the last two entries are useful...
+  const int ntable=10;
+  double table[ntable][2];
+  int tabrow = 0;
+  bool gotbelowtol = false;
+  // current average and old average from previous cycle
+  double avg = 0.0 , avgold = 0.0;
+  for (int n = 50 ; n <= 50 *ntable; n += 50 ) {
+    // compute current average
+    avgold = avg;
+    avg = compute_average_mbz(pa,pb,pc,hmatik,Na,Nb,Nc,n);
+    // stuff latest result in table
+    table[tabrow][0] = (double)n;
+    table[tabrow][1] = avg;
+    tabrow++;
+    DEBUG(("%3d %.10f\n",n,avg));
+    FLUSHDEBUG();
+    // are we below tolerance?  Then we are done!
+    if ( fabs( (avg-avgold)/avg ) < tol ) {
+      gotbelowtol = true;
+      DEBUG(("Got below tolerance!  Answer is %.10f\n",avg));
+      return avg;
+    }
+  }
+
+  // if we got here, we did not get below tolerance
+  // this is generally the case when pa==pb==pc==0 and the integral
+  // is *very* hard to do brute force.  But then it behaves very
+  // nicely versus 1/n in that it goes as const1 + const2/n for large n.
+  // we will be using this fact to fit it to such a form.
+  DEBUG(("Did not get below tolerance...\n"));
+  DEBUG(("Last 2 tabulated entries are\n"));
+  for (int tabrow = ntable-2; tabrow <= ntable-1; tabrow++)
+    DEBUG(("%3d  %.10f\n",(int)table[tabrow][0],table[tabrow][1]));
+
+  // do a linear fit to the last 2 points in the table assuming
+  // the asymptotic form is f(n) = a/n + b.  We only care about b
+  // which is the extrapolated integral at n=infinity.
+  // if f(n1) and f(n2) are known then b=(f(n1)*n1-f(n2)*n2)/(n1-n2).
+  double n1 = table[ntable-2][0]; double f1 = table[ntable-2][1];
+  double n2 = table[ntable-1][0]; double f2 = table[ntable-1][1];
+  double intercept = (f1*n1-f2*n2)/(n1-n2);
+  DEBUG(("Linear fit to a/n + b gives b=%.10f\n",intercept));
+
+  return intercept;
+}
+
 void FFTController:: calc_vcoulb(double* qvec, double* a1, double* a2, double* a3,
                                  double* b1, double* b2, double * b3, double shift[3],
-                                 double alat, int nkpt, int iq){
+                                 double alat, int nkpt, int iq, int *nk){
 
   double* vcoulb;
   vcoulb = new double [geps->ng];
@@ -58,14 +155,28 @@ void FFTController:: calc_vcoulb(double* qvec, double* a1, double* a2, double* a
   double gq[3];
   double vol = calc_vol(a1, a2, a3);
   double fact = 4*PI/vol/nkpt;
+  double vcoulb0 = 0;
 
   for (int i=0; i<geps->ng; i++) {
-      if (iq==0){
+      if (iq==0) {
+          if(i==0){
+            double hmatik[10];
+            hmatik[1] = b1[0]; hmatik[2] = b2[0]; hmatik[3] = b3[0];
+            hmatik[4] = b1[1]; hmatik[5] = b2[1]; hmatik[6] = b3[1];
+            hmatik[7] = b1[2]; hmatik[8] = b2[2]; hmatik[9] = b3[2];
+            for (int k=1; k<10; k++){ hmatik[k] /= alat; }
+
+            double tol = 1.0e-6;
+            double avg = average_mbz(geps->ig[i], geps->jg[i], geps->kg[i], hmatik, nk[0], nk[1], nk[2], tol);
+            avg /= (vol*nkpt);
+            vcoulb0 = avg;
+          }
+
           gx = geps->ig[i] + shift[0];
           gy = geps->jg[i] + shift[1];
           gz = geps->kg[i] + shift[2];
       }
-      else{
+      else {
           gx = geps->ig[i] + qvec[0];
           gy = geps->jg[i] + qvec[1];
           gz = geps->kg[i] + qvec[2];
@@ -86,7 +197,7 @@ void FFTController:: calc_vcoulb(double* qvec, double* a1, double* a2, double* a
   vcoulb_v.resize(geps->ng);
   for(int i=0;i<geps->ng;i++)
     vcoulb_v[i] = vcoulb[i];
-  controller_proxy.got_vcoulb(vcoulb_v);
+  controller_proxy.got_vcoulb(vcoulb_v, vcoulb0);
 }
 
 void FFTController::get_geps(double epsCut, double* qvec, double* b1, double* b2, double * b3, 

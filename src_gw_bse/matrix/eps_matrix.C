@@ -167,8 +167,9 @@ void EpsMatrix::bareExchange() {
   contrib_data = new complex[tuple_size];
   int ik = 0;
   std::vector<double> vcoulb = psi_cache->getVCoulb();
+
   if(qindex==0)
-    vcoulb[0] = 0.38343474/2.0;
+    vcoulb[0] = psi_cache->getVCoulb0();
 
   if(thisIndex.x == thisIndex.y) {
     for (int k = 0; k < K; k++) {
@@ -432,9 +433,8 @@ void EpsMatrix::receiveConjugate(std::vector<complex> new_data) {
 void EpsMatrix::multiply_coulb(){
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
   std::vector<double> coulb = psi_cache->getVCoulb();
-
   if(qindex==0)
-    coulb[0] = 0.38343474/2.0;
+    coulb[0] = psi_cache->getVCoulb0();
 
   for(int i=0;i<config.tile_rows;i++){
     for(int j=0;j<config.tile_cols;j++){

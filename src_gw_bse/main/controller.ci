@@ -42,7 +42,7 @@ module controller {
     entry void receiveEpsDimensions(std::vector<int> accept, std::vector<int>
                                     geps_x,std::vector<int> geps_y,
                                     std::vector<int> geps_z, int epsilon_size);
-    entry void got_vcoulb(std::vector<double> vcoulb);
+    entry void got_vcoulb(std::vector<double> vcoulb, double vcoulb0);
     entry [reductiontarget] void fftControllerReady();
     entry [reductiontarget] void psiCacheReady();
     entry [reductiontarget] void fCacheReady();

@@ -22,7 +22,12 @@ class FFTController : public CBase_FFTController {
                               double alat, int nfft[3]);
     void calc_vcoulb(double* qvec, double* a1, double* a2, double* a3,
                       double* b1, double* b2, double * b3,
-                      double shift[3],double alat, int nkpt, int iq);
+                      double shift[3],double alat, int nkpt, int iq, int *nk);
+    double average_mbz(double pa,double pb,double pc,double *hmatik,
+                   int Na,int Nb,int Nc,double tol);
+    double compute_average_mbz(const double pa,const double pb,const double pc,
+                   double *hmatik,
+                   const int Na,const int Nb,const int Nc,const int n);
   private:
     void destroy_fftw_stuff();
     bool first_time;

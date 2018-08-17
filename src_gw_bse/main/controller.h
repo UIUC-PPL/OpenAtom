@@ -80,7 +80,7 @@ class Controller : public CBase_Controller {
     void computeEpsDimensions();
     void calc_Geps();
     void got_geps(std::vector<int> accept, int epsilon_size);
-    void got_vcoulb(std::vector<double> vcoulb_in);
+    void got_vcoulb(std::vector<double> vcoulb_in, double vcoulb0);
   private:
     bool do_output;
     int msg_received;
@@ -153,8 +153,9 @@ class PsiCache : public CBase_PsiCache {
     void reportFTime();
     complex* getPsi(unsigned, unsigned, unsigned) const;
     complex* getF(unsigned,unsigned) const;
-    void setVCoulb(std::vector<double> vcoulb_in);
+    void setVCoulb(std::vector<double> vcoulb_in, double vcoulb0);
     std::vector<double> getVCoulb();
+    double getVCoulb0();
     complex* getStates();
     bool in_np_list(int n_index);
     int get_index(int n_index);
@@ -181,6 +182,7 @@ class PsiCache : public CBase_PsiCache {
     complex* umklapp_factor;
     int n_np;
     int *n_list, *np_list;
+    double vcoulb_0;
 
     double total_time;
 

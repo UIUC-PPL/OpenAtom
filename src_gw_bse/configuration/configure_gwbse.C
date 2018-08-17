@@ -1652,6 +1652,12 @@ void Config::read_klist(GWBSEOPTS *gwbseopts){
     gwbseopts->kvec[i][2] = kz;
     gwbseopts->kwt[i] = wt;
   }
+  fscanf(fp,"%lg %lg %lg",&kx,&ky,&kz);
+  int nk1, nk2, nk3;
+  fscanf(fp,"%d %d %d",&nk1,&nk2,&nk3);
+  gwbseopts->nk[0] = nk1;
+  gwbseopts->nk[1] = nk2;
+  gwbseopts->nk[2] = nk3;
   fclose(fp);
 
   // calculate qpoint list

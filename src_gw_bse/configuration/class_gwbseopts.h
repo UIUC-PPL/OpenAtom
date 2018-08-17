@@ -38,6 +38,7 @@ class GWBSEOPTS{
     double **kvec;               // Num: klists (read it from klist.dat)
     double *kwt;                 // Num: k weights
     double **qvec;               // Num: qlists (after reading klist, qvec will be calculated)
+    int nk[3];                   // Num: k mesh in BZ
 
     char fileEpsMatInv[255];         // Chr: file name for inverse epsilon matrix
     char fileRho[255];               // Chr: file name for density
@@ -99,6 +100,7 @@ class GWBSEOPTS{
       PUParray(p,b1,3);
       PUParray(p,b2,3);
       PUParray(p,b3,3);
+      PUParray(p,nk,3);
       PUParray(p,kwt,nkpt);
       //pupping 2d dble arrars;
       //pup2d_dbl(p,&kvec,nkpt,3,"gwbseopts");
