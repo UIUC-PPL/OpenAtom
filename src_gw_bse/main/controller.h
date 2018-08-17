@@ -155,7 +155,7 @@ class PsiCache : public CBase_PsiCache {
     complex* getF(unsigned,unsigned) const;
     void setVCoulb(std::vector<double> vcoulb_in);
     std::vector<double> getVCoulb();
-    complex* getStates(){return states;}
+    complex* getStates();
     bool in_np_list(int n_index);
     int get_index(int n_index);
     void setQIndex(int q_index);

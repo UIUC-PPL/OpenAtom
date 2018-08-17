@@ -446,6 +446,10 @@ complex* PsiCache::getF(unsigned idx, unsigned req_no) const {
   return &(fs[idx*psi_size+(L*psi_size*(req_no%pipeline_stages))]);
 }
 
+complex* PsiCache::getStates() {
+  return states;
+}
+
 void PsiCache::setVCoulb(std::vector<double> vcoulb_in){
   vcoulb = vcoulb_in;
   contribute(CkCallback(CkReductionTarget(Controller,prepare_epsilon), controller_proxy));
