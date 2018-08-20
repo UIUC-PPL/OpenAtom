@@ -19,7 +19,7 @@
 #include <assert.h>
 extern Config config;
 extern CPcharmParaInfo simReadOnly;
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
 #include "zlib.h"
 #endif
 
@@ -1134,11 +1134,11 @@ void readState(int nPacked, complex *arrCP, const char *fromFile,int ibinary_opt
   //===================================================================================
   // First read in the state and k-vectors : allows parsing of doublePack option
 
-#if !CMK_PROJECTIONS_USE_ZLIB
+#if !CMK_USE_ZLIB
   if(ibinary_opt>1)
   {
     CkPrintf("Attempt to use ZLIB Failed! Please review compilation\n");
-    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_PROJECTIONS_USE_ZLIB);
+    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_USE_ZLIB);
     CkExit();
   }
 #endif
@@ -1177,7 +1177,7 @@ void readState(int nPacked, complex *arrCP, const char *fromFile,int ibinary_opt
     }//endfor
     fclose(fp);
   }
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
   else if(ibinary_opt==2){
     //      CkPrintf("Using ZLIB to load ascii states\n");
     char bigenough[1000];  //we know our lines are shorter than this
@@ -1998,7 +1998,7 @@ void writeStateFile(int ncoef,complex *psi,complex *vpsi,
       }
     fclose(fp);
   }
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
   else if(ibinary_write_opt==2){
     strcat(psiName,".gz");
     gzFile zfp  = gzopen(psiName,"w");
@@ -2091,7 +2091,7 @@ void writeStateFile(int ncoef,complex *psi,complex *vpsi,
       }
       fclose(fp);
     }
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
     else if(ibinary_write_opt==2){
       strcat(vpsiName,".gz");
       gzFile zfp=gzopen(vpsiName,"w");

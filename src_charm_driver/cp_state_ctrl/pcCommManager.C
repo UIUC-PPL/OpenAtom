@@ -514,7 +514,11 @@ namespace cp {
           s2, s2, 1,
           chunk, chunk,1);
       CkSectionID sid=sectProxy.ckGetSectionID();
+#if CMK_CKSECTIONINFO_STL
+      std::random_shuffle(sid._elems.begin(), sid._elems.end());
+#else
       std::random_shuffle(sid._elems, sid._elems + sid._nElems);
+#endif
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_
       sectProxy.ckSectionDelegate(mcastGrp);
 #endif
@@ -575,7 +579,11 @@ namespace cp {
           s2, s2, 1,
           chunk, chunk, 1);
       CkSectionID sid=sectProxy.ckGetSectionID();
+#if CMK_CKSECTIONINFO_STL
+      std::random_shuffle(sid._elems.begin(), sid._elems.end());
+#else
       std::random_shuffle(sid._elems, sid._elems + sid._nElems);
+#endif
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_
       sectProxy.ckSectionDelegate(mcastGrp);
 #endif
@@ -606,7 +614,11 @@ namespace cp {
             chunk, chunk, 1);
 
       CkSectionID sid=sectProxy.ckGetSectionID();
+#if CMK_CKSECTIONINFO_STL
+      std::random_shuffle(sid._elems.begin(), sid._elems.end());
+#else
       std::random_shuffle(sid._elems, sid._elems + sid._nElems);
+#endif
 #ifndef _AUTO_DELEGATE_MCASTMGR_ON_
       sectProxy.ckSectionDelegate(mcastGrp);
 #endif

@@ -21,7 +21,7 @@
 #include "../proto_defs/proto_friend_lib_entry.h"
 #include "../proto_defs/proto_handle_entry.h"
 #include "../class_defs/PINY_INIT/PhysicsParamTrans.h"
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
 #include "zlib.h"
 #endif
 
@@ -2717,7 +2717,7 @@ void Config::readStateInfo(int &nPacked,int &minx, int &maxx, int &nx, int &ny,
     EXIT(1);
   }//endif
 
-#if !CMK_PROJECTIONS_USE_ZLIB
+#if !CMK_USE_ZLIB
   if(ibinary_opt>1){
     PRINTF("   @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
     PRINTF("   Attempt to use ZLIB Failed! Please review compilation\n");
@@ -2770,7 +2770,7 @@ void Config::readStateInfo(int &nPacked,int &minx, int &maxx, int &nx, int &ny,
 
     }//endif:: acii
 
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
     //---------------------------------------------------------------------------------
     // Zipped ascii
     if(ibinary_opt==2){

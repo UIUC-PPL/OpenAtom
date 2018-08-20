@@ -20,7 +20,7 @@
 #include "configure.h"
 //#include "proto_friend_lib_entry.h"
 #include "proto_handle_entry.h"
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
 #include "zlib.h"
 #endif
 
