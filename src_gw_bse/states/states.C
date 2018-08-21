@@ -7,7 +7,7 @@
 #include "main.decl.h"
 #include "allclass_gwbse.h"
 #include <assert.h>
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
 #include "zlib.h"
 #endif
 #include "fft_routines.h"
@@ -199,11 +199,11 @@ void States::readState(char *fromFile)
   //===================================================================================
   // First read in the state and k-vectors : allows parsing of doublePack option
 
-#if !CMK_PROJECTIONS_USE_ZLIB
+#if !CMK_USE_ZLIB
   if(ibinary_opt>1)
   {
     CkPrintf("Attempt to use ZLIB Failed! Please review compilation\n");
-    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_PROJECTIONS_USE_ZLIB);
+    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_USE_ZLIB);
     CkExit();
   }
 #endif
@@ -247,7 +247,7 @@ void States::readState(char *fromFile)
     }//endfor
     fclose(fp);
   }
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
   else if(ibinary_opt==2){
     //      CkPrintf("Using ZLIB to load ascii states\n");
     char bigenough[1000];  //we know our lines are shorter than this
@@ -444,11 +444,11 @@ void States::readStateShifted(char *fromFile)
   //===================================================================================
   // First read in the state and k-vectors : allows parsing of doublePack option
 
-#if !CMK_PROJECTIONS_USE_ZLIB
+#if !CMK_USE_ZLIB
   if(ibinary_opt>1)
   {
     CkPrintf("Attempt to use ZLIB Failed! Please review compilation\n");
-    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_PROJECTIONS_USE_ZLIB);
+    //CkPrintf("Macro cmk-projections-use-zlib  is %d \n", CMK_USE_ZLIB);
     CkExit();
   }
 #endif
@@ -494,7 +494,7 @@ void States::readStateShifted(char *fromFile)
     }//endfor
     fclose(fp);
   }
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
   else if(ibinary_opt==2){
     //      CkPrintf("Using ZLIB to load ascii states\n");
     char bigenough[1000];  //we know our lines are shorter than this

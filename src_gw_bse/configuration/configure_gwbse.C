@@ -30,7 +30,7 @@
 #include "proto_friend_lib_entry.h"
 #include "proto_handle_entry.h"
 
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
 #include "zlib.h"
 #endif
 
@@ -1304,7 +1304,7 @@ void Config::readStateInfo(int &nPacked,int &minx, int &miny, int &minz,
     EXIT(1);
   }//endif
 
-#if !CMK_PROJECTIONS_USE_ZLIB
+#if !CMK_USE_ZLIB
   if(ibinary_opt>1){
     PRINTF("   @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
     PRINTF("   Attempt to use ZLIB Failed! Please review compilation\n");
@@ -1352,7 +1352,7 @@ void Config::readStateInfo(int &nPacked,int &minx, int &miny, int &minz,
 
   }//endif:: acii
 
-#if CMK_PROJECTIONS_USE_ZLIB
+#if CMK_USE_ZLIB
   //---------------------------------------------------------------------------------
   // Zipped ascii
   if(ibinary_opt==2){
