@@ -257,19 +257,121 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   }
 }
 
-void PsiCache::setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols) {
+void PsiCache::setRegionData(PMatrix* matrix_chare, int start_row, int start_col, int tile_nrows, int tile_ncols) {
   CmiLock(tile_lock);
 
-  min_row = std::min(min_row, start_row);
-  max_row = std::max(max_row, start_row + tile_nrows);
-  min_col = std::min(min_col, start_col);
-  max_col = std::max(max_col, start_col + tile_ncols);
+  matrix_chares.push_back(matrix_chare);
+
+  std::pair<int, int> rowSpan = std::pair<int, int>(start_row, start_row + tile_nrows);
+  std::pair<int, int> colSpan = std::pair<int, int>(start_col, start_col + tile_ncols);
+
+  // Should only ever trigger once per cache.
+  if (regions.size() == 0) {
+    regions.push_back(rowSpan);
+  } else { // Insert rowSpan in order, or coalesce it.
+    bool rowInserted = false;
+    for (int i = 0; i < regions.size(); i++) {
+      std::pair<int, int> curSpan = regions[i];
+      if ((rowSpan.first >= curSpan.first && rowSpan.first <= curSpan.second)
+         || (rowSpan.second >= curSpan.first && rowSpan.second <= curSpan.second)
+         || (rowSpan.first <= curSpan.first && rowSpan.second >= curSpan.second)) { // Reasons to coalesce.
+        regions[i].first = std::min(rowSpan.first, curSpan.first);
+        regions[i].second = std::max(rowSpan.second, curSpan.second);
+        int j;
+        for (j = i + 1; j < regions.size(); j++) {
+          if (regions[i].second >= regions[j].first) { // Merge the overlapping spans into regions[i].
+            regions[i].first = std::min(regions[i].first, regions[j].first);
+            regions[i].second = std::max(regions[i].second, regions[j].second);
+          } else {
+            break;
+          }
+        }
+        if (j > i + 1) { // If at least one additional span was coalesced.
+          regions.erase(regions.begin() + i + 1, regions.begin() + j);
+        }
+        rowInserted = true;
+        break;
+      } else if (rowSpan.second < curSpan.first) { // rowSpan is disjoint with other spans. Insert.
+        regions.insert(regions.begin() + i, rowSpan);
+        rowInserted = true;
+        break;
+      }
+    }
+    if (!rowInserted) { // rowSpan occurs entirely after all other spans.
+      regions.push_back(rowSpan);
+    }
+  }
+  // Insert colSpan in order, or coalesce it.
+  bool colInserted = false;
+  for (int i = 0; i < regions.size(); i++) {
+    std::pair<int, int> curSpan = regions[i];
+    if ((colSpan.first >= curSpan.first && colSpan.first <= curSpan.second)
+       || (colSpan.second >= curSpan.first && colSpan.second <= curSpan.second)
+       || (colSpan.first <= curSpan.first && colSpan.second >= curSpan.second)) { // Reasons to coalesce.
+      regions[i].first = std::min(colSpan.first, curSpan.first);
+      regions[i].second = std::max(colSpan.second, curSpan.second);
+      int j;
+      for (j = i + 1; j < regions.size(); j++) {
+        if (regions[i].second >= regions[j].first) { // Merge the overlapping spans into regions[i].
+          regions[i].first = std::min(regions[i].first, regions[j].first);
+          regions[i].second = std::max(regions[i].second, regions[j].second);
+        } else {
+          break;
+        }
+      }
+      if(j > i + 1) { // If at least one additional span was coalesced.
+        regions.erase(regions.begin() + i + 1, regions.begin() + j);
+      }
+      colInserted = true;
+      break;
+    } else if (colSpan.second < curSpan.first) { // colSpan is disjoint with other spans. Insert.
+      regions.insert(regions.begin() + i, colSpan);
+      colInserted = true;
+      break;
+    }
+  }
+  if (!colInserted) { // colSpan occurs entirely after all other spans.
+    regions.push_back(colSpan);
+  }
 
   CmiUnlock(tile_lock);
 }
 
 // Called by CkLoop to spread the computation of f vectors across the node
 void computeF(int first, int last, void* result, int count, void* params) {
+  FComputePacket* f_packet = (FComputePacket*)params;
+  unsigned psi_size = f_packet->size;
+  complex* psi_unocc = f_packet->unocc_psi;
+  complex* umklapp_factor = f_packet->umklapp_factor;
+  double* e_occ = f_packet->e_occ;
+  double e_unocc = f_packet->e_unocc;
+  complex* fs = f_packet->fs;
+  std::vector<std::pair<int, int>>* regions = f_packet->regions;
+
+  for (int l = first; l <= last; l++) {
+    complex* f = &(fs[l*psi_size]);
+    complex* psi_occ = f_packet->occ_psis[l];
+    double scaling_factor = 2/sqrt(e_unocc - e_occ[l]);
+
+    for (int i = 0; i < (*regions).size(); i++) {
+      for (int j = (*regions)[i].first; j < (*regions)[i].second; j++) {
+        f[j] = psi_occ[j] * psi_unocc[j].conj();
+        if (umklapp_factor) {
+          f[j] *= umklapp_factor[j];
+        }
+        #ifdef USE_LAPACK
+        // BLAS calls compute the complex conjugate of P, which is hermitian. This
+        // change to f corrects that so we get the correct P.
+        f[j] = f[j].conj();
+        #endif
+        f[j] *= scaling_factor;
+      }
+    }
+  }
+}
+
+// Called by CkLoop to spread the computation of f vectors across the node
+void computeF_all(int first, int last, void* result, int count, void* params) {
   FComputePacket* f_packet = (FComputePacket*)params;
   unsigned psi_size = f_packet->size;
   complex* psi_unocc = f_packet->unocc_psi;
@@ -356,6 +458,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
   // Create the FComputePacket for this set of f vectors and start CkLoop
   f_packet.size = psi_size;
   f_packet.unocc_psi = msg->psi;
+  f_packet.regions = &regions;
   f_packet.fsave = fsave;
 
   if(msg->state_index >= L){
@@ -367,47 +470,48 @@ void PsiCache::computeFs(PsiMessage* msg) {
       f_packet.occ_psis = psis[ikq];
       f_packet.e_occ = e_occ[msg->spin_index][ikq];
     }
-    f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
-    f_packet.fs = fs + (L*psi_size*(received_chunks%pipeline_stages));
 
-    if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
-    else { f_packet.umklapp_factor = NULL; }
+    if(!msg->sigma) {
+      f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
+      f_packet.fs = fs + (L*psi_size*(received_chunks%pipeline_stages));
 
-#ifdef USE_CKLOOP
-    CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
-#else
-    for (int l = 0; l < L; l++) {
-      computeF(l,l,NULL,1,&f_packet);
+      if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+      else { f_packet.umklapp_factor = NULL; }
+
+  #ifdef USE_CKLOOP
+      CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
+  #else
+      for (int l = 0; l < L; l++) {
+        computeF(l,l,NULL,1,&f_packet);
+      }
+  #endif
+      received_chunks++;
     }
-#endif
-    received_chunks++;
   }
 
 #ifdef TESTING
-  if(in_np_list(msg->state_index))
+  if(in_np_list(msg->state_index) && msg->sigma)
   {
     if(msg->state_index < L)
       f_packet.e_unocc = f_packet.e_occ[msg->state_index];
     else
       f_packet.e_unocc = e_unocc[msg->spin_index][msg->k_index][msg->state_index-L];
 
-    // Ignore shifted states(q=0) for fvectors, when caching for sigma calc
-    if ( qindex == 0 || msg->state_index < L) {
-      f_packet.occ_psis = psis[ikq];
-      f_packet.e_occ = e_occ[msg->spin_index][ikq];
-      f_packet.fs = f_nop;
+  // Ignore shifted states(q=0) for fvectors, when caching for sigma calc
+    f_packet.occ_psis = psis[ikq];
+    f_packet.e_occ = e_occ[msg->spin_index][ikq];
+    f_packet.fs = f_nop;
 
-      if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
-      else { f_packet.umklapp_factor = NULL; }
+    if (uproc) { f_packet.umklapp_factor = umklapp_factor; }
+    else { f_packet.umklapp_factor = NULL; }
 
 #ifdef USE_CKLOOP
-      CkLoop_Parallelize(computeF, 1, &f_packet, L, 0, L - 1);
+    CkLoop_Parallelize(computeF_all, 1, &f_packet, L, 0, L - 1);
 #else
-      for (int l = 0; l < L; l++) {
-        computeF(l,l,NULL,1,&f_packet);
-      }
-#endif
+    for (int l = 0; l < L; l++) {
+      computeF_all(l,l,NULL,1,&f_packet);
     }
+#endif
 
     FVectorCache *fvec_cache = fvector_cache_proxy.ckLocalBranch();
     fvec_cache->computeFTilde(fsave);
@@ -419,7 +523,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
 
   // Let the matrix chares know that the f vectors are ready
   CkCallback cb;
-  if(msg->state_index >= L)
+  if(!msg->sigma)
     cb = CkCallback(CkReductionTarget(PMatrix, applyFs), pmatrix2D_proxy);
   else
     cb = CkCallback(CkReductionTarget(Controller,prepare_epsilon), controller_proxy);
@@ -580,6 +684,10 @@ void FVectorCache::findIndices(){
   }
 
   return;
+}
+
+int FVectorCache::getNSize(){
+  return n_list_size;
 }
 
 void FVectorCache::setDim(int dim, std::vector<int> accept,

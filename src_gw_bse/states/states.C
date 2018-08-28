@@ -86,7 +86,7 @@ void States::sendToCache() {
 //==============================================================================
 // Pack up our realspace coefficients and broadcast them to the cache to be
 // multiplied with each occupied psi to create a set of f vectors.
-void States::sendToComputeF() {
+void States::sendToComputeF(bool is_sigma) {
   //CkPrintf("[%i,%i,%i]: Sending psi for f-comp...\n", ispin, ikpt, istate);
   int ndata = nfft[0]*nfft[1]*nfft[2];
   //int accept_arr[accept.size()];
@@ -97,6 +97,7 @@ void States::sendToComputeF() {
   msg->k_index = ikpt;
   msg->state_index = istate;
   msg->shifted = false;
+  msg->sigma = is_sigma;
   //msg->accept_size = accept.size();
   psi_cache_proxy.computeFs(msg);
  

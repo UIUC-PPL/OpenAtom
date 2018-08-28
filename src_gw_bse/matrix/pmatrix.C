@@ -287,7 +287,7 @@ void PMatrix::getUmklappFactor(complex* umklapp_factor, int uklpp[3]){
 //each chare in the matrix gives its row and column ranges to its local PsiCache
 void PMatrix::registerTileSections() {
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
-  psi_cache->setRegionData(start_row, start_col, config.tile_rows, config.tile_cols);
+  psi_cache->setRegionData(this, start_row, start_col, config.tile_rows, config.tile_cols);
 
   contribute(CkCallback(CkReductionTarget(Controller,registrationComplete), controller_proxy));
 }//end function

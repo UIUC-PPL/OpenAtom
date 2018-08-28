@@ -15,6 +15,7 @@ class PsiMessage : public CMessage_PsiMessage {
     }
     unsigned spin_index, k_index, state_index, size;
     bool shifted;
+    bool sigma;
     complex* psi;
 };
 

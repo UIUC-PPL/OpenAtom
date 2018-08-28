@@ -34,7 +34,7 @@ class States : public CBase_States {
   /// Entry Methods ///                                                                         
   void fftGtoR(int q_index);
   void sendToCache();
-  void sendToComputeF();
+  void sendToComputeF(bool is_sigma = false);
 
   /// fftw routines ///
   // void fft_G_to_R(); -> doesn't seem to exist anymore

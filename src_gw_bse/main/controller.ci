@@ -383,14 +383,12 @@ module controller {
       }
 
       for (next_K = 0; next_K < K; next_K++) {
-//send only occ states
+//send occ and unocc states in bandlist
         for (next_state = 0; next_state < Bands ; next_state++) {
-          if(np_list[next_state]-1 < L){
-            serial {
-              states_proxy(0, next_K, np_list[next_state]-1).sendToComputeF();
-            }
-            when prepare_epsilon() serial { }
+          serial {
+            states_proxy(0, next_K, np_list[next_state]-1).sendToComputeF(true);
           }
+          when prepare_epsilon() serial { }
         }
       }
 

@@ -142,6 +142,7 @@ struct FComputePacket {
   complex* umklapp_factor;
   complex* fs;
   complex* fsave;
+  std::vector<std::pair<int, int>>* regions;
 };
 
 class PsiCache : public CBase_PsiCache {
@@ -160,7 +161,8 @@ class PsiCache : public CBase_PsiCache {
     bool in_np_list(int n_index);
     int get_index(int n_index);
     void setQIndex(int q_index);
-    void setRegionData(int start_row, int start_col, int tile_nrows, int tile_ncols);
+    void setRegionData(PMatrix* matrix_chare, int start_row, int start_col,
+                       int tile_nrows, int tile_ncols);
     void reportInfo();
 
   private:
@@ -187,6 +189,8 @@ class PsiCache : public CBase_PsiCache {
     double total_time;
 
     // Used for registering fvector regions
+    std::vector<PMatrix*> matrix_chares;
+    std::vector<std::pair<int, int>> regions;
     int min_row, min_col, max_row, max_col;
     CmiNodeLock tile_lock;
 };
@@ -202,7 +206,7 @@ class FVectorCache : public CBase_FVectorCache {
     complex* getFVec(int kpt, int n, int l, int start, int size);
     void applyCutoff(complex* fs_in);
     void findIndices();
-    int getNSize(){ return n_list_size;}
+    int getNSize();
     std::vector<int> getAcceptVector() { return accept_vector;}
     std::vector<int> getGepsXVector() { return geps_x;}
     std::vector<int> getGepsYVector() { return geps_y;}
