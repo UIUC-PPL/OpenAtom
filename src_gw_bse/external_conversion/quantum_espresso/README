@@ -33,7 +33,6 @@ INPUT FILE DESCRIPTION
 
 prefix : it has to be the same as pwscf run
 work_dir : directory where you saves your wavefunction files.
-fsysname : system information file to be used for OpenAtom execution. The name of this file is hardcoded in OpenAtom as "sysinfo.dat". 
 doublepack : Default value is 'false'. 
 shift_flag : To calculate Polarizability when G=G'=q=0, we use shifted wavefunctions. If you have calculated occupied state wavefunctions with k grid with small shifts, make this flag true. 
 gpp_flag : If true, it prints density file ("rho.dat") that is used for GPP calculations. 
