@@ -138,10 +138,10 @@ void EpsMatrix::screenedExchange() {
             }
           }
         }
-        contrib_data[ik] = contribution;
+        contrib_data[ik] = contribution * -1.0;
         tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &(contrib_data[ik]), CkReduction::sum_double);
         ik++;
-        total_contribution += contribution;
+        total_contribution += contribution * -1.0;
     }
   }
 
@@ -183,10 +183,10 @@ void EpsMatrix::bareExchange() {
               contribution += f[ii]*f[ii].conj()*vcoulb[g];
           }
         }
-        contrib_data[ik] = contribution;
+        contrib_data[ik] = contribution * -1.0;
         tuple_reduction[ik] =  CkReduction::tupleElement(sizeof(complex), &(contrib_data[ik]), CkReduction::sum_double);
         ik++;
-        total_contribution += contribution;
+        total_contribution += contribution * -1.0;
       }
     }
   }
