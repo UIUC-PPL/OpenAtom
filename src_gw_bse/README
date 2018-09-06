@@ -20,6 +20,8 @@ Important PATHS in config.mk:
 - CHARMDIR: The full path to your charm build from above
 - BUILDDIR: The full path to where you want the build files to go
 - CHARMC:   Do NOT change. The path to the charm compiler
+- FFTW3:    The full path to your FFTW3 installation. FFTW 3.x can be
+            downloaded from http://www.fftw.org/ and installed.
 
 To use LAPACK, the following options must be set in config.mk:
 LAPACKLIB:  Linker commands needed to link to LAPACK
@@ -32,7 +34,6 @@ CFLAGS: "-DUSE_CKLOOP" must be set
 LFLAGS: "-module CkLoop" must be set
 
 Other flags:
-CFLAGS: "-DQ_IDX=X" is used to set the Q point at compile time to X
 DIRS:   The list of subdirectories used in compilation. Do NOT change.
 
 TO RUN GW/BSE:
