@@ -35,7 +35,7 @@ def execute_tests(tests):
 		f = open(test_dict['output_file'],'w')
 		subprocess.call(command, stdout = f, stderr = f)
 		f.close()
-
+                test_dict['pesused'] = test_checker.get_pes_used(test_dict['output_file'])
 		test_dict['result'] = test_checker.check_result(test_dict)
 
 		test_output.print_result_string(test_dict)
@@ -60,6 +60,10 @@ def generate_command(test_dict):
 	par_cfg = os.path.relpath(test_dict['par_cfg'],data_path)
 	phy_cfg = os.path.relpath(test_dict['phy_cfg'],data_path)
 
-	command = [charmrun, '++local', '+p'+numpe, exe, par_cfg, phy_cfg]
+        # pimd is hyper sensitive, other tests can run on variable pes
+        if test_dict['test_name'] == "pimd_dynamics":
+                command = [charmrun, '++local', '+p'+numpe, exe, par_cfg, phy_cfg]
+        else:
+                command = [charmrun, '++local', '++autoProvision', exe, par_cfg, phy_cfg]
 
 	return command

@@ -29,6 +29,25 @@ def check_result(test_dict):
 
 	return result
 
+# extract numpes actually used from output file
+def get_pes_used(inputfile):
+        import re
+	in_file = open(inputfile)
+#	lines = in_file.readlines();
+#	in_file.close()
+	for line in in_file:
+                matchG = re.match(r'.*([\d+]) PEs total',line)
+                if matchG:
+                        return matchG.group(1)
+                else:
+                        matchNON = re.match(r'.*([\d+]) processes .PEs.$',line)
+                        if matchNON:
+                                in_file.close()
+                                return matchNON.group(1)
+        in_file.close()                
+        return '?'
+                
+                
 # given a file and a basename
 # split filter file to basename.instance, for each instance in output
 # return list of filenames
