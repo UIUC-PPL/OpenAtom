@@ -1852,7 +1852,7 @@ void CPNONLOCAL::eesEnergyAtmForcRchare(int iter_nl, double *cp_enl_tot, double 
 
         zmat[jatm] *= (2.0*vnormVol*wght_now); 
 
-        complex fxx=(0.0, 0.0), fyy=(0.0, 0.0),fzz=(0.0, 0.0);
+        complex fxx(0.0, 0.0), fyy(0.0, 0.0), fzz(0.0, 0.0);
 #ifndef _CP_BRK_BETTER_
 #ifndef _UNROLL_OFF_
         for(int j=1,j1=2,j2=3,j3=4,j4=5;j<=jend;

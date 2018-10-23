@@ -64,9 +64,9 @@ typedef char LINE[MAXLINE];    // Chr: a line; Lth: MAXLINE
 #ifdef CHARM_ON
 #define PRINTF CkPrintf
 #ifdef PUP_PRINTING_ON
-#define PUP_PRINTF CkPrintf
+#define PUP_PRINTF(expr) CkPrintf(expr)
 #else
-#define PUP_PRINTF
+#define PUP_PRINTF(expr) ((void) 0)
 #endif
 #define SCANF  CkScanf
 #define FFLUSH fflush

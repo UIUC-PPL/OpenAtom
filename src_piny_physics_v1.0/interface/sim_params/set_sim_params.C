@@ -162,14 +162,15 @@ void set_sim_params_temper(GENTEMPERING_CTRL *tempering_ctrl,
     fp = cfopen((const char *)fname,"r");
     for(i=1;i<=npara_temps;i++){
       switch(iopt){
-        case 1: fscanf(fp,"%lg",&t_ext[i]);
+	size_t junk;
+        case 1: junk=fscanf(fp,"%lg",&t_ext[i]);
                 PRINTF("       %g\n",t_ext[i]);
                 break;
-        case 2: fscanf(fp,"%lg %lg",&t_ext[i],&p_ext[i]);
+        case 2: junk=fscanf(fp,"%lg %lg",&t_ext[i],&p_ext[i]);
                 PRINTF("       %g %g\n",t_ext[i],p_ext[i]);
                 p_ext[i] *= PCONV;
                 break;
-        case 3: fscanf(fp,"%lg %lg %lg",&t_ext[i],&p_ext[i],&s_ext[i]);
+        case 3: junk=fscanf(fp,"%lg %lg %lg",&t_ext[i],&p_ext[i],&s_ext[i]);
                 PRINTF("       %g %g %g\n",t_ext[i],p_ext[i],s_ext[i]);
                 p_ext[i] *= PCONV;  s_ext[i] *= STENS_CONV;
                 break;
@@ -185,7 +186,8 @@ void set_sim_params_temper(GENTEMPERING_CTRL *tempering_ctrl,
 	sprintf (fname, "%s",dict[13].keyarg);
 	fp = cfopen((const char *) fname,"r");
 	int in_temper;
-	fscanf(fp,"%*s %*s %*s %*s %d", &in_temper);
+	size_t junk;
+	junk=fscanf(fp,"%*s %*s %*s %*s %d", &in_temper);
 	if(in_temper!=npara_temps)
 	  {
 	    PRINTF("    @@@@@@@@@@@@@@@@@@@@_error_@@@@@@@@@@@@@@@@@@@@\n");
@@ -197,7 +199,8 @@ void set_sim_params_temper(GENTEMPERING_CTRL *tempering_ctrl,
 	  int temperi;
 	  int indexi;
 	  double tempi;
-	  fscanf(fp,"%d %d %lg\n",&temperi, &indexi, &tempi);
+	  size_t junk;
+	  junk=fscanf(fp,"%d %d %lg\n",&temperi, &indexi, &tempi);
 	  t_ext_index[i]=indexi;
 	  if(tempi!=t_ext[indexi])
 	    {

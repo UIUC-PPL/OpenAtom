@@ -1999,7 +1999,7 @@ int init_rho_chares(CPcharmParaInfo *sim, UberCollection thisInstance)
   // for every new there must be a delete
   for(int atype=0; atype<=nchareHartAtmT ; atype++)
     delete atmSF_fft_maps[atype];
-  delete atmSF_fft_maps;
+  delete [] atmSF_fft_maps;
   
   // Output to the screen
   // need to add maps for these, for now just let em default

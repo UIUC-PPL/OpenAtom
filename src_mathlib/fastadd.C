@@ -34,7 +34,7 @@ void fastAdd (double *a, double *b, int nelem) {
 void fastAdd (double *a, double *b, int nelem) {
 #define _UNROLLING_OFF_
 #ifdef _UNROLLING_OFF_
-    register int i=0;
+    auto i=0;
     for ( ; i < nelem; i ++){a[i] += b[i];}
 #else
    int nrem  = (nelem % 5);

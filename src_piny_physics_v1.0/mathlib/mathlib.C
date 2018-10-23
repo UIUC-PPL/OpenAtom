@@ -210,6 +210,8 @@ void matmul_2s(double *a1, double *a3, int n)
 /*===============================================================*/
 void matmul_3(double *a1, double *a2)
 {
+  CkAbort("deprecated");
+#if 0
   int i, j, k;
   double a3[9]	/* was [3][3] */;
 
@@ -231,6 +233,7 @@ void matmul_3(double *a1, double *a2)
       a1[(j + (i-1)*3)] = a3[(j + (i-1)*3)];
     }
   }
+  #endif
 } /* matmul */
 /*===============================================================*/
 
