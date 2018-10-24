@@ -179,7 +179,7 @@ void Ortho::start_calc(CkReductionMsg *msg){
     CkReductionMsg *omsg=CkReductionMsg::buildNew(msg->getSize(),msg->getData());
     // transpose it
     /*
-       double *dest= (double*) omsg->getData();;
+       double *dest= (double*) omsg->getData();
        double tmp;
        for(int i = 0; i < m; i++)
        for(int j = i + 1; j < n; j++){
@@ -190,7 +190,7 @@ void Ortho::start_calc(CkReductionMsg *msg){
      */
     // simple out of place scheme
 
-    internalType *dest= (internalType*) omsg->getData();;
+    internalType *dest= (internalType*) omsg->getData();
     internalType tmp;
     for(int i = 0; i < m; i++)
       for(int j = 0; j < n; j++)

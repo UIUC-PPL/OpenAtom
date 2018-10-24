@@ -46,7 +46,7 @@ class PeList
     std::vector< int > vectorList;
     std::list< int > list;
     std::list< int >::iterator currList;
-    int offsetList, offsetVector;;
+    int offsetList, offsetVector;
     int isSet, isList;
     int isSetOnly;
     int LisV;

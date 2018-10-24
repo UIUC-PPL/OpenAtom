@@ -496,7 +496,7 @@ void PIBeadAtoms::zero_PIMD_u()
     for(int i =0;i<numBeads;i++){
       xu[atm * numBeads + i] = 0.0; 
       yu[atm * numBeads + i] = 0.0; 
-      zu[atm * numBeads + i] = 0.0;;
+      zu[atm * numBeads + i] = 0.0;
     }//endfor
   }
 
@@ -518,7 +518,7 @@ void PIBeadAtoms::zero_PIMD_fu()
     for(int i =0;i<numBeads;i++){
       fxu[atm * numBeads + i] = 0.0; 
       fyu[atm * numBeads + i] = 0.0; 
-      fzu[atm * numBeads + i] = 0.0;;
+      fzu[atm * numBeads + i] = 0.0;
     }//endfor
   }
 
@@ -541,7 +541,7 @@ void PIBeadAtoms::zero_PIMD_x()
     for(int i = 0; i < numBeads; i++){
       x[atm * numBeads + i] = 0.0; 
       y[atm * numBeads + i] = 0.0; 
-      z[atm * numBeads + i] = 0.0;;
+      z[atm * numBeads + i] = 0.0;
     }//endfor
   }
 

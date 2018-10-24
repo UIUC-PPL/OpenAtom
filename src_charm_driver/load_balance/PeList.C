@@ -345,7 +345,7 @@ int PeList::minDist(int *srcPe)
         int nowHops = topoMgr->getHopsBetweenRanks(srcPe, *it);
         if(nowHops < minHops) {
           minHops = nowHops;
-          minPE = *it;;
+          minPE = *it;
           if(minHops == 0) return minPE;
         }
         it++;

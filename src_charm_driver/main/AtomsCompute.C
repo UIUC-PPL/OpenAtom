@@ -402,8 +402,8 @@ if(*iteration==0){
 
 for(i=0;i<natm;i++){
   atoms[i].fx = -omega2*atoms[i].x*atoms[i].m;
-  atoms[i].fy = -omega2*atoms[i].y*atoms[i].m;;
-  atoms[i].fz = -omega2*atoms[i].z*atoms[i].m;;
+  atoms[i].fy = -omega2*atoms[i].y*atoms[i].m;
+  atoms[i].fz = -omega2*atoms[i].z*atoms[i].m;
 }//endfor
 #endif
 

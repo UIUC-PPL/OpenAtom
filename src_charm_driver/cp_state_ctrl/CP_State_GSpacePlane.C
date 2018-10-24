@@ -943,7 +943,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
     gs.ngridbNL    = nyNL;
     gs.ngridcNL    = nzNL;
 
-    gs.numPoints   = eesData->GspData[iplane_ind]->ncoef;;
+    gs.numPoints   = eesData->GspData[iplane_ind]->ncoef;
     CkAssert(gs.numPoints == size);
 
     gs.ees_nonlocal        = sim->ees_nloc_on;
@@ -3595,7 +3595,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 
     complex *vpsi   = gs.packedVelData;
     int chunksize   = gs.numPoints/config.numChunksSym;
-    int chunkoffset = offset*chunksize;; // how far into the points this contribution lies
+    int chunkoffset = offset*chunksize; // how far into the points this contribution lies
 
 #ifdef DEBUG_CP_GSPACE_PSIV
     CkPrintf("GSpace[%d,%d] acceptNewPsiV(reductionMsg) PCs have sent new PsiV data\n",thisIndex.x,thisIndex.y);
@@ -3657,7 +3657,7 @@ CP_State_GSpacePlane::CP_State_GSpacePlane(
 
     complex *vpsi   = gs.packedVelData;
     int chunksize   = gs.numPoints/config.numChunksSym;
-    int chunkoffset = offset*chunksize;; // how far into the points this contribution lies
+    int chunkoffset = offset*chunksize; // how far into the points this contribution lies
 
 #ifdef DEBUG_CP_GSPACE_PSIV
     CkPrintf("GSpace[%d,%d] acceptNewPsiV(partialResultMsg) Received new PsiV data (msg %d of %d) from PC [%d,%d,%d,%d] (offset %d)\n",thisIndex.x,thisIndex.y,countVPsi+1,AllPsiExpected,

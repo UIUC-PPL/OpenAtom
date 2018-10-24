@@ -1476,7 +1476,7 @@ void init_state_chares(int natm_nl,int natm_nl_grp_max,int numSfGrps,
 
   //============================================================================
 
-  double Timer = CmiWallTimer();;
+  double Timer = CmiWallTimer();
   if(thisInstance.idxU.y > 0 || thisInstance.idxU.s > 0) {
     // the set of chares being created is for a non-zero kpoint
     // all k-points and spins use the same atoms and energies
