@@ -114,6 +114,284 @@ module ckPairCalculator
     entry [nokeep] void multiplyResult(multiplyResultMsg *msg);
     entry [nokeep] void acceptOrthoT(multiplyResultMsg *msg);
     entry [nokeep,inline] void multiplyResultI(multiplyResultMsg *msg);
+    
+
+    // dynComputeLambdaAndCg() from GSpace sends both left and right data; call: acceptLeftData(), and acceptRightData()
+    // left : psi; right: force
+    // call launchComputations() after receiving both left and right data
+    // computeNewPsi also calls acceptLeftData(); only psi is sent
+    // call launchComputations() after receiving left data
+
+    // other points to note
+    // phantom chares will get only right data from their mirrors; so only acceptRightData is called on them
+    // non-phantoms always get left data
+    // for non-phantoms if symmetricOnDiagonal is true; get only left data
+
+    // if (phantom) acceptRightData();
+    // else if (symmetricOnDiagonal) acceptLeftData();
+    // else acceptLeftData() && acceptRightData() [non-phantom non-diagnol chares]
+
+    // design choice:
+    // acceptRightData() cannot be inside acceptLeftData() and vice-versa
+    // a new entry method acceptData() is added which every chare calls on itself when it is created, and also at the end of launchComputations()
+
+    entry void acceptData() {
+      // cEric: use overlap (not needed for now)
+      // while (true)
+      // cEric: note: can remove the collator and put it in SDAG
+      // cEric & cGlenn: k-point minimization correctness test
+      if (!amPhantom) {
+        // all non-phantom chares accept left data
+        when acceptLeftData (paircalcInputMsg *msg) serial {
+          // do my serial computation
+          inputType *data = msg->data();
+          const int numRows = msg->numRows();
+          const int numCols = msg->numCols();
+          CkAssert(data != NULL && numRows == numExpectedX);
+          // todo: check for data validity
+          msgLeft = msg;
+          inDataLeft = reinterpret_cast<internalType*> (data);
+          existsLeft = true;
+          numRecd += numRows;
+          numPoints = numCols;
+          paircalcInputMsg *sampleMsg = leftCollator->getSampleMsg();
+          if (sampleMsg) {
+            msgLeft->blkSize = sampleMsg->blkSize;
+            msgLeft->flag_dp = sampleMsg->flag_dp;
+          }
+          // todo: talk to Eric about RDMA
+          delete sampleMsg;
+          CkPrintf("In acceptLeftData()\n");
+        }
+      }
+      if (amPhantom || !symmetricOnDiagonal) {
+        // all phantom and non-diagnol chares accept right data
+        when acceptRightData (paircalcInputMsg *msg) serial {
+          // do my serial computation
+          inputType *data = msg->data();
+          const int numRows = msg->numRows();
+          const int numCols = msg->numCols();
+          CkAssert(data != NULL && numRows == numExpectedY);
+          // todo: check for data validity
+          msgRight = msg;
+          inDataRight = reinterpret_cast<internalType*> (data);
+          existsRight = true;
+          numRecd += numRows;
+          numPoints = numCols;
+          // todo: no need to get any info from sampleMsg; 
+          // phantom chares don't need them, they already have correct info in the incoming msg
+          // non-phantom chares always acceptLeftData(), and launchComputations in the code is always called using msgLeft
+          CkPrintf("In acceptRightData()\n");
+        }
+      }
+
+      if (expectOrthoT) {
+        // true only for dynamics in the asymm (expectOrthoT = (cfg.isDynamics && !cfg.isSymmetric);)
+        for (numRecdBWOT = 1; numRecdBWOT <= numOrtho; numRecdBWOT++) {
+          when acceptOrthoT(multiplyResultMsg *msg) serial {
+            // collect tiles
+            // todo: add checks
+            int size = msg->size;
+            int size2 = msg->size2;
+            internalType *matrix1 = msg->matrix1;
+            internalType *matrix2 = msg->matrix2;
+            int maxorthostateindex = (cfg.numStates / cfg.orthoGrainSize-1) * cfg.orthoGrainSize;
+            // find our tile indices within this sGrain
+            int orthoX = msg->orthoX * cfg.orthoGrainSize;
+            int orthoY = msg->orthoY * cfg.orthoGrainSize;
+            ///? @todo Document this after talking with EB. Shouldnt it be an error if orthoX/Y > maxorthostateindex?
+            orthoX = (orthoX > maxorthostateindex) ? maxorthostateindex : orthoX;
+            orthoY = (orthoY > maxorthostateindex) ? maxorthostateindex : orthoY;
+            orthoX = (orthoX - thisIndex.x) / cfg.orthoGrainSize;
+            orthoY = (orthoY - thisIndex.y) / cfg.orthoGrainSize;
+            int orthoGrainSizeY = (orthoY == numOrthoRow - 1) ? cfg.orthoGrainSize + orthoGrainSizeRemY : cfg.orthoGrainSize;
+            int orthoGrainSizeX = (orthoX == numOrthoCol - 1) ? cfg.orthoGrainSize + orthoGrainSizeRemX : cfg.orthoGrainSize;
+            int matrixSize = grainSizeX * grainSizeY;
+            collectTile(false, true, false, orthoX, orthoY, orthoGrainSizeX, orthoGrainSizeY, numRecdBWOT, matrixSize, matrix2, matrix1);
+            CkPrintf("In acceptOrthoT() numRecdBWOT: %d numOrtho: %d\n", numRecdBWOT, numOrtho);
+          }
+        }
+      }
+
+      // At this stage the required leftData, rightData, and ortho (from the previous iteration), would have been received
+      // launchComputations()
+      serial {
+        paircalcInputMsg *aMsg = msgLeft; // Can only use msgLeft as it is the one where we copied required data from the sampleMsg in the SDAG
+        iterationPC++;
+        CkAssert(numRecd == numExpected);
+        blkSize = aMsg->blkSize;
+        // If this is not a PsiV loop, trigger the forward path for just the non-phantom chares
+        actionType = NORMALPC;
+        // todo: work on timers
+        if (!amPhantom) {
+          thisProxy(thisIndex.w, thisIndex.x, thisIndex.y, thisIndex.z).multiplyForward(aMsg->flag_dp);
+          // multiplyForward() will call both contributeSubTiles() [that sends to ortho using contribute], and bwMultiplyDynOrthoT()
+        }
+        
+        CkPrintf("Launched computations by calling multiplyForward()\n");
+        // todo: both the below lines; or even this serial code (for phantom) block might not be needed in SDAG!
+        numRecd = 0; // todo: might not be required any longer in SDAG
+        bool isForwardPathPending = false; // Flag to make sure we cleanup only if FW path starts
+      }
+      // Done with forward path
+
+      // Code for backward path
+      // todo: can this be clubbed in the same entry method - looks like
+      // in the old code this is handled by multiplyResult()
+
+      // Note about configuration - there seems to be many combinations (with dead pieces of code), as to whether to collect tiles from ortho, 
+      // and how to communicate the ortho corrected matrix back to GSpace
+      // by default these seem to be the config values
+      // \usePairDirectSend{on} (isInputMultiCast = true)
+      // \PCCollectTiles{off} (areBWTilesCollected = false)
+      // \PCdelayBWSend{off} (shouldDelayBWSend = false)
+      // \PCstreamBWout{on} (isBWstreaming = true)
+      // \PCstreamFWblock{0} (not used in PC)
+      // \useOrthoDirect{off} (in ortho)
+      // \useBWBarrier{off} (isBWbarrierd = false)
+      // \gSpaceSum{on} (isOutputReduced = !gSpaceSum; isOutputReduced = false; sendBWResultDirectImm(); GSpace gets data piecemeal)
+     
+      // set up how many calls you will receive from Ortho
+      // cEric: cleanup the config file for PC
+      if (cfg.orthoGrainSize == cfg.grainSize) {
+        serial {
+          numRecdBW = numOrtho; // wrong -- seems right
+        }
+      }
+      else {
+        serial {
+          numRecdBW = 1;
+        }
+      }
+      for (; numRecdBW <= numOrtho; numRecdBW++) {
+        when multiplyResult(multiplyResultMsg *msg) serial {
+          CkPrintf("In multiplyResult() numRecdBW: %d numOrtho: %d\n", numRecdBW, numOrtho);
+          // todo: check for nan and alignment
+          int size = msg->size;
+          int size2 = msg->size2;
+          internalType *matrix1 = msg->matrix1;
+          internalType *matrix2 = msg->matrix2;
+          actionType=msg->actionType;
+          bool unitcoef = false;
+          
+          // Get the indices of the ortho that chare that sent this data to us
+          int orthoX = msg->orthoX * cfg.orthoGrainSize;
+          int orthoY = msg->orthoY * cfg.orthoGrainSize;
+
+          // Phantom chares get the T matrix from the orthos corresponding to their mirrors. Hence swap their indices
+          if(amPhantom) {
+            int swap = orthoY;
+            orthoY = orthoX;
+            orthoX = swap;
+          }
+
+          // The state index corresponding to the last ortho tile
+          int maxorthostateindex = (cfg.numStates / cfg.orthoGrainSize - 1) * cfg.orthoGrainSize;
+          // Find our tile indices within this sGrain
+          orthoX = (orthoX > maxorthostateindex) ? maxorthostateindex : orthoX;
+          orthoY = (orthoY > maxorthostateindex) ? maxorthostateindex : orthoY;
+          orthoX = (orthoX - thisIndex.x) / cfg.orthoGrainSize;
+          orthoY = (orthoY - thisIndex.y) / cfg.orthoGrainSize;
+
+          // Compute the grainsize of the ortho that just sent this data
+          int orthoGrainSizeY = (orthoY == numOrthoRow - 1) ? cfg.orthoGrainSize+orthoGrainSizeRemY : cfg.orthoGrainSize;
+          int orthoGrainSizeX = (orthoX == numOrthoCol - 1) ? cfg.orthoGrainSize + orthoGrainSizeRemX : cfg.orthoGrainSize;
+          
+          // Determine if ortho sent us a matrix2
+          if(matrix2 == NULL || size2 < 1)
+            unitcoef = true;
+
+          // If I am a phantom chare and have not yet received the right matrix data from my non-phantom mirror
+          // if(amPhantom && !existsRight) 
+          // Removed the above condition from the old code; we would be here only if the phantom chare has received the rightData from its mirror (SDAG)
+          
+          int matrixSize = grainSizeX * grainSizeY;
+          
+          // default DGEMM for non streaming comp case
+          int m_in = numPoints * pcDataSizeFactor;   // rows of op(A)==rows C
+          // todo (from old code): is n_in grainSizeX or is k_in?
+          int n_in = grainSizeY; // columns of op(B) == columns C
+          int k_in = grainSizeX;     // columns op(A) == rows op(B)
+          double beta(0.0);
+
+          // expectOrthoT is true only in asymm, dynamics.
+          // Hence only for the asymm, off-diagonal chares in dynamics
+          // we need to subtract fpsi*orthoT (ie, subtract the result of the GEMM)
+          if(expectOrthoT && !notOnDiagonal) {
+            beta = 1.0;
+          }
+
+          // These default to 0, will be set to appropriate value if we're streaming the computation in the BW path
+          // BTransform = T offsets for C and A matrices
+          int BTCoffset = 0;
+          int BTAoffset = 0;
+          // BTransform = N offsets for C and A matrices
+          int BNCoffset = 0;
+          int BNAoffset = 0;
+
+
+          internalType *amatrix = NULL;
+          internalType *amatrix2 = matrix2;  ///< @note: may be overridden later
+
+           // If there's only one paircalc chare (All at once no malloc. index is 0 in this case, so this is silly)
+          if(cfg.numStates == cfg.grainSize) {
+            amatrix = matrix1;
+          }
+
+          // If the grain size for paircalc and ortho are the same
+          if (cfg.orthoGrainSize == cfg.grainSize) {
+            amatrix = matrix1;
+          }
+          else {
+            // todo: assuming only the default inputs for now
+            // else, if PC is collecting all the tiles from Ortho
+            // else if (cfg.areBWTilesCollected) from the old code is skipped
+            amatrix = matrix1;
+            if(!unitcoef) {
+              amatrix2 = matrix2;
+            }
+            // fix n_in and k_in
+            n_in = orthoGrainSizeY;
+            k_in = orthoGrainSizeX;
+            // For the non-phantom, off-diagonal chares, swap the ortho tile indices
+            if(cfg.isSymmetric && notOnDiagonal && !amPhantom) {
+              int swap = orthoX;
+              orthoX = orthoY;
+              orthoY = swap;
+            }
+            // skip to the rows which apply to this ortho
+            BTCoffset = orthoY * m_in * cfg.orthoGrainSize;
+            BTAoffset = orthoX * m_in * cfg.orthoGrainSize;
+            BNCoffset = orthoX * m_in * cfg.orthoGrainSize;
+            BNAoffset = orthoY * m_in * cfg.orthoGrainSize;
+
+            beta = 1.0;  // need to sum over tiles within orthoY columns
+          }
+          
+          if(n_in*k_in > size) {
+            n_in = cfg.orthoGrainSize;
+            k_in = cfg.orthoGrainSize;
+          }
+          // Call helper function to do the math
+          // todo: the magic happens here - collectTile too (orthoT), dig further
+          bwMultiplyHelper(size, matrix1, matrix2, amatrix, amatrix2, unitcoef, m_in, n_in, k_in, BNAoffset, BNCoffset, BTAoffset, BTCoffset, orthoX, orthoY, beta, orthoGrainSizeX, orthoGrainSizeY);
+          bool other = ((amPhantom || (!cfg.arePhantomsOn && (othernewData != NULL) && notOnDiagonal)) && existsRight);
+
+          if (numRecdBW == numOrtho) {
+            sendBWResultDirectImm(other); // todo: we are assuming outputReduced is false (default case)
+            // cleanupAfterBWPath() is called by the above function
+          }
+          // todo: check skip_partial_send macro; as of now seems depricated because the !value is hard coded
+          // todo: the case where we are streaming without barriers is alone implemented in this SDAG -- seems like lot of deprecated code (hang?)
+        }
+      }
+
+      serial {
+        // overhead of using SDAG?! - could have also used infinite while() loop
+        thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).acceptData();
+      }
+    };
+    
     entry [inline] void acceptLeftData (paircalcInputMsg *msg);
     entry [inline] void acceptRightData(paircalcInputMsg *msg);
     entry [local] void multiplyForward(bool);

@@ -208,6 +208,7 @@ PairCalculator::PairCalculator(const pc::pcConfig _cfg): cfg(_cfg)
 #ifdef DEBUG_CP_PAIRCALC_INPUTDATAHANDLER
   CkPrintf("[%d,%d,%d,%d,%d] My left and right data collators: %p %p\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,leftCollator,rightCollator);
 #endif
+  thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).acceptData();
 }
 
 
@@ -462,6 +463,7 @@ void PairCalculator::ResumeFromSync() {
 
 
 /** \brief accept data for left side of pair */
+/*
 void PairCalculator::acceptLeftData(paircalcInputMsg *msg) 
 {
   inputType *data = msg->data();
@@ -517,9 +519,10 @@ void PairCalculator::acceptLeftData(paircalcInputMsg *msg)
     launchComputations(msgLeft);
   }
 }
-
+*/
 
 /** \brief accept data for right side of pair */
+/*
 void PairCalculator::acceptRightData(paircalcInputMsg *msg) 
 {
   inputType *data = msg->data();
@@ -579,7 +582,7 @@ void PairCalculator::acceptRightData(paircalcInputMsg *msg)
     launchComputations(msgRight);
   }
 }
-
+*/
 
 /** once the data has arrived, launch the forward path */
 void PairCalculator::launchComputations(paircalcInputMsg *aMsg)
@@ -1008,6 +1011,7 @@ void PairCalculator::contributeSubTiles(internalType *fullOutput)
 /** Basically calls collectTile to accept incoming ortho data from an Ortho chare
  * @note This method is used only during dynamics in the asymm loop. Talk to EB for more info
  */
+/*
 void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
 {
   //============================================================================
@@ -1053,7 +1057,7 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
     actionType  = NORMALPC;
     bool myfalse= false;
     thisProxy(thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z).multiplyForward(myfalse);
-    /** @note: multiplyForward() already checks for numRecdBWOT and calls bwMultiplyDynOrthoT().*/
+    // @note: multiplyForward() already checks for numRecdBWOT and calls bwMultiplyDynOrthoT().
     numRecd     = 0;
   }
   else
@@ -1061,7 +1065,7 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
       //      CkPrintf("[%d,%d,%d,%d,%d] (%d of %d) OrthoT (%d of %d) gamma\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric, numRecdBWOT, numOrtho, numRecd, numExpected);
     }
 }
-
+*/
 
 
 
@@ -1128,6 +1132,7 @@ void PairCalculator::multiplyResultI(multiplyResultMsg *msg)
  *      inDataLeft  . amatrix
  *    - inDataRight . amatrix2
  */
+/*
 void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 {
   //============================================================================
@@ -1280,19 +1285,6 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
   }
   else
   {  // settings for streaming computation on each tile
-    /* For Reference to collect tiles we do this
-     * if(cfg.isSymmetric && notOnDiagonal) //swap the non diagonals
-     * {  // this is trickier to do than one might expect
-     * // because the tiles can have funny shapes
-     * bigGindex=grainSizeX;
-     * bigOindex=orthoGrainSizeX;
-     * orthoXoff=cfg.orthoGrainSize*bigGindex*orthoY;
-     * orthoYoff=orthoX*cfg.orthoGrainSize;
-     * 
-     * }
-     * // which means we set up our multiply for oY lines of oX size
-     * // embedded in gY lines of gX size
-     */
 
     amatrix=matrix1;
     if(!unitcoef)
@@ -1365,15 +1357,6 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 #endif
 
 
-  /** 
-   * If all the computations are done, and we're either collecting tiles or are barriered, then we need to send our results to GSpace now
-   *
-   * @note: We do not enter this if we're streaming without barriers, as in that case data will be sent out as it is ready
-   *
-   * @note: cfg.orthoGrainSize == cfg.grainSize implies this PC chare will get only one msg in the bw path. 
-   * This is covered by the check numRecdBW==numOrtho, hence is just for paranoia.
-   *
-   */
   if(   ((!cfg.isBWstreaming && cfg.areBWTilesCollected) && (cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho))
       || (cfg.isBWbarriered && (cfg.orthoGrainSize==cfg.grainSize || numRecdBW==numOrtho))
     )
@@ -1399,7 +1382,7 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
     }
   }
 }
-
+*/
 
 
 /** Resets counters, zeroes out data structures, frees mem when appropriate. 

@@ -282,6 +282,7 @@ extern "C" {
   class PairCalculator: public CBase_PairCalculator 
 {
   public:
+    PairCalculator_SDAG_CODE
     /// @entry (obviously)
     PairCalculator(const pc::pcConfig _cfg);
     /// Constructor for migration
@@ -296,9 +297,9 @@ extern "C" {
     /// @entry To handle correct startup for symm PC w/phantoms
     void phantomDone();
     /// @entry Method to send in the complete block of the left matrix
-    void acceptLeftData(paircalcInputMsg *msg); 
+    // void acceptLeftData(paircalcInputMsg *msg); 
     /// @entry Method to send in the complete block of the right matrix
-    void acceptRightData(paircalcInputMsg *msg);
+    // void acceptRightData(paircalcInputMsg *msg);
     /// NOT an entry method. Called locally from the acceptData* methods to launch the appropriate number-crunching method
     void launchComputations(paircalcInputMsg *aMsg);
     /// Forward path multiply driver. Prepares matrices, calls DGEMM, contributes results to Ortho subTiles and also passes relevant data to phantom PC chares
@@ -314,9 +315,9 @@ extern "C" {
     /// @entry Initializes the section cookie and the reduction client. Called on startup as the chare world is being created
     void initGRed(initGRedMsg *msg);
     /// @entry During dynamics, each Ortho calls this on the Asymm loop PC instances to send its share of T back to avoid a race condition between Gamma and T.
-    void acceptOrthoT(multiplyResultMsg *msg);
+    // void acceptOrthoT(multiplyResultMsg *msg);
     /// @entry Backward path multiplication
-    void multiplyResult(multiplyResultMsg *msg);
+    // void multiplyResult(multiplyResultMsg *msg);
 
     /// Multiplies Fpsi by T (from Ortho)
     void bwMultiplyDynOrthoT();
@@ -371,6 +372,9 @@ extern "C" {
       rck=0;
       AtSync();
     };
+
+    // SDAG
+    // void acceptData();
 
   private:
 
