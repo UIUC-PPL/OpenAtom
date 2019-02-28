@@ -390,6 +390,7 @@ extern "C" {
     CollatorType *leftCollator, *rightCollator;
     /// Flags indicating if the left and right matrix blocks have been received
     int iterationPC; //<-this is a lie only use for debugging
+    int iter_sdag;
     bool isLeftReady, isRightReady;
     int numRecd; 								///< number of messages received
     int numRecdBW; 							///< number of messages received BW
