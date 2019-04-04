@@ -464,7 +464,6 @@ void PairCalculator::ResumeFromSync() {
 /** \brief accept data for left side of pair */
 void PairCalculator::acceptLeftData(paircalcInputMsg *msg) 
 {
-  CkPrintf("In acceptLeftData()\n");
   inputType *data = msg->data();
   const int numRows  = msg->numRows();
   const int numCols  = msg->numCols();
@@ -523,7 +522,6 @@ void PairCalculator::acceptLeftData(paircalcInputMsg *msg)
 /** \brief accept data for right side of pair */
 void PairCalculator::acceptRightData(paircalcInputMsg *msg) 
 {
-  CkPrintf("In acceptRightData()\n");
   inputType *data = msg->data();
   const int numRows  = msg->numRows();
   const int numCols  = msg->numCols();
@@ -856,6 +854,8 @@ void PairCalculator::multiplyForward(bool flag_dp)
   if (flag_dp)
     alpha = 2.0;
 
+  //dumpMatrix("fwlmdata", matrixB, numExpectedX, numPoints*2, thisIndex.x, 0);
+  //dumpMatrix("fwrmdata", matrixA, numExpectedY, numPoints*2, thisIndex.y, 0);
 #ifdef _PAIRCALC_DEBUG_DUMP_FW_
   dumpMatrix("fwlmdata", matrixB, numExpectedX, numPoints*2, thisIndex.x, 0);
   dumpMatrix("fwrmdata", matrixA, numExpectedY, numPoints*2, thisIndex.y, 0);
@@ -1019,8 +1019,6 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
   CkAssert(expectOrthoT);
 
   numRecdBWOT++;
-  CkPrintf("In acceptOrthoT() numRecdBWOT: %d numOrtho: %d\n", numRecdBWOT, numOrtho);
-  //  CkPrintf("[%d,%d,%d,%d,%d] acceptOrthoT, numRecdBWOT (%d of %d)\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,numRecdBWOT, numOrtho);
 #ifdef _NAN_CHECK_
   for(int i=0;i<msg->size;i++)
     CkAssert( isfinite(msg->matrix1[i]) );
@@ -1153,7 +1151,6 @@ void PairCalculator::multiplyResult(multiplyResultMsg *msg)
 
   /// Increment the number of tiles received in the backward path
   numRecdBW++;
-  CkPrintf("In multiplyResult() numRecdBW: %d numOrtho: %d\n", numRecdBW, numOrtho);
 
 #ifdef _NAN_CHECK_
   for(int i=0;i<msg->size;i++)
