@@ -249,20 +249,7 @@ class AtomsCompute: public CBase_AtomsCompute {
       fastAtomsReset.fy   = new double[natm];
       fastAtomsReset.fz   = new double[natm];
     }
-
-    void initAtomsCopy_xu() {
-      for(int i=0;i<natm;i++){
-        atomsReset[i].xu = atoms[i].xu; 
-        atomsReset[i].yu = atoms[i].yu; 
-        atomsReset[i].zu = atoms[i].zu; 
-        atomsReset[i].fxu = atoms[i].fxu; 
-        atomsReset[i].fyu = atoms[i].fyu; 
-        atomsReset[i].fzu = atoms[i].fzu; 
-        //atomsReset[i].vxu = atoms[i].vxu; 
-        //atomsReset[i].vyu = atoms[i].vyu; 
-        //atomsReset[i].vzu = atoms[i].vzu; 
-      }
-    } 
+    
     void initAtomsCopy(){
       for(int i=0;i<natm;i++){
         fastAtomsReset.x[i]  = fastAtoms.x[i];
@@ -280,8 +267,6 @@ class AtomsCompute: public CBase_AtomsCompute {
 	atomsReset[i].vx = atoms[i].vx; 
 	atomsReset[i].vy = atoms[i].vy; 
 	atomsReset[i].vz = atoms[i].vz; 
-	
-
 	for(int j=0;j<atomsNHC[i].len_nhc;j++){
 	  atomsNHCReset[i].fx[j] = atomsNHC[i].fx[j]; 
 	  atomsNHCReset[i].fy[j] = atomsNHC[i].fy[j]; 
@@ -310,16 +295,6 @@ class AtomsCompute: public CBase_AtomsCompute {
 	atoms[i].vx = atomsReset[i].vx; 
 	atoms[i].vy = atomsReset[i].vy; 
 	atoms[i].vz = atomsReset[i].vz; 
-	
-  atoms[i].xu = atomsReset[i].xu; 
-	atoms[i].yu = atomsReset[i].yu; 
-	atoms[i].zu = atomsReset[i].zu; 
-	atoms[i].fxu = atomsReset[i].fxu; 
-	atoms[i].fyu = atomsReset[i].fyu; 
-	atoms[i].fzu = atomsReset[i].fzu; 
-	//atoms[i].vxu = atomsReset[i].vxu; 
-	//atoms[i].vyu = atomsReset[i].vyu; 
-	//atoms[i].vzu = atomsReset[i].vzu; 
 	atomsNHC[i].posKT=0.0;
 	for(int j=0;j<atomsNHC[i].len_nhc;j++){
 	  atomsNHC[i].fx[j] = atomsNHCReset[i].fx[j]; 

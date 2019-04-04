@@ -639,7 +639,7 @@ void Ortho::acceptDiagonalizedLambda(int nn, internalType* rmat){
 #endif
   }
 #endif
-  // thisProxy(0,0).output_eigen(thisIndex.x, thisIndex.y, nn, rmat);
+  thisProxy(0,0).output_eigen(thisIndex.x, thisIndex.y, nn, rmat);
   asymmSectionMgr.sendResults(nn, rmat, 0, thisIndex.x, thisIndex.y, 0, asymmSectionMgr.msgPriority+1);
   
 }
