@@ -485,7 +485,7 @@ void AtomsCompute::integrateAtoms(){
   if(myid< rem){natmStr += myid;}
   if(myid< rem){natmNow++;}
   int natmEnd = natmNow+natmStr;
-
+  
   //============================================================
   // Zero some local copies energies and flags
 
@@ -498,7 +498,6 @@ void AtomsCompute::integrateAtoms(){
 
   //============================================================
   // DEBUGGING : Compute the distribution function for model
-
 #ifdef  _CP_DEBUG_PSI_OFF_
   if(nChareAtoms>1 && numPIMDBeads>1){
     CkPrintf("Harmonic oscillator debug test currently broken for PIMD\n");
@@ -555,11 +554,9 @@ void AtomsCompute::integrateAtoms(){
   }//endfor
   pot_harm *= 0.5;
 #endif
-
   //============================================================
   // Move atoms
   int move_atoms = 0;
-
   if(cp_min_opt==0 && cp_wave_opt==0) { move_atoms = 1; }
   if(cp_bomd_opt==1 && tol_reached==1) { move_atoms = 1; }
   // Just a little debug, early in the computation, beats a cup of coffee
@@ -587,11 +584,9 @@ void AtomsCompute::integrateAtoms(){
   //                  Add the chain force to transformed forces.
   //                  Scale the masses to fict bead masses
   //                  This is PIMD Respa implementation friendly 
-
   if(numPIMDBeads>1 && move_atoms && natmNow>0){
     switchPIMDBeadForceMass(mybead,natmStr,natmEnd,&potPIMDChain_loc);
   }//endif
-
   //============================================================
   // Integrate the atoms : Path Integral Ready
 #ifdef _NAN_CHECK_
@@ -608,16 +603,50 @@ void AtomsCompute::integrateAtoms(){
 
 #ifndef  _CP_DEBUG_SCALC_ONLY_ 
   int fakeIteration=*iteration;
+  int fakeIteration_l=*iteration;
   CPcharmParaInfo *sim  = CPcharmParaInfo::get(); 
   if(sim->cp_dyn_update==0 && (fakeIteration+1) % sim->cp_dyn_reset_frq ==0) {
-    fakeIteration=0;
+    fakeIteration = 0;
+  }
+  if (sim->cp_dyn_update == 0) {
+    fakeIteration_l = (fakeIteration_l + 1) % sim->cp_dyn_reset_frq;
     //    CkPrintf("fake iteration set to %d at iteration %d\n",fakeIteration, *iteration);
   }
+      
+#ifdef REPEAT_ITR_DEBUG
+  char fname_1[100];
+  sprintf(fname_1,"Atms_beforeIntegrate_Bead.%d_Atm.%d_%d_Iter.%d",mybead,natmStr,natmEnd,fakeIteration_l);
+  FILE *fp_1 = fopen(fname_1,"a");
+  for(int ii=natmStr; ii<natmEnd;ii++) {
+    fprintf(fp_1,"x:%g y:%g z:%g xu:%g yu:%g zu:%g fx:%g fy:%g fz:%g fxu:%g fyu:%g fzu:%g vx:%g vy:%g vz:%g\n",
+        atoms[ii].x  ,atoms[ii].y  ,atoms[ii].z,
+        atoms[ii].xu ,atoms[ii].yu ,atoms[ii].zu,
+        atoms[ii].fx ,atoms[ii].fy ,atoms[ii].fz,
+        atoms[ii].fxu,atoms[ii].fyu,atoms[ii].fzu, atoms[ii].vx, atoms[ii].vy, atoms[ii].vz);
+  }//endfor
+  fclose(fp_1);
+#endif
+
+
   ATOMINTEGRATE::ctrl_atom_integrate(fakeIteration,natm,len_nhc,cp_min_opt,
       cp_wave_opt,cp_bomd_opt,tol_reached,iextended_on,atoms,atomsNHC,myid,
       &eKinetic_loc,&eKineticNhc_loc,&potNhc_loc,&iwrite_atm,
       myoutput_on,natmNow,natmStr,natmEnd,mybead, switchMoveNow, 
       new_t_ext, old_t_ext);
+  
+#ifdef REPEAT_ITR_DEBUG
+  char fname_2[100];
+  sprintf(fname_2,"Atms_afterIntegrate_Bead.%d_Atm.%d_%d_Iter.%d",mybead,natmStr,natmEnd,fakeIteration_l);
+  FILE *fp_2 = fopen(fname_2,"a");
+  for(int ii=natmStr; ii<natmEnd;ii++){
+    fprintf(fp_2,"%g %g %g %g %g %g %g %g %g %g %g %g %g %g %g\n",
+        atoms[ii].x  ,atoms[ii].y  ,atoms[ii].z,
+        atoms[ii].xu ,atoms[ii].yu ,atoms[ii].zu,
+        atoms[ii].fx ,atoms[ii].fy ,atoms[ii].fz,
+        atoms[ii].fxu,atoms[ii].fyu,atoms[ii].fzu, atoms[ii].vx, atoms[ii].vy, atoms[ii].vz);
+  }//endfor
+  fclose(fp_2);
+#endif
 #endif
 
 #ifdef _NAN_CHECK_
@@ -633,7 +662,6 @@ void AtomsCompute::integrateAtoms(){
     }
 #endif
 
-
   switchMoveNow=false;
   //============================================================
   // Path integral :  Rescale to the physical masses
@@ -641,7 +669,6 @@ void AtomsCompute::integrateAtoms(){
   if(numPIMDBeads>1 && move_atoms==1 && natmNow>0){
     unswitchPIMDMass(mybead,natmStr,natmEnd);
   }//endif
-
   //============================================================
   // Debug output :  Not correct for PIMD which needs chain PE
 
@@ -660,7 +687,6 @@ void AtomsCompute::integrateAtoms(){
   //============================================================
   // Get ready for the next iteration : 
   //      zero forces, outputAtmEnergy, atomsDone
-
   zeroforces();
   if(move_atoms==1){
     if(natmNow>0){
@@ -731,8 +757,8 @@ void AtomsCompute::startRealSpaceForces(int t_reached){
   if(*iteration==0 && sim->cp_dyn_update==0)
     {
       initAtomsCopy();
-      if(thisIndex==0)
-	CkPrintf("initializing atom reset image %d\n", *iteration);
+      if(thisIndex==0) 
+        CkPrintf("initializing atom reset image %d\n", *iteration);
     }
 
   //==========================================================================
@@ -814,7 +840,6 @@ void AtomsCompute::startRealSpaceForces(int t_reached){
 //==========================================================================
 
 void AtomsCompute::energyReady() {
-
   if(atomsOutputReady && ((numPIMDBeads ==1) ||
 			  (numPIMDBeads>1 && atomsPIMDXrecv && atomsCMrecv)))
     {
@@ -1302,12 +1327,14 @@ void AtomsCompute::atomsDone(CkReductionMsg *msg)
       if(*iteration >0 && sim->cp_dyn_update==0 && ((*iteration+2) % sim->cp_dyn_reset_frq)==0)
 	{
 	  copyAtomsFromReset();
-	  CkPrintf("[%d] reset Atoms for step %d\n",thisIndex, *iteration+2);
+	  // CkPrintf("atomsDone [%d] reset Atoms for step %lf\n",thisIndex, *iteration+2);
 	}
       bcastAtomsToAtomCache();
     }
   else
     UatomsCacheProxy[thisInstance.proxyOffset].atomsDone();
+    //if (CkMyPe() == 0)
+      CkPrintf("atomsDone() atms.x : %x\n", atoms[0].x);
 }
 //==============================================================================
 
@@ -1341,6 +1368,8 @@ void AtomsCompute::accept_PIMD_CM(AtomXYZMsg *msg){
       if(*iteration >0 && sim->cp_dyn_update==0 && ((*iteration+2) % sim->cp_dyn_reset_frq)==0)
 	{
 	  copyAtomsFromReset();
+      // CkPrintf("accept_PIMD_CM from reset atms.x : %g %g\n", atoms[0].x, atoms[0].xu);
+      //CkPrintf("accept_PIMD_CM from reset atms.x : %lf\n", atoms[0].x);
 	  //	  CkPrintf("[%d] reset Atoms for step %d\n",thisIndex, *iteration+2);
 	}
       CkCallback cb(CkIndex_AtomsCompute::atomsDone(NULL), CkArrayIndex1D(0), UatomsComputeProxy[thisInstance.proxyOffset]);
@@ -1449,6 +1478,8 @@ void AtomsCompute::accept_PIMD_Fu_and_u(AtomXYZMsg* msg) {
     atoms[atomI].zu    = msg->z[curAtm + numAtm];
     curAtm++;
   }
+  if (*iteration == 0)
+    initAtomsCopy_xu();
   delete msg;
 
   acceptCountfu++;
@@ -1509,6 +1540,7 @@ void AtomsCompute::accept_PIMD_x(AtomXYZMsg* msg) {
 	if(*iteration >0 && sim->cp_dyn_update==0 && ((*iteration+2) % sim->cp_dyn_reset_frq)==0)
 	  {
 	    copyAtomsFromReset();
+      // CkPrintf("accept_PIMD_x from reset atms.x : %g %g\n", atoms[0].x, atoms[0].xu);
 	    //	    CkPrintf("[%d] reset Atoms for step %d\n",thisIndex, *iteration+2);
 	  }
 

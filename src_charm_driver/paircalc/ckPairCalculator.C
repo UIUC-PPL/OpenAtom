@@ -854,6 +854,8 @@ void PairCalculator::multiplyForward(bool flag_dp)
   if (flag_dp)
     alpha = 2.0;
 
+  //dumpMatrix("fwlmdata", matrixB, numExpectedX, numPoints*2, thisIndex.x, 0);
+  //dumpMatrix("fwrmdata", matrixA, numExpectedY, numPoints*2, thisIndex.y, 0);
 #ifdef _PAIRCALC_DEBUG_DUMP_FW_
   dumpMatrix("fwlmdata", matrixB, numExpectedX, numPoints*2, thisIndex.x, 0);
   dumpMatrix("fwrmdata", matrixA, numExpectedY, numPoints*2, thisIndex.y, 0);
@@ -1017,7 +1019,6 @@ void PairCalculator::acceptOrthoT(multiplyResultMsg *msg)
   CkAssert(expectOrthoT);
 
   numRecdBWOT++;
-  //  CkPrintf("[%d,%d,%d,%d,%d] acceptOrthoT, numRecdBWOT (%d of %d)\n",thisIndex.w,thisIndex.x,thisIndex.y,thisIndex.z,cfg.isSymmetric,numRecdBWOT, numOrtho);
 #ifdef _NAN_CHECK_
   for(int i=0;i<msg->size;i++)
     CkAssert( isfinite(msg->matrix1[i]) );

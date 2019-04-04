@@ -20,7 +20,12 @@
 class Atom {
 //============================================================================
  public:
-  Atom() {}
+  Atom() {
+    xu =  yu = zu=0.0;
+    vx = 0.0; vy = 0.0; vz = 0.0;
+    fx = 0.0; fy = 0.0; fz = 0.0;
+    fxu = 0.0; fyu = 0.0; fzu = 0.0;
+  }
   Atom(double x_, double y_, double z_, double q_, double m_) {
      x = x_;   y = y_;   z = z_;  q = q_; m = m_; 
      xu =  yu = zu=0.0;
