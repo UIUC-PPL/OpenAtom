@@ -257,6 +257,18 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   }
 }
 
+/**
+*
+* Authors: Robert Kaucic, Eric Mikida
+*
+* Update chare registration,  optimize fvector computation
+* Pmatrix chares now register the region of the pmatrix they correspond to
+* with their local psiCache. This data is stored in an ordered, coalesced
+* vector of disjoint regions. computeF now calculates fvectors only in
+* the regions specified by the vector. psiCache now maintains a vector
+* of pointers to chares that have registered with it.
+**/
+
 void PsiCache::setRegionData(PMatrix* matrix_chare, int start_row, int start_col, int tile_nrows, int tile_ncols) {
   CmiLock(tile_lock);
 
