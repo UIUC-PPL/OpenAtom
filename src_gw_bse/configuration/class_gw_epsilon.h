@@ -25,10 +25,13 @@ class GW_EPSILON{
     double*** Eocc;              // Eigenvalues for occupied states
     double*** Eocc_shifted;      // Eigenvalues for shifted occupied states
     double*** Eunocc;            // Eigenvalues for unoccupied states
+    double*** Occ_occ;
+    double*** Occ_unocc;
     double EcutFFT;              // Num: Energy cutoff for FFT (Rydberg)
     double Ecuteps;              // Num: Epsilon matrix cutoff (Rydberg)
     double tol_iter;             // Num: Tolerance of the iterative matrix inversion method
     char eigFileName[200];       // No need to pup this, contents stored in Eocc and Eunocc
+    char occFileName[200];
 
     //----------------
     //con-destruct:

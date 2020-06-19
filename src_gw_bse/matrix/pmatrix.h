@@ -21,6 +21,8 @@ class PMatrix : public CBase_PMatrix {
     void applyFs();
     void calc_vcoulb();
     void calc_Eps(Phase3Message* msg);
+    void n3();
+    void compute();
 
     void reportPTime();
     void generateEpsilon(std::vector<double> vcoulb, std::vector<int> accept, int inew, int jnew, int size, int max_inew, int max_jnew);   

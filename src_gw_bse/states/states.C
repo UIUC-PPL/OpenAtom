@@ -64,22 +64,25 @@ States::States(CkMigrateMessage *msg) { }
 // Pack up our realspace coefficients and broadcast them to the cache for longer
 // term storage on each node.
 void States::sendToCache() {
-  //CkPrintf("[%i,%i,%i]: Sending psi to node cache...\n", ispin, ikpt, istate);
   int ndata = nfft[0]*nfft[1]*nfft[2];
-  PsiMessage* msg = new (ndata) PsiMessage(ndata, stateCoeffR);
-  msg->spin_index = ispin;
-  msg->k_index = ikpt;
-  msg->state_index = istate;
-  msg->shifted = false;
-  psi_cache_proxy.receivePsi(msg);
-
-  if(qindex == 0){
+  PsiMessage* msg;
+  if(istate >= nocc) {
+    msg = new (ndata) PsiMessage(ndata, stateCoeffR);
+    msg->spin_index = ispin;
+    msg->k_index = ikpt;
+    msg->state_index = istate;
+    msg->shifted = false;
+    psi_cache_proxy.receivePsi(msg);
+  }
+  if(qindex == 0 && istate <nocc){ //Shifted states - i think
+#if 1
     msg = new (ndata) PsiMessage(ndata, stateCoeffR_shifted);
     msg->spin_index = ispin;
     msg->k_index = ikpt;
     msg->state_index = istate;
     msg->shifted = true;
     psi_cache_proxy.receivePsi(msg);
+#endif
   }
 }
 
@@ -152,10 +155,6 @@ void States::fftGtoR(int q_index) {
   stateCoeffR = new complex [ndata];
   double scale = sqrt(1.0/double(ndata)); // IFFT requires normalization
   fftbox_to_array(ndata, out_pointer, stateCoeffR, scale);
-
-  // delete stateCoeff
-//  delete [] stateCoeff;
-
   // fft for shifted states (only occupied states)
   if( istate < nocc && qindex == 0){
     stateCoeffR_shifted = new complex [ndata];
@@ -164,6 +163,10 @@ void States::fftGtoR(int q_index) {
     fftbox_to_array(ndata, out_pointer, stateCoeffR_shifted, scale);
 //    delete [] stateCoeff_shifted;
   }
+  // delete stateCoeff
+//  delete [] stateCoeff;
+  GWBSE *gwbse = GWBSE::get();
+  int L = gwbse->gw_parallel.L;
 
   // delete space used for fftidx
   for (int i = 0; i < numCoeff; i++) { delete [] fftidx[i]; }

@@ -70,6 +70,7 @@ module controller {
     entry [reductiontarget] void readComplete(bool success);
     entry [reductiontarget] void writeComplete(bool success);
     entry [reductiontarget] void verifyComplete(bool success);
+    entry [reductiontarget] void dummy();
     entry void PMatrixFormed();
     entry void EpsilonFormed();
     entry void EpsilonInverted();
@@ -124,12 +125,27 @@ module controller {
         #ifdef REGISTER_REGIONS
         pmatrix2D_proxy.registerTileSections();
         #endif
+#if 1
         for (next_K = 0; next_K < K; next_K++) {
           for (next_state = 0; next_state < L; next_state++) {
             states_proxy(0, next_K, next_state).sendToCache();
+            fflush(stdout);
           }
         }
+#endif
+#if 1
+        for (next_K = 0; next_K < K; next_K++) {
+          for (next_state = L; next_state < L+M; next_state++) {
+            states_proxy(0, next_K, next_state).sendToCache();
+          }
+        }
+#endif
       }
+      when cachesFilled() serial {
+        pmatrix2D_proxy.compute();
+      }
+
+      when dummy() serial {}
       when fCacheReady(), cachesFilled(), registrationComplete() serial {
         psi_cache_proxy.reportInfo();
         STOP_BIG_STEP("SETUP COMPLETED");

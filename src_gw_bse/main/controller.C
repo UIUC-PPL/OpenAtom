@@ -16,6 +16,8 @@
 #define eps_rows 20
 #define eps_cols 20
 
+#define DEBUG4 1
+
 void init_plan_lock();
 
 Controller::Controller() {
@@ -138,9 +140,12 @@ void Controller::got_vcoulb(std::vector<double> vcoulb_in, double vcoulb0){
 }
 
 PsiCache::PsiCache() {
+  states_received = 0;
   GWBSE *gwbse = GWBSE::get();
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
+  M = gwbse->gw_parallel.M;
+  int M = gwbse->gw_parallel.M;
   GW_SIGMA *gw_sigma = &(gwbse->gw_sigma);
   n_np = gw_sigma->num_sig_matels;
   n_list = gw_sigma->n_list_sig_matels;
@@ -155,8 +160,8 @@ PsiCache::PsiCache() {
   received_chunks = 0;
   psis = new complex**[K];
   for (int k = 0; k < K; k++) {
-    psis[k] = new complex*[L];
-    for (int l = 0; l < L; l++) {
+    psis[k] = new complex*[L+M];
+    for (int l = 0; l < L+M; l++) {
       psis[k][l] = new complex[psi_size];
     }
   }
@@ -169,10 +174,16 @@ PsiCache::PsiCache() {
     }
   }
 
+  int* nfft;
+  nfft = gwbse->gw_parallel.fft_nelems;
+
+  int ndata = nfft[0]*nfft[1]*nfft[2];
+
   fs = new complex[L*psi_size*pipeline_stages];
   fsave = new complex[L*psi_size];
   f_nop = new complex[L*psi_size];
   states = new complex[K*2*n_np*psi_size];
+  P_m = new complex[ndata*ndata];
 
   umklapp_factor = new complex[psi_size];
 
@@ -183,8 +194,14 @@ PsiCache::PsiCache() {
   max_col = INT_MIN;
   tile_lock = CmiCreateLock();
 
+  lp = LAPLACE(gwbse->gw_epsilon.Eocc, gwbse->gw_epsilon.Eunocc);
+
   total_time = 0.0;
   contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
+}
+
+LAPLACE PsiCache::getLP() {
+  return lp;
 }
 
 void PsiCache::setQIndex(int q_index){
@@ -235,26 +252,21 @@ void PsiCache::reportFTime() {
 }
 
 void PsiCache::receivePsi(PsiMessage* msg) {
+
   if (msg->spin_index != 0) {
     CkAbort("Error: We don't support multiple spins yet!\n");
   }
   CkAssert(msg->k_index < K);
-  CkAssert(msg->state_index < L);
+//  CkAssert(msg->state_index < L);
   CkAssert(msg->size == psi_size);
   if(msg->shifted==false){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
-  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis_shifted[msg->k_index][msg->state_index]);}
-  delete msg;
-
-  // Once the cache has received all of it's data start the sliding pipeline
-  // sending of psis to P to start the accumulation of fxf'.
-  int expected_psis = K*L;
-  if(qindex == 0)
-    expected_psis += K*L;
-  if (++received_psis == expected_psis) {
-    received_psis = 0;
-    //CkPrintf("[%d]: Cache filled\n", CkMyPe());
+  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+  fflush(stdout);
+  states_received++;
+  if(states_received == (L+M)*K)
     contribute(CkCallback(CkReductionTarget(Controller,cachesFilled), controller_proxy));
-  }
+
+  delete msg;
 }
 
 /**

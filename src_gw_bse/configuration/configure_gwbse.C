@@ -405,7 +405,7 @@ void Config::set_config_dict_gen_GW  (int *num_dict ,DICT_WORD **dict){
 void Config::set_config_dict_GW_epsilon  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
-  num_dict[0] = 5;
+  num_dict[0] = 6;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
@@ -462,6 +462,12 @@ void Config::set_config_dict_GW_epsilon  (int *num_dict ,DICT_WORD **dict){
   strcpy((*dict)[ind].keyarg,"eigenvalues.in");
   strcpy((*dict)[ind].error_mes,"a file containing nocc + nunocc eigenvalues");
   //-----------------------------------------------------------------------------
+
+  // 6)\state_occ_value_file{}
+  ind = 6;
+  strcpy((*dict)[ind].keyword,"state_occ_value_file");
+  strcpy((*dict)[ind].keyarg,"occupations.in");
+  strcpy((*dict)[ind].error_mes,"a file containing nocc + nunocc occ values");
 
 
 }//end routine
@@ -1004,6 +1010,14 @@ void Config::set_config_params_GW_epsilon  (DICT_WORD *dict, char *fun_key, char
   strcpy(gw_epsilon->eigFileName, dict[ind].keyarg);
   if (strlen(gw_epsilon->eigFileName) == 0){keyarg_barf(dict,input_name,fun_key,ind);}  
   //----------------------------------------------------------------------------- 
+
+  //-----------------------------------------------------------------------------
+  //  5)\state_occ_value_file{}
+  ind =  6;
+  strcpy(gw_epsilon->occFileName, dict[ind].keyarg);
+  if (strlen(gw_epsilon->occFileName) == 0){keyarg_barf(dict,input_name,fun_key,ind);}
+  //----------------------------------------------------------------------------- 
+
 
 
 }// end routine
@@ -1851,23 +1865,33 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
   double*** Eocc;
   double*** Eocc_shifted;
   double*** Eunocc;
+  double*** Occ_occ;
+  double*** Occ_unocc;
 
   Eocc = new double**[nspin];
   Eocc_shifted = new double**[nspin];
   Eunocc = new double**[nspin];
+  Occ_occ = new double**[nspin];
+  Occ_unocc = new double**[nspin];
   for (int s = 0; s < nspin; s++) {
     Eocc[s] = new double*[nkpt];
     Eocc_shifted[s] = new double*[nkpt];
     Eunocc[s] = new double*[nkpt];
+    Occ_occ[s] = new double*[nkpt];
+    Occ_unocc[s] = new double*[nkpt];
     for (int k = 0; k < nkpt; k++) {
       Eocc[s][k] = new double[nocc];
       Eocc_shifted[s][k] = new double[nocc];
       Eunocc[s][k] = new double[nunocc];
+      Occ_occ[s][k] = new double[nocc];
+      Occ_unocc[s][k] = new double[nunocc];
     }
   }
   gw_epsilon->Eocc = Eocc;
   gw_epsilon->Eocc_shifted = Eocc_shifted;
   gw_epsilon->Eunocc = Eunocc;
+  gw_epsilon->Occ_occ = Occ_occ;
+  gw_epsilon->Occ_unocc = Occ_unocc;
 
   for (int s = 0; s < nspin; s++) {
     for (int k = 0; k < nkpt; k++) {
@@ -1882,6 +1906,19 @@ void Config::finale(GW_EPSILON* gw_epsilon, GW_PARALLEL* gw_parallel, GWBSEOPTS*
       }
       for (int i = 0; i < nunocc; i++) {
         fscanf(fp,"%lg",&Eunocc[s][k][i]);
+      }
+
+      sprintf(fromFile, "./STATES/Spin.%d_Kpt.%d_Bead.0_Temper.0/%s",s,k,gw_epsilon->occFileName);
+      FILE* fp_occ = fopen(fromFile, "r");
+      if (fp_occ == NULL) {
+        PRINTF("Cannot open Occ Value File: %s\n", fromFile);
+        EXIT(1);
+      }
+      for (int i = 0; i < nocc; i++) {
+        fscanf(fp_occ,"%lg",&Occ_occ[s][k][i]);
+      }
+      for (int i = 0; i < nunocc; i++) {
+        fscanf(fp_occ,"%lg",&Occ_unocc[s][k][i]);
       }
     } // endfor kpts
   } // endfor spin
