@@ -16,7 +16,6 @@ module pmatrix {
     entry void fftRows(int);
     entry void generateEpsilon(CProxy_EpsMatrix proxy, std::vector<int> accept);
     entry void registerTileSections();
-    entry void n3();
     entry void compute();
 
     // SDAG code for doing the transpose

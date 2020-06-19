@@ -276,7 +276,7 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       // copy unoccupied states into the temporary array
       complex psi_unocc[ndata];
       for (int i=0; i<ndata; i++){
-        psi_unocc[i] = psi_cache->psis[ik][Eunoccidx[ic]][i].conj();
+        psi_unocc[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_row+i].conj();
       }
 
       for (int i=0; i<ndata; i++){
@@ -341,16 +341,11 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
   }
 
 }
-#if DEBUG4
-  for(int i=0;i<ndata*ndata;i++)
-  printf("\nP->m[%d] = %lf %lf\n", i, P_m[i].re, P_m[i].im);
-  fflush(stdout);
-  CkExit();
-#endif
   if(thisIndex.x==0 && thisIndex.y==0) {
     printf("\nP->m[0] = %lf %lf\n", P_m[0].re, P_m[0].im);
     fflush(stdout);
   }
+  contribute(CkCallback(CkReductionTarget(Controller, newPMatrixComplete), controller_proxy));
 }
 
 void PMatrix::generateEpsilon(CProxy_EpsMatrix proxy, std::vector<int> accept){
@@ -439,15 +434,6 @@ void PMatrix::generateEpsilon(CProxy_EpsMatrix proxy, std::vector<int> accept){
   }
 }
 
-#define NUM_STATES 8
-#define PSI_VSIZE 1000
-
-void PMatrix::n3() {
-
-  CkPrintf("\nComputing pmatrix %d,%d\n", thisIndex.x, thisIndex.y);
-  fflush(stdout);
-}
- 
 void PMatrix::reportPTime() {
   CkReduction::statisticsElement stats(total_time);
   int tuple_size = 2;

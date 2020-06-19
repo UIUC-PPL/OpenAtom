@@ -21,7 +21,6 @@ class PMatrix : public CBase_PMatrix {
     void applyFs();
     void calc_vcoulb();
     void calc_Eps(Phase3Message* msg);
-    void n3();
     void compute();
 
     void reportPTime();

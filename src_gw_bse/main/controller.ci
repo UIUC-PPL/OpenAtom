@@ -70,7 +70,7 @@ module controller {
     entry [reductiontarget] void readComplete(bool success);
     entry [reductiontarget] void writeComplete(bool success);
     entry [reductiontarget] void verifyComplete(bool success);
-    entry [reductiontarget] void dummy();
+    entry [reductiontarget] void newPMatrixComplete();
     entry void PMatrixFormed();
     entry void EpsilonFormed();
     entry void EpsilonInverted();
@@ -145,7 +145,10 @@ module controller {
         pmatrix2D_proxy.compute();
       }
 
-      when dummy() serial {}
+      when newPMatrixComplete() serial {
+        CkPrintf("\nDone n^3 method");
+        CkExit(0);
+      }
       when fCacheReady(), cachesFilled(), registrationComplete() serial {
         psi_cache_proxy.reportInfo();
         STOP_BIG_STEP("SETUP COMPLETED");
