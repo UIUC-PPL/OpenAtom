@@ -154,14 +154,15 @@ void Matrix::verify(string prefix, CkCallback cb) {
       if (!withinTolerance(tmp, data[r * config.tile_cols + c])) {
         if (result) {
           filename = prefix + "_row" + std::to_string(start_row+r) + ".diff";
+//          CkPrintf("\nWriting to %s\n", filename.c_str());
           outfile.open(filename, ios::out);
         }
         result = false;
         complex diff = tmp - data[r * config.tile_cols + c];
-        outfile << "Column " << c << ": " << diff.re << " " << diff.im << "\n";
+        outfile << "Column " << c << ": " << data[r * config.tile_cols + c].re << "," <<data[r * config.tile_cols + c].im << "vs" << tmp.re << "," << tmp.im;//diff.re << " " << diff.im << "\n";
       }
     }
-    if (!result) {
+    if (result) {
       outfile.close();
     }
     infile.close();

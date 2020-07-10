@@ -99,7 +99,7 @@ module pmatrix {
       }
       serial {
         iteration = 0;//re-initializing for later re-use
-        contribute(CkCallback(CkReductionTarget(Controller, transposeComplete), controller_proxy));
+//        contribute(CkCallback(CkReductionTarget(Controller, transposeComplete), controller_proxy));
       }
     }
   };

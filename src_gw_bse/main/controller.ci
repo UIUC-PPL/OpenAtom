@@ -51,7 +51,7 @@ module controller {
     entry [reductiontarget] void registrationComplete();
     entry [reductiontarget] void psiComplete();
     entry [reductiontarget] void fftComplete();
-    entry [reductiontarget] void transposeComplete();
+//    entry [reductiontarget] void transposeComplete();
     entry [reductiontarget] void copyComplete(bool success);
     entry [reductiontarget] void transpose_complete();
     entry [reductiontarget] void copy_complete();
@@ -146,18 +146,20 @@ module controller {
       }
 
       when newPMatrixComplete() serial {
-        CkPrintf("\nDone n^3 method");
-        CkExit(0);
-      }
-      when fCacheReady(), cachesFilled(), registrationComplete() serial {
-        psi_cache_proxy.reportInfo();
-        STOP_BIG_STEP("SETUP COMPLETED");
+        CkPrintf("\nDone n^3 method"); fflush(stdout);
+        matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, copyCB);
       }
 
+      when copyComplete(bool success) serial{
+        CkPrintf("\nCopy complete\n"); fflush(stdout);
+        thisProxy.PMatrixFormed();
+//        CkExit(0);
+      }
       /************************************************************************/
       /** Phase 1: Form the P Matrix ******************************************/
       /************************************************************************/
-      serial {
+#if 0
+      when newPMatrixComplete() serial {
         if (!p_config.read) {
           thisProxy.formPMatrix();
         } else {
@@ -167,6 +169,7 @@ module controller {
           START_STEP("P MATRIX READ FROM FILE");
         }
       }
+#endif
       case {
         when PMatrixFormed() {
           if (p_config.write || p_config.verify) {
@@ -175,6 +178,7 @@ module controller {
             }
             if (p_config.write) {
               serial {
+                CkPrintf("\nGoing to write");fflush(stdout);
                 matrixWrite(pmatrix1D_proxy, p_config.write_prefix, writeCB);
               }
               when writeComplete(bool success) serial {
@@ -201,7 +205,7 @@ module controller {
                 }
               }
             }
-            serial { STOP_BIG_STEP("P MATRIX IO COMPLETED"); }
+            serial { STOP_BIG_STEP("P MATRIX IO COMPLETED"); CkExit();}
           }
         }
         when readComplete(bool success) serial {
@@ -211,6 +215,11 @@ module controller {
             STOP_BIG_STEP("P MATRIX READ FROM FILE");
           }
         }
+      }
+
+    when fCacheReady(), cachesFilled(), registrationComplete() serial {
+        psi_cache_proxy.reportInfo();
+        STOP_BIG_STEP("SETUP COMPLETED");
       }
 
       /************************************************************************/
@@ -605,7 +614,7 @@ module controller {
       // When we receive this message, we know that P has switched to a 1D
       // decomposition, so tell it to FFT all of it's rows.
       when copyComplete(bool success) serial{
-        START_STEP("1st FFT completed");
+/*        START_STEP("1st FFT completed");
         pmatrix1D_proxy.fftRows(1);
       }
 
@@ -635,6 +644,7 @@ module controller {
       // The final transpose is complete so now switch back to the 2D decomp.
       when transposeComplete() serial{
         STOP_STEP("2nd Transpose completed");
+*/
         STOP_STEP("P Matrix formed in G space");
         STOP_BIG_STEP("P MATRIX FORMED");
         thisProxy.PMatrixFormed();

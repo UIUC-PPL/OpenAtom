@@ -55,7 +55,7 @@ void PMatrix::compute() {
   nfft = gwbse->gw_parallel.fft_nelems;
 
   int ndata = nfft[0]*nfft[1]*nfft[2];
-  ndata = ndata/config.tile_rows;
+  ndata = config.tile_rows;//ndata/config.tile_rows;
   complex *P_m = new complex[ndata*ndata];
 
 for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
@@ -222,16 +222,20 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
           funocc = new complex[ndata*ndata];
 
           // Occupied states
-          complex *_psis_occ = new complex[this_nocc*ndata];
-          complex *_psis_unocc = new complex[this_nunocc*ndata];
+          complex *_psis_occ1 = new complex[this_nocc*ndata];
+          complex *_psis_occ2 = new complex[this_nocc*ndata];
+          complex *_psis_unocc1 = new complex[this_nunocc*ndata];
+          complex *_psis_unocc2 = new complex[this_nunocc*ndata];
 
           for (int iv=0; iv<this_nocc; iv++){
 
             // copy of the occupied state wavefunction as it may change due to U process
-            complex *psi_occ = new complex[ndata];
+            complex *psi_occ1 = new complex[ndata];
+            complex *psi_occ2 = new complex[ndata];
 
             for (int i=0; i<ndata; i++){
-              psi_occ[i] = psi_cache->psis[ikq][Eoccidx[iv]][i];
+              psi_occ1[i] = psi_cache->psis[ikq][Eoccidx[iv]][start_row+i];
+              psi_occ2[i] = psi_cache->psis[ikq][Eoccidx[iv]][start_col+i];
             }
 
 #if 0
@@ -245,15 +249,18 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
             for (int i=0; i<ndata; i++){
               // for gapped system
               if (nloop==1){
-                _psis_occ[iv*ndata+i] = psi_occ[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
               }
               // for metal
               if (nloop==2){
                 if(ploop==0){
-                  _psis_occ[iv*ndata+i] = psi_occ[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
+                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
+                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
                 }
                 else if(ploop==1){
-                  _psis_occ[iv*ndata+i] = psi_occ[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
                 }
               }
             }
@@ -265,7 +272,7 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
     double Lalpha = double(1.0); // scale A*B by this factor
     double Lbeta = double(1.0); // scale initial value of C by this factor
     // LAPACK GEMM: C = alpha*A*B + beta*C
-    myGEMM( &transform, &transformT, &ndata, &ndata, &this_nocc, &Lalpha, _psis_occ, &ndata, _psis_occ, &ndata, &Lbeta, focc, &ndata);
+    myGEMM( &transform, &transformT, &ndata, &ndata, &this_nocc, &Lalpha, _psis_occ2, &ndata, _psis_occ1, &ndata, &Lbeta, focc, &ndata);
 #else
     Die("Without -DUSE_LAPACK flag, polarizability calculation does not work!");
 #endif
@@ -274,46 +281,34 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
 
     for (int ic=0; ic<this_nunocc; ic++){
       // copy unoccupied states into the temporary array
-      complex psi_unocc[ndata];
+      complex psi_unocc1[ndata];
+      complex psi_unocc2[ndata];
       for (int i=0; i<ndata; i++){
-        psi_unocc[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_row+i].conj();
+        psi_unocc1[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_row+i].conj();
+        psi_unocc2[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_col+i].conj();
       }
 
       for (int i=0; i<ndata; i++){
         // for gapped system
         if (nloop==1){
-          _psis_unocc[ic*ndata+i] = psi_unocc[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta * Xn) );
+          _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta * Xn) );
+          _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta * Xn) );
         }
         // for metal
         if (nloop==2){
           if(ploop==0){
-            _psis_unocc[ic*ndata+i] = psi_unocc[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
-            if(i==0 && ic==0){
-            printf("psis->get(ic,i) = %lf, %lf, x %lf\n", _psis_unocc[ic*ndata+i].re, _psis_unocc[ic*ndata+i].im, sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) ));
-            }
+            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
+            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
           }
           else if(ploop==1){
-            _psis_unocc[ic*ndata+i] = psi_unocc[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) ) /** sqrt( Occp_unocc[ic] )*/;
-            if(i==0 && ic==0){
-            printf("psis->get(ic,i) = %lf, %lf, x %lf\n", _psis_unocc[ic*ndata+i].re, _psis_unocc[ic*ndata+i].im, sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) ));
-            };
+            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
+            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
           }
         }
       }
-    /* no more used in serial code
-    // construct funocc(r,r')
-    // funocc(r,r') = funocc(r,r') + psi_unocc(r).conj() * psi_unocc(r') * exp( -(Ec-Ecmin)/a*Xn) 
-    char transformT='C'; // conjugate transpose (Hermitian conjugate)
-    char transform='N'; // do nothing
-    double Lalpha = exp( -(Eunocc[ic]-L.minEunocc)/opta * Xn ); // scale A*B by this factor
-    double Lbeta = double(1.0); // scale initial value of C by this factor
-    int one = 1;
-    // LAPACK GEMM C = alpha*A*B + beta*C
-    myGEMM( &transform, &transformT, &ndata, &ndata, &one, &Lalpha, psi_unocc, &ndata, psi_unocc, &ndata, &Lbeta, funocc->m, &ndata);
-    */
     }// end unoccupied state
 #ifdef USE_LAPACK
-    myGEMM( &transform, &transformT, &ndata, &ndata, &this_nunocc, &Lalpha, _psis_unocc, &ndata, _psis_unocc, &ndata, &Lbeta, funocc, &ndata);
+    myGEMM( &transform, &transformT, &ndata, &ndata, &this_nunocc, &Lalpha, _psis_unocc2, &ndata, _psis_unocc1, &ndata, &Lbeta, funocc, &ndata);
 #else
     Die("Without -DUSE_LAPACK flag, polarizability calculation does not work!");
 #endif
@@ -345,6 +340,9 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
     printf("\nP->m[0] = %lf %lf\n", P_m[0].re, P_m[0].im);
     fflush(stdout);
   }
+for(int i=0;i<ndata*ndata;i++)
+  data[i] = P_m[i].conj();
+//CkPrintf("\nContrib %d,%d\n", thisIndex.x, thisIndex.y);
   contribute(CkCallback(CkReductionTarget(Controller, newPMatrixComplete), controller_proxy));
 }
 
