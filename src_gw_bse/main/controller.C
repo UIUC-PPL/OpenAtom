@@ -194,13 +194,44 @@ PsiCache::PsiCache() {
   max_col = INT_MIN;
   tile_lock = CmiCreateLock();
 
-  lp = LAPLACE(gwbse->gw_epsilon.Eocc, gwbse->gw_epsilon.Eunocc);
+  lp = new LAPLACE(gwbse->gw_epsilon.Eocc, gwbse->gw_epsilon.Eunocc);
+
+  char fromFile[200];
+  Occ_occ = new double**[1];
+  Occ_unocc = new double**[1];
+  for (int s = 0; s < 1; s++) {
+    Occ_occ[s] = new double*[K];
+    Occ_unocc[s] = new double*[K];
+    for (int k = 0; k < K; k++) {
+      Occ_occ[s][k] = new double[L];
+      Occ_unocc[s][k] = new double[M];
+    }
+  }
+for (int s = 0; s < 1; s++) {
+    for (int k = 0; k < K; k++) {
+  sprintf(fromFile, "./STATES/Spin.%d_Kpt.%d_Bead.0_Temper.0/%s",s,k,"occupations.in");
+  FILE* fp_occ = fopen(fromFile, "r");
+  if (fp_occ == NULL) {
+    PRINTF("Cannot open Occ Value File: %s\n", fromFile);
+    EXIT(1);
+  }
+  for (int i = 0; i < L; i++) {
+    fscanf(fp_occ,"%lg",&Occ_occ[s][k][i]);
+  }
+  for (int i = 0; i < M; i++) {
+    fscanf(fp_occ,"%lg",&Occ_unocc[s][k][i]);
+  }
+ }
+} 
 
   total_time = 0.0;
   contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
 }
+double PsiCache::get_OccOcc(int k, int iv) {
+  return Occ_occ[0][k][iv];//tmp;
+}
 
-LAPLACE PsiCache::getLP() {
+LAPLACE *PsiCache::getLP() {
   return lp;
 }
 
@@ -263,8 +294,10 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
   fflush(stdout);
   states_received++;
+#if 1
   if(states_received == (L+M)*K)
     contribute(CkCallback(CkReductionTarget(Controller,cachesFilled), controller_proxy));
+#endif
 
   delete msg;
 }

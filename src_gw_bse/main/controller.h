@@ -165,9 +165,10 @@ class PsiCache : public CBase_PsiCache {
     void setRegionData(PMatrix* matrix_chare, int start_row, int start_col,
                        int tile_nrows, int tile_ncols);
     void reportInfo();
-    LAPLACE getLP();
+    LAPLACE* getLP();
 
     complex*** psis;
+    double get_OccOcc(int k, int iv);
   private:
     void kqIndex(unsigned, unsigned&, int*);
     void computeUmklappFactor(int*);
@@ -198,7 +199,9 @@ class PsiCache : public CBase_PsiCache {
     std::vector<std::pair<int, int>> regions;
     int min_row, min_col, max_row, max_col;
     CmiNodeLock tile_lock;
-    LAPLACE lp;
+    LAPLACE *lp;
+    double*** Occ_occ;
+    double*** Occ_unocc;
 };
 
 class FVectorCache : public CBase_FVectorCache {

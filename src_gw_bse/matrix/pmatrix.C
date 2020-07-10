@@ -37,12 +37,13 @@ PMatrix::PMatrix(MatrixConfig config) : CBase_PMatrix(config) {
 }
 
 void PMatrix::compute() {
+//if(!(thisIndex.x==0 && thisIndex.y==0)) return;
   GWBSE *gwbse = GWBSE::get();
   PsiCache* psi_cache = psi_cache_proxy.ckLocalBranch();
-  LAPLACE lp = psi_cache->getLP();
+  LAPLACE *lp = psi_cache->getLP();
   int counter = 0;
   int nocc = gwbse->gw_parallel.L;
-  int nwocc = lp.nwocc;
+  int nwocc = lp->nwocc;
   int p_metal = 0;
 
   double*** e_occ = gwbse->gw_epsilon.Eocc;
@@ -83,10 +84,9 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
 #endif
 
     for (int iv=0; iv<nocc; iv++){
-      if (lp.bin_occ[iwocc] <= e_occ[0][ikq][iv]  &&  e_occ[0][ikq][iv] < lp.bin_occ[iwocc+1])
+      if (lp->bin_occ[iwocc] <= e_occ[0][ikq][iv]  &&  e_occ[0][ikq][iv] < lp->bin_occ[iwocc+1])
         this_nocc += 1;
     } // done calculating occupied states in this window
-
     // now we save eigenvalues in this window to Eocc
 
     double Eocc[this_nocc];
@@ -94,11 +94,14 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
     int Eoccidx[this_nocc];
     counter = 0;
     for (int iv=0; iv<nocc; iv++){
-      if (lp.bin_occ[iwocc] <= e_occ[0][ikq][iv]  &&  e_occ[0][ikq][iv] < lp.bin_occ[iwocc+1])
+      if (lp->bin_occ[iwocc] <= e_occ[0][ikq][iv]  &&  e_occ[0][ikq][iv] < lp->bin_occ[iwocc+1])
         {
+ //         if(counter >= this_nocc) CkPrintf("\nNode-%d Error", CkMyNode());
+#if 1
           Eocc[counter] = e_occ[0][ikq][iv];
-          Occp_occ[counter] = occ_occ[0][ikq][iv];
-
+          Occp_occ[counter] = psi_cache->get_OccOcc(ikq, iv);//gwbse->gw_epsilon.Occ_occ[0][ikq][iv];//occ_occ[0][ikq][iv];
+#endif
+#if 1
         // Reset occupation for metal to prevent some crazy occupation numbers (like 1E-123)
         if(p_metal){
           if ( abs ( Occp_occ[counter]-1e-0 ) < 1e-6){
@@ -108,13 +111,14 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
             Occp_occ[counter] = 0.0;
           }
         }
+#endif
         Eoccidx[counter] = iv;
         counter += 1;
       }
     }
 
     // loop over window : unoccupied states
-    int nwunocc = lp.nwunocc;
+    int nwunocc = lp->nwunocc;
     for (int iwunocc=0; iwunocc<nwunocc; iwunocc++){
       int nunocc = gwbse->gw_parallel.M;
       int nocc = gwbse->gw_parallel.L;
@@ -125,22 +129,21 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       // if metal, reset nunocc (and also need to re-reset nocc for this k
       if (p_metal){
         int kindex = gwbse->gw_parallel.K * indexes[0] + indexes[1];
-        nunocc = lp.nck[kindex];
-        nocc = lp.nvk[kindex];
+        nunocc = lp->nck[kindex];
+        nocc = lp->nvk[kindex];
       }
 
       for (int ic=0; ic<nunocc; ic++){
-        if(lp.bin_unocc[iwunocc] <= e_unocc[0][ik][ic]  &&  e_unocc[0][ik][ic] < lp.bin_unocc[iwunocc+1])
+        if(lp->bin_unocc[iwunocc] <= e_unocc[0][ik][ic]  &&  e_unocc[0][ik][ic] < lp->bin_unocc[iwunocc+1])
           this_nunocc += 1;
       } // done calculating unoccupied states in this window
-
       // now we save eigenvalues in this window to Eunocc
       double Eunocc[this_nunocc];
       double Occp_unocc[this_nunocc];
       int Eunoccidx[this_nunocc];
       counter = 0;
       for (int ic=0; ic<nunocc; ic++){
-        if(lp.bin_unocc[iwunocc] <= e_unocc[0][ik][ic] &&  e_unocc[0][ik][ic] < lp.bin_unocc[iwunocc+1]){
+        if(lp->bin_unocc[iwunocc] <= e_unocc[0][ik][ic] &&  e_unocc[0][ik][ic] < lp->bin_unocc[iwunocc+1]){
           Eunocc[counter] = e_unocc[0][ik][ic];
           // Reset occupation for metal to prevent some crazy occupation numbers (like 1E-123)
           Occp_unocc[counter] = occ_occ[0][ik][nocc+ic];
@@ -166,17 +169,17 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
 #endif
 
       // number of nodes and optimized a at this window pair (iwocc,iwunocc)
-      int Ng = lp.Nnodes[iwocc][iwunocc];
-      double opta = lp.opta[iwocc][iwunocc];
+      int Ng = lp->Nnodes[iwocc][iwunocc];
+      double opta = lp->opta[iwocc][iwunocc];
 
       //----------------------------------
       // Gaussian quadrature starts here
       //----------------------------------
       // loop over the GL nodes
-      double gap = lp.gap;
+      double gap = lp->gap;
       for (int n=0; n<Ng; n++){
-        double Wn = lp.w[Ng-1][n];
-        double Xn = lp.n[Ng-1][n];
+        double Wn = lp->w[Ng-1][n];
+        double Xn = lp->n[Ng-1][n];
 #if DEBUG4
         printf("\nL.w[%d][%d] = %lf, L.n[Ng-1][n] = %lf gap = %lf\n", Ng-1, n, Lw, Ln, gap);
 #endif
@@ -249,23 +252,22 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
             for (int i=0; i<ndata; i++){
               // for gapped system
               if (nloop==1){
-                _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
-                _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) );
+                _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) );
               }
               // for metal
               if (nloop==2){
                 if(ploop==0){
-                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
-                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
+                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
+                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) ) * sqrt( Occp_occ[iv] );
                 }
                 else if(ploop==1){
-                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
-                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp.maxEocc-Eocc[iv])/opta*Xn) );
+                  _psis_occ1[iv*ndata+i] = psi_occ1[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) );
+                  _psis_occ2[iv*ndata+i] = psi_occ2[i] * sqrt( exp(-(lp->maxEocc-Eocc[iv])/opta*Xn) );
                 }
               }
             }
           } // end occupied states
-
 #ifdef USE_LAPACK
     char transformT = 'C'; // conjugate transpose (Hermitian conjugate)
     char transform = 'N'; // do nothing
@@ -291,18 +293,18 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       for (int i=0; i<ndata; i++){
         // for gapped system
         if (nloop==1){
-          _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta * Xn) );
-          _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta * Xn) );
+          _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta * Xn) );
+          _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta * Xn) );
         }
         // for metal
         if (nloop==2){
           if(ploop==0){
-            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
-            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
+            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta*Xn) );
+            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta*Xn) );
           }
           else if(ploop==1){
-            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
-            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp.minEunocc)/opta*Xn) );
+            _psis_unocc1[ic*ndata+i] = psi_unocc1[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta*Xn) );
+            _psis_unocc2[ic*ndata+i] = psi_unocc2[i] * sqrt( exp(-(Eunocc[ic]-lp->minEunocc)/opta*Xn) );
           }
         }
       }
@@ -336,8 +338,9 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
   }
 
 }
-  if(thisIndex.x==0 && thisIndex.y==0) {
-    printf("\nP->m[0] = %lf %lf\n", P_m[0].re, P_m[0].im);
+  if(thisIndex.x==0 && thisIndex.y==0)
+  {
+    printf("\n[Node-%d][%d,%d]P->m[0] = %lf %lf\n", CkMyNode(), thisIndex.x, thisIndex.y,P_m[0].re, P_m[0].im);
     fflush(stdout);
   }
 for(int i=0;i<ndata*ndata;i++)
