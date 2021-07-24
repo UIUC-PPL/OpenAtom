@@ -151,6 +151,9 @@ PsiCache::PsiCache() {
   n_list = gw_sigma->n_list_sig_matels;
   np_list = gw_sigma->np_list_sig_matels;
   qindex = 0;
+  elements = 0;
+  int dim = gwbse->gw_parallel.n_elems/gwbse->gw_parallel.rows_per_chare;
+  total_elements = dim*dim;
   if(gwbse->gw_parallel.n_qpt < K){
     qindex = gwbse->gw_parallel.Q[0];
   }

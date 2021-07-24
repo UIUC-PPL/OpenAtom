@@ -147,6 +147,7 @@ module controller {
 
       when newPMatrixComplete() serial {
         CkPrintf("\nDone n^3 method"); fflush(stdout);
+        CkExit(0);
         matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, copyCB);
       }
 

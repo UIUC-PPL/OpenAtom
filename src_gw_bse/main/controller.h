@@ -167,6 +167,8 @@ class PsiCache : public CBase_PsiCache {
     void reportInfo();
     LAPLACE* getLP();
 
+    int elements;
+    int total_elements;
     complex*** psis;
     double get_OccOcc(int k, int iv);
   private:

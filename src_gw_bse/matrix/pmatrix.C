@@ -343,6 +343,12 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
     printf("\n[Node-%d][%d,%d]P->m[0] = %lf %lf\n", CkMyNode(), thisIndex.x, thisIndex.y,P_m[0].re, P_m[0].im);
     fflush(stdout);
   }
+
+  psi_cache->elements++;
+  int node_elems = psi_cache->total_elements/CkNumNodes();
+  int tens = node_elems/10;
+  if(psi_cache->elements%tens == 0)
+    CkPrintf("\n%d%% p-matrix done", 10*psi_cache->elements/tens);
 for(int i=0;i<ndata*ndata;i++)
   data[i] = P_m[i].conj();
 //CkPrintf("\nContrib %d,%d\n", thisIndex.x, thisIndex.y);
