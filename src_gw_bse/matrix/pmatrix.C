@@ -267,6 +267,8 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
                 }
               }
             }
+            delete[] psi_occ1;
+            delete[] psi_occ2;
           } // end occupied states
 #ifdef USE_LAPACK
     char transformT = 'C'; // conjugate transpose (Hermitian conjugate)
@@ -330,6 +332,12 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
 //    printf("\nfocc[10] = %lf, %lf, funocc[0] = %lf, %lf\n", focc[10].re, focc[10].im, funocc[0].re, funocc[0].im);
     printf("\n[%d,%d, %d]P->m[0] = %lf, %lf factor = %lf\n", iwocc, iwunocc, n, P_m[0].re, P_m[0].im, factor);
 #endif
+    delete[] focc;
+    delete[] funocc;
+    delete[] _psis_occ1;
+    delete[] _psis_occ2;
+    delete[] _psis_unocc1;
+    delete[] _psis_unocc2;
         }
 
       }
