@@ -145,6 +145,13 @@ struct FComputePacket {
   std::vector<std::pair<int, int>>* regions;
 };
 
+class DiagBridge : public CBase_DiagBridge {
+  public:
+    DiagBridge();
+
+    void receiveData(std::vector<complex> data_in, int size);
+};
+
 class PsiCache : public CBase_PsiCache {
   public:
     PsiCache();
@@ -243,5 +250,6 @@ class FVectorCache : public CBase_FVectorCache {
 extern /* readonly */ CProxy_Controller controller_proxy;
 extern /* readonly */ CProxy_PsiCache psi_cache_proxy;
 extern /* readonly */ CProxy_FVectorCache fvector_cache_proxy;
+extern /* readonly */ CProxy_DiagBridge diag_bridge_proxy;
 
 #endif

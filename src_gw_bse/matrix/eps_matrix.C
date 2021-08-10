@@ -66,6 +66,20 @@ void EpsMatrix::setI(CLA_Matrix_interface mat, bool clean){
   }
 }
 
+void EpsMatrix::blockC_mapping() {
+  GWBSE* gwbse = GWBSE::get();
+  proc_rows = gwbse->gw_parallel.proc_rows;
+  proc_cols = gwbse->gw_parallel.proc_cols;
+  int dest_pe_row = thisIndex.x%proc_rows;
+  int dest_pe_col = thisIndex.y%proc_cols;
+  int dest_pe = dest_pe_row*proc_cols + dest_pe_col;
+
+  std::vector<complex> data_out(total_data);
+  for(int i=0;i<total_data;i++)
+    data_out[i] = data[i];
+  diag_bridge_proxy[dest_pe].receiveData(data_out, total_data);
+}
+
 void EpsMatrix::receiveFs(Phase3Message* msg) {
   int n = 0;
   // TODO: memcpy

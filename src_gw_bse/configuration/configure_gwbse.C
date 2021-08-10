@@ -600,7 +600,7 @@ void Config::set_config_dict_GW_file  (int *num_dict ,DICT_WORD **dict){
 void Config::set_config_dict_GW_parallel  (int *num_dict ,DICT_WORD **dict){
   //==================================================================================
   //  I) Malloc the dictionary                                              
-  num_dict[0] = 4;
+  num_dict[0] = 6;
   *dict = (DICT_WORD *)cmalloc(num_dict[0]*sizeof(DICT_WORD),"set_dict_gen_GW")-1;
 
   //=================================================================================
@@ -640,6 +640,22 @@ void Config::set_config_dict_GW_parallel  (int *num_dict ,DICT_WORD **dict){
   //  4)\transpose_stages{}
   ind =   4;
   strcpy((*dict)[ind].keyword,"transpose_stages");
+  strcpy((*dict)[ind].keyarg,"1");
+  strcpy((*dict)[ind].error_mes,"a number >= 1");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  5)\proc_rows{}
+  ind =   5;
+  strcpy((*dict)[ind].keyword,"proc_rows");
+  strcpy((*dict)[ind].keyarg,"1");
+  strcpy((*dict)[ind].error_mes,"a number >= 1");
+  //-----------------------------------------------------------------------------
+
+  //-----------------------------------------------------------------------------
+  //  6)\proc_cols{}
+  ind =   6;
+  strcpy((*dict)[ind].keyword,"proc_cols");
   strcpy((*dict)[ind].keyarg,"1");
   strcpy((*dict)[ind].error_mes,"a number >= 1");
   //-----------------------------------------------------------------------------
@@ -1144,6 +1160,19 @@ void Config::set_config_params_GW_parallel  (DICT_WORD *dict, char *fun_key, cha
   sscanf(dict[ind].keyarg,"%d",&int_arg);
   if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
   gw_parallel->transpose_stages = int_arg;
+
+  //  5)\proc_rows{}
+  ind =   5;
+  sscanf(dict[ind].keyarg,"%d",&int_arg);
+  if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_parallel->proc_rows = int_arg;
+
+  //  6)\proc_cols{}
+  ind =   6;
+  sscanf(dict[ind].keyarg,"%d",&int_arg);
+  if (int_arg<1){keyarg_barf(dict,input_name,fun_key,ind);}
+  gw_parallel->proc_cols = int_arg;
+
   //----------------------------------------------------------------------------- 
 }// end routine
 //================================================================================

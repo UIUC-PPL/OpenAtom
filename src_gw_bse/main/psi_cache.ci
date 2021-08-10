@@ -1,6 +1,7 @@
 module psi_cache {
   extern module messages;
   readonly CProxy_PsiCache psi_cache_proxy;
+  readonly CProxy_DiagBridge diag_bridge_proxy;
 
   nodegroup PsiCache {
     entry PsiCache();
@@ -10,5 +11,10 @@ module psi_cache {
     entry void setVCoulb(std::vector<double>, double);
     entry void setQIndex(int qindex);
     entry void reportInfo();
+  };
+
+  group DiagBridge {
+    entry DiagBridge();
+    entry void receiveData(std::vector<complex>, int size);
   };
 };

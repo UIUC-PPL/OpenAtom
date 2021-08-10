@@ -67,6 +67,7 @@ module controller {
     entry [reductiontarget] void screenedExchangeComplete(CkReductionMsg* msg);
     entry [reductiontarget] void cohComplete(CkReductionMsg* msg);
     entry [reductiontarget] void s_ready();
+    entry [reductiontarget] void diag_done();
     entry [reductiontarget] void readComplete(bool success);
     entry [reductiontarget] void writeComplete(bool success);
     entry [reductiontarget] void verifyComplete(bool success);
@@ -377,6 +378,9 @@ module controller {
         s_matrix2D_proxy.multiply_coulb();
       }
       when s_ready() serial {
+        s_matrix2D_proxy.blockC_mapping();
+      }
+      when diag_done() serial {
         CkPrintf("[CONTROLLER] Phase-4 Bare Exchange, Screen Exchange and COH computation\n");
         CkPrintf("| Type               | K | n | n' |     Sigma       \n");
         bare_x = screen_x = coh = (0.0,0.0);

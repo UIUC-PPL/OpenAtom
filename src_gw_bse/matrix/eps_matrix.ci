@@ -27,6 +27,7 @@ module eps_matrix {
     entry void multiply_coulb();
     entry void createCopy(CProxy_EpsMatrix other, bool todo);
     entry void recvCopy(std::vector<complex> new_data);
+    entry void blockC_mapping();
 
     entry void pdgemmSendInput(CProxy_EpsMatrix output, bool aOrB) {
       serial {

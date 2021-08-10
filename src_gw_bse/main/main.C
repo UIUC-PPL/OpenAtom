@@ -43,6 +43,7 @@
 /* readonly */ CProxy_PsiCache psi_cache_proxy;
 /* readonly */ CProxy_FVectorCache fvector_cache_proxy;
 /* readonly */ CProxy_MatMul mat_mul_proxy;
+/* readonly */ CProxy_DiagBridge diag_bridge_proxy;
 
 // States (Phase 1)
 /* readonly */ CProxy_States states_proxy;
@@ -92,6 +93,7 @@ Main::Main(CkArgMsg* msg) {
   fft_controller_proxy = CProxy_FFTController::ckNew();
   psi_cache_proxy = CProxy_PsiCache::ckNew();
   fvector_cache_proxy = CProxy_FVectorCache::ckNew();
+  diag_bridge_proxy = CProxy_DiagBridge::ckNew();
   mat_mul_proxy = CProxy_MatMul::ckNew();
 
   // -------------------------------------------------------------------

@@ -25,6 +25,8 @@ class GW_PARALLEL{
     unsigned rows_per_chare;  // Rows per PMatrix chare
     unsigned cols_per_chare;  // Columns per PMatrix chare
     unsigned transpose_stages; // Number of stages in transpose
+    unsigned proc_rows;        //processor rows for diagonalizer tiling
+    unsigned proc_cols;        //processor cols for diagonalizer tiling
 
     int fft_nelems[3];        // Num: size of FFT
 
@@ -38,6 +40,8 @@ class GW_PARALLEL{
       rows_per_chare = 0;
       cols_per_chare = 0;
       transpose_stages = 0;
+      proc_rows = 1;
+      proc_cols = 1;
       Q = new unsigned[1];
       for (int i; i<3; i++){ fft_nelems[i] = 0; }
     };
@@ -54,6 +58,8 @@ class GW_PARALLEL{
       p | rows_per_chare;
       p | cols_per_chare;
       p | transpose_stages;
+      p | proc_rows;
+      p | proc_cols;
 
       PUParray(p, fft_nelems, 3);
       PUParray(p, Q, n_qpt);
@@ -78,6 +84,8 @@ class GW_PARALLEL{
       fprintf(fp,"rows_per_chare %i\n", rows_per_chare);
       fprintf(fp,"cols_per_chare %i\n", cols_per_chare);
       fprintf(fp,"transpose_stages %i\n", transpose_stages);
+      fprintf(fp,"proc_rows %i\n", proc_rows);
+      fprintf(fp,"proc_cols %i\n", proc_cols);
       fprintf(fp,"fft size %d  %d  %d\n", fft_nelems[0], fft_nelems[1], fft_nelems[2]);
       fclose(fp);
     }// end routine

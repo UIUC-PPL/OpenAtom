@@ -14,6 +14,8 @@ class EpsMatrix : public CBase_EpsMatrix {
     unsigned qindex;
 
     unsigned data_received;
+    unsigned proc_rows;
+    unsigned proc_cols;
     double total_time;
     CLA_Matrix_interface matrix;
     unsigned int blockSize, numBlocks, block;
@@ -45,6 +47,7 @@ class EpsMatrix : public CBase_EpsMatrix {
     void recvCopy(std::vector<complex> new_data);
     void setI(CLA_Matrix_interface mat, bool clean);
     void receiveConvCheck(std::vector<complex> incoming);
+    void blockC_mapping();
     static void done_cb(void *obj){
      ((EpsMatrix*) obj)->round_done();
     }

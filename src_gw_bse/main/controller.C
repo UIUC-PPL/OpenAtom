@@ -222,6 +222,15 @@ void PsiCache::setQIndex(int q_index){
   contribute(CkCallback(CkReductionTarget(Controller,psiCacheReady), controller_proxy));
 }
 
+DiagBridge::DiagBridge() {
+}
+
+void DiagBridge::receiveData(std::vector<complex> data_in, int data_size) {
+  //copy data into the correct place in your tile
+  contribute(CkCallback(CkReductionTarget(Controller, diag_done), controller_proxy));
+
+}
+
 void PsiCache::reportFTime() {
   CkReduction::statisticsElement stats(total_time);
   int tuple_size = 2;
