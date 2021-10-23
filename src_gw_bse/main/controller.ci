@@ -7,6 +7,7 @@ module controller {
   extern module pmatrix;
   extern module mat_mul;
   extern module main;
+  readonly CProxy_Main mainProxy;
   readonly CProxy_Controller controller_proxy;
 
 #define percent 25
@@ -766,7 +767,8 @@ module controller {
       serial {
         STOP_STEP("Iterative inverse completed");
         STOP_BIG_STEP("EPSILON INVERTED");
-        thisProxy.EpsilonInverted();
+        mainProxy.done();
+//        thisProxy.EpsilonInverted();
       }
     }
   };

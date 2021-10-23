@@ -1,0 +1,20 @@
+CHARMC=/dcsdata/home/kchndrs2/github/charm_pup4/bin/charmc $(OPTS)
+
+all: multirun_time
+
+#Charm++ libraries to be used for Interoperation
+LIBS=build/libmodulemain.a
+
+multirun_time: multirun_time.cpp $(LIBS)
+	$(CHARMC) -c++ mpicxx -c multirun_time.cpp -o multirun_time.o
+	$(CHARMC) -ld++ mpicxx -mpi -nomain-module -o multirun_time multirun_time.o -L./ -L./build/  -module CkMulticast -L/dcsdata/home/kchndrs2/Software/fftw3-install//lib -lfftw3 -lm -lz -llapack -lblas -module CkLoop -module main
+
+clean:
+	make -C libs clean
+	rm -f multirun multirun_time *.o *.a charmrun
+
+test: all
+	mpirun -np 16 ./multirun
+	mpirun -np 16 ./multirun +balancer GreedyLB +LBDebug 1
+	mpirun -np 16 ./multirun_time
+

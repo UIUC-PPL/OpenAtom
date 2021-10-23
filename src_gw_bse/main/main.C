@@ -28,6 +28,8 @@
 #include "configure_gwbse.h"
 #include "states.h"
 #include "CkLoopAPI.h"
+#include "hi.h"
+#include "mpi-interoperate.h"
 
 // =========================================================================
 // states_occ_proxy is declared readonly in states.ci file that makes them parallel global.
@@ -150,5 +152,17 @@ void Main::done() {
   CkExit();
 }
 
+void Main::StartHi(int elems){
+CkPrintf("\nBack to charm");
+controller_proxy.EpsilonInverted();
+}
+
+void StartHi(int elems)
+{
+  if(CkMyPe() == 0) {
+    mainProxy.StartHi(elems);
+  }
+  StartCharmScheduler();
+}
 
 #include "main.def.h"

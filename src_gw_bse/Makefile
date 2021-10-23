@@ -6,14 +6,14 @@ MODULES=$(CI_FILES:.ci=.decl.h)
 OBJS=$(addprefix $(BUILDDIR)/, $(C_FILES:.C=.o))
 
 default: all
-all: $(BUILDDIR) $(BUILDDIR)/gw_bse
+all: $(BUILDDIR) $(BUILDDIR)/libmodulemain.a
 
 .PHONY : $(DIRS)
 
 $(BUILDDIR):
 	mkdir $(BUILDDIR)
 
-$(BUILDDIR)/gw_bse: make_ci $(OBJS) $(DIRS)
+$(BUILDDIR)/libmodulemain.a: make_ci $(OBJS) $(DIRS)
 	$(CHARMC) $(LFLAGS) $(OBJS) $(BUILDDIR)/*.o -o $@
 	mv charmrun $(BUILDDIR)
 
