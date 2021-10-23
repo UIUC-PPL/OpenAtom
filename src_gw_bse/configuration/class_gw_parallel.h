@@ -85,7 +85,7 @@ class GW_PARALLEL{
 }; // GW_PARALLEL
 
 #ifdef PUP_ON
-PUPmarshall(GW_PARALLEL);
+//PUPmarshall(GW_PARALLEL);
 #endif
 
 #endif

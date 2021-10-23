@@ -81,7 +81,7 @@ class GW_SIGMA{
 }; // GW_SIGMA
 
 #ifdef PUP_ON
-PUPmarshall(GW_SIGMA);
+//PUPmarshall(GW_SIGMA);
 #endif
 
 #endif

@@ -113,7 +113,7 @@ class GW_EPSILON{
 }; // GW_EPSILON
 
 #ifdef PUP_ON
-PUPmarshall(GW_EPSILON);
+//PUPmarshall(GW_EPSILON);
 #endif
 
 #endif

@@ -99,7 +99,7 @@ class GWBSE {
 //==========================================================================
 
 #ifdef PUP_ON
-PUPmarshall(GWBSE);
+//PUPmarshall(GWBSE);
 #endif
 
 #endif

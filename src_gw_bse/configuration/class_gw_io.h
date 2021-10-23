@@ -84,7 +84,7 @@ class GW_IO {
     
 }; // GW_IO
 
-PUPmarshall(GW_IO);
+//PUPmarshall(GW_IO);
 
 #endif
 //==========================================================================
