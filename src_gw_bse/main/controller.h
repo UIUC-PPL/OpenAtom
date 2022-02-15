@@ -170,6 +170,7 @@ class PsiCache : public CBase_PsiCache {
     int elements;
     int total_elements;
     complex*** psis;
+    std::vector<std::pair<int, int>> regions;
     double get_OccOcc(int k, int iv);
   private:
     void kqIndex(unsigned, unsigned&, int*);
@@ -198,7 +199,6 @@ class PsiCache : public CBase_PsiCache {
 
     // Used for registering fvector regions
     std::vector<PMatrix*> matrix_chares;
-    std::vector<std::pair<int, int>> regions;
     int min_row, min_col, max_row, max_col;
     CmiNodeLock tile_lock;
     LAPLACE *lp;

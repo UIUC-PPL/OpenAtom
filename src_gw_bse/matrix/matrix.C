@@ -60,7 +60,7 @@ void Matrix::initialize() {
 }
 
 inline bool withinTolerance(const complex& a, const complex& b) {
-  static const complex tolerance(1E-4, 1E-4);
+  static const complex tolerance(1E-5, 1E-5);
   return fabs(a.re - b.re) < tolerance.re && fabs(a.im - b.im) < tolerance.im;
 }
 
@@ -161,6 +161,8 @@ void Matrix::verify(string prefix, CkCallback cb) {
         complex diff = tmp - data[r * config.tile_cols + c];
         outfile << "Column " << c << ": " << data[r * config.tile_cols + c].re << "," <<data[r * config.tile_cols + c].im << "vs" << tmp.re << "," << tmp.im;//diff.re << " " << diff.im << "\n";
       }
+      if(thisIndex.x==0 && thisIndex.y==0 && r==0 && c<10)
+          CkPrintf("\n%lf,%lf vs %lf,%lf\n", tmp.re, tmp.im, data[r * config.tile_cols + c].re, data[r * config.tile_cols + c].im);
     }
     if (result) {
       outfile.close();

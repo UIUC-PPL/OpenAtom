@@ -511,7 +511,13 @@ void PsiCache::computeFs(PsiMessage* msg) {
     int state_index = get_index(msg->state_index)*2*psi_size;
     complex *store_x = &states[(msg->k_index*2*n_np*psi_size)+ state_index];
     complex *load_x = msg->psi;
-    memcpy(store_x, load_x, psi_size*sizeof(complex));
+//    memcpy(store_x, load_x, psi_size*sizeof(complex));
+    int k = 0;
+    for (int i = 0; i < regions.size(); i++) {
+      for (int j = regions[i].first; j < regions[i].second; j++) {
+        store_x[k++] = load_x[j];
+      }
+    }
   }
 #endif
 

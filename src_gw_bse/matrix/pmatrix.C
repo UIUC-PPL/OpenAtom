@@ -230,15 +230,31 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
           complex *_psis_unocc1 = new complex[this_nunocc*ndata];
           complex *_psis_unocc2 = new complex[this_nunocc*ndata];
 
+          int region_ridx = 0;
+          for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
+            if(start_row == psi_cache->regions[r_i].second) {
+              region_ridx = r_i;
+              break;
+            }
+
+          int region_cidx = 0;
+          for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
+            if(start_col == psi_cache->regions[r_i].second) {
+              region_cidx = r_i;
+              break;
+            }
+
           for (int iv=0; iv<this_nocc; iv++){
 
             // copy of the occupied state wavefunction as it may change due to U process
             complex *psi_occ1 = new complex[ndata];
             complex *psi_occ2 = new complex[ndata];
 
+            
+
             for (int i=0; i<ndata; i++){
-              psi_occ1[i] = psi_cache->psis[ikq][Eoccidx[iv]][start_row+i];
-              psi_occ2[i] = psi_cache->psis[ikq][Eoccidx[iv]][start_col+i];
+              psi_occ1[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_ridx*ndata+i];
+              psi_occ2[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_cidx*ndata+i];
             }
 
 #if 0
@@ -287,9 +303,22 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       // copy unoccupied states into the temporary array
       complex psi_unocc1[ndata];
       complex psi_unocc2[ndata];
+      int region_ridx = 0;
+      for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
+        if(start_row == psi_cache->regions[r_i].second) {
+          region_ridx = r_i;
+          break;
+        }
+
+      int region_cidx = 0;
+      for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
+        if(start_col == psi_cache->regions[r_i].second) {
+          region_cidx = r_i;
+          break;
+        }
       for (int i=0; i<ndata; i++){
-        psi_unocc1[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_row+i].conj();
-        psi_unocc2[i] = psi_cache->psis[ik][Eunoccidx[ic]][start_col+i].conj();
+        psi_unocc1[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_ridx*ndata+i].conj();
+        psi_unocc2[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_cidx*ndata+i].conj();
       }
 
       for (int i=0; i<ndata; i++){
@@ -321,11 +350,11 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
     for (int i=0; i<ndata*ndata; i++){
       // for the first ploop, the sign is "+"  (either gapped system or metal first loop)
       if(ploop==0){
-        P_m[i] += factor * focc[i] * funocc[i];
+        P_m[i] += ((factor * focc[i] * funocc[i])*100000)/100000;
       }
       // for the second ploop, the sign is "-"
       if(ploop==1){
-        P_m[i] -= factor * focc[i] * funocc[i];
+        P_m[i] -= ((factor * focc[i] * funocc[i])*100000)/100000;
       }
     }
 #if DEBUG4

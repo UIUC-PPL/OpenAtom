@@ -147,15 +147,52 @@ module controller {
 
       when newPMatrixComplete() serial {
         CkPrintf("\nDone n^3 method"); fflush(stdout);
-        CkExit(0);
+//        CkExit(0);
         matrixCopy(pmatrix2D_proxy, pmatrix1D_proxy, copyCB);
       }
 
       when copyComplete(bool success) serial{
         CkPrintf("\nCopy complete\n"); fflush(stdout);
-        thisProxy.PMatrixFormed();
-//        CkExit(0);
+/*
+        START_STEP("1st FFT completed");
+        pmatrix1D_proxy.fftRows(1);
       }
+
+      // The FFT of the rows is complete, so now transpose the matrix.
+      when fftComplete() serial{
+        STOP_STEP("1st FFT completed");
+        START_STEP("1st Transpose completed");
+        pmatrix1D_proxy.start_iteration();
+        pmatrix1D_proxy.doTranspose();
+      }
+
+      // Transpose is complete, so FFT the rows again in the opposite direction.
+      when transposeComplete() serial{
+        STOP_STEP("1st Transpose completed");
+        START_STEP("2nd FFT completed");
+        pmatrix1D_proxy.fftRows(-1);
+      }
+
+      // The second FFT is complete, so transpose back.
+      when fftComplete() serial{
+        STOP_STEP("2nd FFT completed");
+        START_STEP("2nd Transpose completed");
+        pmatrix1D_proxy.start_iteration();
+        pmatrix1D_proxy.doTranspose();
+      }
+
+      // The final transpose is complete so now switch back to the 2D decomp.
+      when transposeComplete() serial{
+        STOP_STEP("2nd Transpose completed");
+        STOP_STEP("P Matrix formed in G space");
+*/
+        STOP_BIG_STEP("P MATRIX FORMED");
+        thisProxy.PMatrixFormed();
+      }
+
+//        thisProxy.PMatrixFormed();
+//        CkExit(0);
+//      }
       /************************************************************************/
       /** Phase 1: Form the P Matrix ******************************************/
       /************************************************************************/
