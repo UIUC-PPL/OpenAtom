@@ -163,7 +163,7 @@ class GWBSEOPTS{
 }; // GWBSEOPTS
 
 #ifdef PUP_ON
-PUPmarshall(GWBSEOPTS);
+//PUPmarshall(GWBSEOPTS);
 #endif
 
 

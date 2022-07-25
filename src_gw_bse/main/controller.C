@@ -293,8 +293,15 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   CkAssert(msg->k_index < K);
 //  CkAssert(msg->state_index < L);
   CkAssert(msg->size == psi_size);
-  if(msg->shifted==false){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
-  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+//  if(msg->shifted==false){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+//  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+  int k = 0;
+  for (int i = 0; i < regions.size(); i++) {
+    CkPrintf("\nRange[%d-%d]", regions[i].first, regions[i].second);
+    for (int j = regions[i].first; j < regions[i].second; j++) {
+      psis[msg->k_index][msg->state_index][k++] = msg->psi[j];
+    }
+  }
   fflush(stdout);
   states_received++;
 #if 1
@@ -511,13 +518,7 @@ void PsiCache::computeFs(PsiMessage* msg) {
     int state_index = get_index(msg->state_index)*2*psi_size;
     complex *store_x = &states[(msg->k_index*2*n_np*psi_size)+ state_index];
     complex *load_x = msg->psi;
-//    memcpy(store_x, load_x, psi_size*sizeof(complex));
-    int k = 0;
-    for (int i = 0; i < regions.size(); i++) {
-      for (int j = regions[i].first; j < regions[i].second; j++) {
-        store_x[k++] = load_x[j];
-      }
-    }
+    memcpy(store_x, load_x, psi_size*sizeof(complex));
   }
 #endif
 
