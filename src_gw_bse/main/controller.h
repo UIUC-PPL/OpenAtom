@@ -169,6 +169,7 @@ class PsiCache : public CBase_PsiCache {
 
     int elements;
     int total_elements;
+    int debug;
     complex*** psis;
     std::vector<std::pair<int, int>> regions;
     double get_OccOcc(int k, int iv);

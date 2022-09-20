@@ -141,6 +141,7 @@ void Controller::got_vcoulb(std::vector<double> vcoulb_in, double vcoulb0){
 
 PsiCache::PsiCache() {
   states_received = 0;
+  debug = 0;
   GWBSE *gwbse = GWBSE::get();
   K = gwbse->gw_parallel.K;
   L = gwbse->gw_parallel.L;
@@ -295,13 +296,33 @@ void PsiCache::receivePsi(PsiMessage* msg) {
   CkAssert(msg->size == psi_size);
 //  if(msg->shifted==false){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
 //  if(msg->shifted==true){std::copy(msg->psi, msg->psi+psi_size, psis[msg->k_index][msg->state_index]);}
+#if 0
+int k = 0;
+  for (int i = 0; i < regions.size(); i++) {
+    if(debug==0)
+      CkPrintf("\n[Node-%d]Range for region[%d][%d-%d]", thisIndex, i, regions[i].first, regions[i].second);
+    if(msg->shifted==false) {
+      for (int j = regions[i].first; j < regions[i].second; j++) {
+        psis[msg->k_index][msg->state_index][k++] = msg->psi[j];
+      }
+    } else {
+      for (int j = regions[i].first; j < regions[i].second; j++) {
+        psis_shifted[msg->k_index][msg->state_index][k++] = msg->psi[j];
+      }
+    }
+  }
+#else
+
   int k = 0;
   for (int i = 0; i < regions.size(); i++) {
-    CkPrintf("\nRange[%d-%d]", regions[i].first, regions[i].second);
+    if(debug==0)
+      CkPrintf("\n[Node-%d]Range for region[%d][%d-%d]", thisIndex, i, regions[i].first, regions[i].second);
     for (int j = regions[i].first; j < regions[i].second; j++) {
       psis[msg->k_index][msg->state_index][k++] = msg->psi[j];
     }
   }
+#endif
+  if(debug==0) debug = 1;
   fflush(stdout);
   states_received++;
 #if 1
@@ -331,6 +352,7 @@ void PsiCache::setRegionData(PMatrix* matrix_chare, int start_row, int start_col
 
   std::pair<int, int> rowSpan = std::pair<int, int>(start_row, start_row + tile_nrows);
   std::pair<int, int> colSpan = std::pair<int, int>(start_col, start_col + tile_ncols);
+  CkPrintf("\n[Node-%d]Registering %d,%d and %d,%d\n", thisIndex, start_row, start_row + tile_nrows, start_col, start_col + tile_ncols); 
 
   // Should only ever trigger once per cache.
   if (regions.size() == 0) {
@@ -400,6 +422,7 @@ void PsiCache::setRegionData(PMatrix* matrix_chare, int start_row, int start_col
   if (!colInserted) { // colSpan occurs entirely after all other spans.
     regions.push_back(colSpan);
   }
+  CkPrintf("\nNode-%d, r[0] %d,%d\n", thisIndex, regions[0].first, regions[0].second);
 
   CmiUnlock(tile_lock);
 }

@@ -231,18 +231,20 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
           complex *_psis_unocc2 = new complex[this_nunocc*ndata];
 
           int region_ridx = 0;
-          for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
-            if(start_row == psi_cache->regions[r_i].second) {
-              region_ridx = r_i;
+          for(int r_i=0;r_i<psi_cache->regions.size();r_i++) {
+            if(start_row == psi_cache->regions[r_i].first)
               break;
-            }
+            else
+              region_ridx += (psi_cache->regions[r_i].second - psi_cache->regions[r_i].first);
+          }
 
           int region_cidx = 0;
-          for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
-            if(start_col == psi_cache->regions[r_i].second) {
-              region_cidx = r_i;
+          for(int r_i=0;r_i<psi_cache->regions.size();r_i++) {
+            if(start_col == psi_cache->regions[r_i].first)
               break;
-            }
+            else
+              region_cidx += (psi_cache->regions[r_i].second - psi_cache->regions[r_i].first);
+          }
 
           for (int iv=0; iv<this_nocc; iv++){
 
@@ -253,8 +255,10 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
             
 
             for (int i=0; i<ndata; i++){
-              psi_occ1[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_ridx*ndata+i];
-              psi_occ2[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_cidx*ndata+i];
+//              if(i==0)
+//              CkPrintf("\n acessing %d,%d,%d and %d\n",ikq, Eoccidx[iv], region_ridx*ndata+i, region_cidx*ndata+i);
+              psi_occ1[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_ridx+i];
+              psi_occ2[i] = psi_cache->psis[ikq][Eoccidx[iv]][region_cidx+i];
             }
 
 #if 0
@@ -304,21 +308,24 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       complex psi_unocc1[ndata];
       complex psi_unocc2[ndata];
       int region_ridx = 0;
-      for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
-        if(start_row == psi_cache->regions[r_i].second) {
-          region_ridx = r_i;
+      for(int r_i=0;r_i<psi_cache->regions.size();r_i++) {
+        if(start_row == psi_cache->regions[r_i].first)
           break;
-        }
+        else
+          region_ridx += (psi_cache->regions[r_i].second - psi_cache->regions[r_i].first);
+      }
 
       int region_cidx = 0;
-      for(int r_i=0;r_i<psi_cache->regions.size();r_i++)
-        if(start_col == psi_cache->regions[r_i].second) {
-          region_cidx = r_i;
+      for(int r_i=0;r_i<psi_cache->regions.size();r_i++) {
+        if(start_col == psi_cache->regions[r_i].first)
           break;
-        }
+        else
+          region_cidx += (psi_cache->regions[r_i].second - psi_cache->regions[r_i].first);
+      }
+
       for (int i=0; i<ndata; i++){
-        psi_unocc1[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_ridx*ndata+i].conj();
-        psi_unocc2[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_cidx*ndata+i].conj();
+        psi_unocc1[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_ridx+i].conj();
+        psi_unocc2[i] = psi_cache->psis[ik][Eunoccidx[ic]][region_cidx+i].conj();
       }
 
       for (int i=0; i<ndata; i++){
@@ -352,7 +359,7 @@ for(int ik=0;ik<gwbse->gw_parallel.K;ik++) {
       if(ploop==0){
         P_m[i] += ((factor * focc[i] * funocc[i])*100000)/100000;
       }
-      // for the second ploop, the sign is "-"
+      // for the first ploop, the sign is "-"
       if(ploop==1){
         P_m[i] -= ((factor * focc[i] * funocc[i])*100000)/100000;
       }
